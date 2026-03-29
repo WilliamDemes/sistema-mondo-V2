@@ -1,0 +1,199 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { currentUser } from "@/models/store";
+import { Bell, Search } from "lucide-react";
+
+const topNavItems = [
+  { href: "/", label: "Início" },
+  { href: "/familias", label: "Famílias" },
+  { href: "/atividades", label: "Atividades" },
+  { href: "/dashboard", label: "Dashboard" },
+];
+
+export default function Topbar() {
+  const pathname = usePathname();
+
+  return (
+    <header className="topbar" id="topbar-header">
+      {/* Spacer for sidebar */}
+      <div className="topbar-spacer" />
+
+      {/* Logo text (mobile fallback) */}
+      <div className="topbar-brand">
+        <span className="topbar-brand-instituto">instituto</span>
+        <span className="topbar-brand-mondo"> mondó</span>
+      </div>
+
+      {/* Center navigation */}
+      <nav className="topbar-nav">
+        {topNavItems.map((item) => {
+          const isActive =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname.startsWith(item.href);
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`topbar-nav-link ${isActive ? "topbar-nav-link-active" : ""}`}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Right side */}
+      <div className="topbar-right">
+        <button className="topbar-icon-btn" aria-label="Buscar" id="btn-search">
+          <Search size={18} />
+        </button>
+        <button className="topbar-icon-btn" aria-label="Notificações" id="btn-notifications">
+          <Bell size={18} />
+          <span className="topbar-notification-dot" />
+        </button>
+        <div className="topbar-user" id="user-greeting">
+          <span className="topbar-user-greeting">Olá, {currentUser.name}</span>
+          <div className="topbar-user-avatar">
+            {currentUser.name.charAt(0)}
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .topbar {
+          height: 60px;
+          background: #FEFBF7;
+          border-bottom: 1px solid #E8D5C0;
+          display: flex;
+          align-items: center;
+          padding: 0 24px;
+          position: sticky;
+          top: 0;
+          z-index: 30;
+        }
+
+        .topbar-spacer {
+          width: 0px;
+        }
+
+        .topbar-brand {
+          display: flex;
+          align-items: baseline;
+          margin-right: 32px;
+        }
+
+        .topbar-brand-instituto {
+          font-size: 15px;
+          color: #C9943E;
+          font-weight: 500;
+        }
+
+        .topbar-brand-mondo {
+          font-size: 15px;
+          color: #491B02;
+          font-weight: 800;
+        }
+
+        .topbar-nav {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex: 1;
+        }
+
+        .topbar-nav-link {
+          padding: 6px 16px;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 500;
+          color: #6B3A1F;
+          text-decoration: none;
+          transition: all 0.2s ease;
+        }
+
+        .topbar-nav-link:hover {
+          background: #F8E4CC40;
+          color: #491B02;
+        }
+
+        .topbar-nav-link-active {
+          color: #491B02;
+          font-weight: 600;
+          text-decoration: underline;
+          text-underline-offset: 4px;
+          text-decoration-thickness: 2px;
+          text-decoration-color: #C9943E;
+        }
+
+        .topbar-right {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-left: auto;
+        }
+
+        .topbar-icon-btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+          border: none;
+          background: transparent;
+          color: #6B3A1F;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          position: relative;
+          transition: all 0.2s ease;
+        }
+
+        .topbar-icon-btn:hover {
+          background: #F8E4CC;
+          color: #491B02;
+        }
+
+        .topbar-notification-dot {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 7px;
+          height: 7px;
+          background: #C0272D;
+          border-radius: 50%;
+          border: 2px solid #FEFBF7;
+        }
+
+        .topbar-user {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding-left: 12px;
+          border-left: 1px solid #E8D5C0;
+        }
+
+        .topbar-user-greeting {
+          font-size: 14px;
+          font-weight: 500;
+          color: #491B02;
+        }
+
+        .topbar-user-avatar {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #C9943E, #D4A855);
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 14px;
+        }
+      `}</style>
+    </header>
+  );
+}

@@ -1,0 +1,109 @@
+// ═══════════════════════════════════════════════════
+// Instituto Mondó — Schema do Banco de Dados
+// Governança e Gestão de Dados Sociais
+// ═══════════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Colaboradores do sistema ──
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// ── Famílias beneficiárias ──
+model Family {
+  id           String   @id @default(uuid())
+  familyName   String   @map("family_name")
+  territory    String
+  address      String
+  status       FamilyStatus @default(ATIVA)
+  observations String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  beneficiaries  Beneficiary[]
+  participations Participation[]
+
+  @@map("families")
+}
+
+enum FamilyStatus {
+  ATIVA
+  INATIVA
+}
+
+// ── Integrantes da família ──
+model Beneficiary {
+  id       String         @id @default(uuid())
+  familyId String         @map("family_id")
+  name     String
+  age      Int
+  role     BeneficiaryRole
+  createdAt DateTime @default(now()) @map("created_at")
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@map("beneficiaries")
+}
+
+enum BeneficiaryRole {
+  PAI
+  MAE
+  FILHO
+  FILHA
+  AVO
+  OUTRO
+}
+
+// ── Ações/Atividades do instituto ──
+model Activity {
+  id          String         @id @default(uuid())
+  title       String
+  description String?
+  type        ActivityType
+  format      ActivityFormat
+  date        DateTime
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  participations Participation[]
+
+  @@map("activities")
+}
+
+enum ActivityType {
+  ATENDIMENTO
+  ATIVIDADE
+}
+
+enum ActivityFormat {
+  INDIVIDUAL
+  GRUPO
+}
+
+// ── Registros de Participação ──
+model Participation {
+  id               String   @id @default(uuid())
+  familyId         String   @map("family_id")
+  activityId       String   @map("activity_id")
+  participantCount Int      @default(1) @map("participant_count")
+  notes            String?
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  family   Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@map("participations")
+}

@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — Instituto Mondó
+   Extraído via Firecrawl de https://institutomondo.org.br/
+   ═══════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* ── Cores Primárias ── */
+  --color-mondo-red: #C0272D;
+  --color-mondo-teal: #009999;
+  --color-mondo-brown-dark: #491B02;
+  --color-mondo-brown: #6B3A1F;
+  --color-mondo-olive: #6B7F3E;
+  --color-mondo-amber: #C9943E;
+
+  /* ── Cores de Fundo ── */
+  --color-mondo-bg: #F8E4CC;
+  --color-mondo-bg-light: #FDF6ED;
+  --color-mondo-bg-card: #FFFFFF;
+  --color-mondo-bg-sidebar: #FEFBF7;
+
+  /* ── Cores de Texto ── */
+  --color-mondo-text-dark: #2D1810;
+  --color-mondo-text-muted: #8B7355;
+  --color-mondo-text-light: #F8E4CC;
+
+  /* ── Cores de Estado ── */
+  --color-mondo-success: #22C55E;
+  --color-mondo-warning: #F59E0B;
+  --color-mondo-error: #EF4444;
+  --color-mondo-info: #3B82F6;
+
+  /* ── Cores de Borda ── */
+  --color-mondo-border: #E8D5C0;
+  --color-mondo-border-light: #F0E6D8;
+
+  /* ── Border Radius ── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* ── Sombras ── */
+  --shadow-card: 0 1px 3px rgba(73, 27, 2, 0.06), 0 1px 2px rgba(73, 27, 2, 0.04);
+  --shadow-card-hover: 0 4px 12px rgba(73, 27, 2, 0.1), 0 2px 4px rgba(73, 27, 2, 0.06);
+  --shadow-dropdown: 0 10px 30px rgba(73, 27, 2, 0.12);
+  --shadow-modal: 0 20px 60px rgba(73, 27, 2, 0.15);
+
+  /* ── Tipografia (Tailwind v4) ── */
+  --font-bricolage: "Bricolage Grotesque", sans-serif;
+
+  /* ── Animações ── */
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-slide-right: slide-right 0.3s ease-out;
+}
+
+/* ── Keyframes ── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-right {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ── Base Styles ── */
+:root {
+  --background: #F8E4CC;
+  --foreground: #2D1810;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-bricolage), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar Customizada ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C9943E80;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C9943E;
+}
+
+/* ── Seleção de Texto ── */
+::selection {
+  background-color: #C0272D20;
+  color: #C0272D;
+}
+
+/* ── Transições globais ── */
+*, *::before, *::after {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* ── Focus Visible ── */
+:focus-visible {
+  outline: 2px solid #C9943E;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
