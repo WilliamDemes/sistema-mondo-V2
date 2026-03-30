@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, Eye, EyeOff } from "lucide-react";
+import styles from "./Login.module.css";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,53 +21,53 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
+    <div className={styles["login-page"]}>
+      <div className={styles["login-card"]}>
         {/* Logo */}
-        <div className="login-logo">
-          <div className="login-logo-icon">
+        <div className={styles["login-logo"]}>
+          <div className={styles["login-logo-icon"]}>
             <Heart size={28} strokeWidth={2.5} />
           </div>
         </div>
 
-        <div className="login-brand">
-          <span className="login-brand-instituto">instituto</span>
-          <span className="login-brand-mondo"> mondó</span>
+        <div className={styles["login-brand"]}>
+          <span className={styles["login-brand-instituto"]}>instituto</span>
+          <span className={styles["login-brand-mondo"]}> mondó</span>
         </div>
 
-        <h1 className="login-title">Bem-vinda de volta!</h1>
-        <p className="login-subtitle">Digite suas credenciais para acessar o sistema.</p>
+        <h1 className={styles["login-title"]}>Bem-vinda de volta!</h1>
+        <p className={styles["login-subtitle"]}>Digite suas credenciais para acessar o sistema.</p>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="login-form" id="login-form">
-          <div className="login-field">
-            <label htmlFor="username" className="login-label">Nome de usuário</label>
+        <form onSubmit={handleSubmit} className={styles["login-form"]} id="login-form">
+          <div className={styles["login-field"]}>
+            <label htmlFor="username" className={styles["login-label"]}>Nome de usuário</label>
             <input
               id="username"
               type="text"
               placeholder="Ex.:joao"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="login-input"
+              className={styles["login-input"]}
               required
             />
           </div>
 
-          <div className="login-field">
-            <label htmlFor="password" className="login-label">Senha</label>
-            <div className="login-input-wrapper">
+          <div className={styles["login-field"]}>
+            <label htmlFor="password" className={styles["login-label"]}>Senha</label>
+            <div className={styles["login-input-wrapper"]}>
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Digite sua senha"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="login-input"
+                className={styles["login-input"]}
                 required
               />
               <button
                 type="button"
-                className="login-eye-btn"
+                className={styles["login-eye-btn"]}
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
               >
@@ -75,19 +76,19 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="login-forgot">
-            <a href="#" className="login-link" id="link-forgot-password">Esqueceu a senha?</a>
+          <div className={styles["login-forgot"]}>
+            <a href="#" className={styles["login-link"]} id="link-forgot-password">Esqueceu a senha?</a>
           </div>
 
           <button
             type="submit"
-            className="login-btn"
+            className={styles["login-btn"]}
             id="btn-login"
             disabled={isLoading}
           >
             {isLoading ? (
-              <span className="login-btn-loading">
-                <span className="login-spinner" />
+              <span className={styles["login-btn-loading"]}>
+                <span className={styles["login-spinner"]} />
                 Entrando...
               </span>
             ) : (
@@ -96,255 +97,18 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="login-footer">
-          <a href="#" className="login-link" id="link-register">Clique aqui para se cadastrar</a>
-          <div className="login-support">
-            <span className="login-support-text">Precisa de ajuda?</span>
-            <a href="#" className="login-link login-link-support" id="link-support">Fale com o suporte</a>
+        <div className={styles["login-footer"]}>
+          <a href="#" className={styles["login-link"]} id="link-register">Clique aqui para se cadastrar</a>
+          <div className={styles["login-support"]}>
+            <span className={styles["login-support-text"]}>Precisa de ajuda?</span>
+            <a href="#" className={`${styles["login-link"]} ${styles["login-link-support"]}`} id="link-support">Fale com o suporte</a>
           </div>
         </div>
       </div>
 
-      <footer className="login-copyright">
+      <footer className={styles["login-copyright"]}>
         © 2025 Instituto Mondó. Todos os direitos reservados.
       </footer>
-
-      <style jsx>{`
-        .login-page {
-          min-height: 100vh;
-          background: #F8E4CC;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 24px;
-        }
-
-        .login-card {
-          width: 100%;
-          max-width: 440px;
-          background: #FFFFFF;
-          border-radius: 16px;
-          padding: 40px 36px;
-          box-shadow: 0 8px 32px rgba(73, 27, 2, 0.08), 0 2px 8px rgba(73, 27, 2, 0.04);
-          animation: slideUp 0.4s ease-out;
-        }
-
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .login-logo {
-          display: flex;
-          justify-content: center;
-          margin-bottom: 12px;
-        }
-
-        .login-logo-icon {
-          width: 56px;
-          height: 56px;
-          background: linear-gradient(135deg, #C0272D, #D4444A);
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #FDF6ED;
-          box-shadow: 0 4px 12px rgba(192, 39, 45, 0.25);
-        }
-
-        .login-brand {
-          text-align: center;
-          margin-bottom: 24px;
-        }
-
-        .login-brand-instituto {
-          font-size: 16px;
-          color: #C9943E;
-          font-weight: 500;
-        }
-
-        .login-brand-mondo {
-          font-size: 16px;
-          color: #491B02;
-          font-weight: 800;
-        }
-
-        .login-title {
-          text-align: center;
-          font-size: 24px;
-          font-weight: 700;
-          color: #491B02;
-          margin-bottom: 8px;
-        }
-
-        .login-subtitle {
-          text-align: center;
-          font-size: 14px;
-          color: #8B7355;
-          margin-bottom: 28px;
-        }
-
-        .login-form {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .login-field {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .login-label {
-          font-size: 14px;
-          font-weight: 600;
-          color: #491B02;
-        }
-
-        .login-input-wrapper {
-          position: relative;
-        }
-
-        .login-input {
-          width: 100%;
-          padding: 12px 16px;
-          border: 1.5px solid #E8D5C0;
-          border-radius: 10px;
-          font-size: 14px;
-          font-family: inherit;
-          color: #491B02;
-          background: #FEFBF7;
-          outline: none;
-          transition: all 0.2s ease;
-        }
-
-        .login-input::placeholder {
-          color: #C9943E80;
-        }
-
-        .login-input:focus {
-          border-color: #C9943E;
-          box-shadow: 0 0 0 3px rgba(201, 148, 62, 0.12);
-        }
-
-        .login-eye-btn {
-          position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          color: #8B7355;
-          cursor: pointer;
-          padding: 4px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .login-eye-btn:hover {
-          color: #491B02;
-        }
-
-        .login-forgot {
-          text-align: right;
-          margin-top: -8px;
-        }
-
-        .login-link {
-          font-size: 13px;
-          font-weight: 600;
-          color: #C9943E;
-          text-decoration: none;
-          transition: color 0.2s ease;
-        }
-
-        .login-link:hover {
-          color: #B8853A;
-          text-decoration: underline;
-        }
-
-        .login-btn {
-          width: 100%;
-          padding: 14px;
-          background: linear-gradient(135deg, #6B7F3E, #7A9147);
-          color: #FFFFFF;
-          border: none;
-          border-radius: 10px;
-          font-size: 16px;
-          font-weight: 700;
-          font-family: inherit;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          box-shadow: 0 2px 8px rgba(107, 127, 62, 0.3);
-        }
-
-        .login-btn:hover:not(:disabled) {
-          background: linear-gradient(135deg, #5F7136, #6B7F3E);
-          box-shadow: 0 4px 16px rgba(107, 127, 62, 0.4);
-          transform: translateY(-1px);
-        }
-
-        .login-btn:active:not(:disabled) {
-          transform: translateY(0);
-        }
-
-        .login-btn:disabled {
-          opacity: 0.8;
-          cursor: not-allowed;
-        }
-
-        .login-btn-loading {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-        }
-
-        .login-spinner {
-          width: 16px;
-          height: 16px;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-top-color: white;
-          border-radius: 50%;
-          animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-
-        .login-footer {
-          margin-top: 24px;
-          text-align: center;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .login-support {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-
-        .login-support-text {
-          font-size: 13px;
-          color: #8B7355;
-        }
-
-        .login-link-support {
-          color: #C9943E;
-        }
-
-        .login-copyright {
-          margin-top: 24px;
-          font-size: 12px;
-          color: #8B7355;
-        }
-      `}</style>
     </div>
   );
 }

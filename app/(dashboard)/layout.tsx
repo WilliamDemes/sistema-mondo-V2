@@ -1,5 +1,6 @@
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
+import styles from "./Layout.module.css";
 
 export default function DashboardLayout({
   children,
@@ -7,41 +8,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="dashboard-layout">
+    <div className={styles["dashboard-layout"]}>
       <Sidebar />
-      <div className="dashboard-main">
+      <div className={styles["dashboard-main"]}>
         <Topbar />
-        <main className="dashboard-content">
+        <main className={styles["dashboard-content"]}>
           {children}
         </main>
       </div>
-
-      <style>{`
-        .dashboard-layout {
-          display: flex;
-          min-height: 100vh;
-          background: #F8E4CC;
-        }
-
-        .dashboard-main {
-          flex: 1;
-          margin-left: 240px;
-          display: flex;
-          flex-direction: column;
-          min-height: 100vh;
-        }
-
-        .dashboard-content {
-          flex: 1;
-          padding: 28px 32px;
-          animation: fade-in 0.3s ease-out;
-        }
-
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }

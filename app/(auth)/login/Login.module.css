@@ -1,0 +1,234 @@
+.login-page {
+  min-height: 100vh;
+  background: #F8E4CC;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 40px 36px;
+  box-shadow: 0 8px 32px rgba(73, 27, 2, 0.08), 0 2px 8px rgba(73, 27, 2, 0.04);
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.login-logo-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #C0272D, #D4444A);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FDF6ED;
+  box-shadow: 0 4px 12px rgba(192, 39, 45, 0.25);
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-brand-instituto {
+  font-size: 16px;
+  color: #C9943E;
+  font-weight: 500;
+}
+
+.login-brand-mondo {
+  font-size: 16px;
+  color: #491B02;
+  font-weight: 800;
+}
+
+.login-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #491B02;
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: #8B7355;
+  margin-bottom: 28px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #491B02;
+}
+
+.login-input-wrapper {
+  position: relative;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #E8D5C0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #491B02;
+  background: #FEFBF7;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.login-input::placeholder {
+  color: #C9943E80;
+}
+
+.login-input:focus {
+  border-color: #C9943E;
+  box-shadow: 0 0 0 3px rgba(201, 148, 62, 0.12);
+}
+
+.login-eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #8B7355;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-eye-btn:hover {
+  color: #491B02;
+}
+
+.login-forgot {
+  text-align: right;
+  margin-top: -8px;
+}
+
+.login-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: #C9943E;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.login-link:hover {
+  color: #B8853A;
+  text-decoration: underline;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #6B7F3E, #7A9147);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(107, 127, 62, 0.3);
+}
+
+.login-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5F7136, #6B7F3E);
+  box-shadow: 0 4px 16px rgba(107, 127, 62, 0.4);
+  transform: translateY(-1px);
+}
+
+.login-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-btn:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.login-btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.login-footer {
+  margin-top: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-support {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.login-support-text {
+  font-size: 13px;
+  color: #8B7355;
+}
+
+.login-link-support {
+  color: #C9943E;
+}
+
+.login-copyright {
+  margin-top: 24px;
+  font-size: 12px;
+  color: #8B7355;
+}
