@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Heart, Eye, EyeOff } from "lucide-react";
 import styles from "./Login.module.css";
 // Importando a função de validação que criamos
@@ -132,9 +133,9 @@ export default function LoginPage() {
         </form>
 
         <div className={styles["login-footer"]}>
-          <a href="#" className={styles["login-link"]} id="link-register">
+          <Link href="/cadastro" className={styles["login-link"]} id="link-register">
             Clique aqui para se cadastrar
-          </a>
+          </Link>
           <div className={styles["login-support"]}>
             <span className={styles["login-support-text"]}>
               Precisa de ajuda?
