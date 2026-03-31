@@ -1,11 +1,36 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Plus, Users, MapPin, ChevronRight, Search, X, Loader2, CheckCircle2, AlertCircle, Filter } from "lucide-react";
+import {
+  Plus,
+  Users,
+  MapPin,
+  ChevronRight,
+  Search,
+  X,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Filter,
+} from "lucide-react";
 import styles from "./Familias.module.css";
 
-interface Family { id: string; familyName: string; territory: string; address: string; status: string; observations: string | null; createdAt: string; membersCount?: number; participationsCount?: number; }
-interface Toast { id: number; type: "success" | "error"; message: string; }
+interface Family {
+  id: string;
+  familyName: string;
+  territory: string;
+  address: string;
+  status: string;
+  observations: string | null;
+  createdAt: string;
+  membersCount?: number;
+  participationsCount?: number;
+}
+interface Toast {
+  id: number;
+  type: "success" | "error";
+  message: string;
+}
 
 export default function FamiliasPage() {
   const [families, setFamilies] = useState<Family[]>([]);
@@ -31,14 +56,21 @@ export default function FamiliasPage() {
       const res = await fetch("/api/familias");
       if (!res.ok) throw new Error();
       setFamilies(await res.json());
-    } catch { addToast("error", "Erro ao carregar famílias."); }
-    finally { setLoading(false); }
+    } catch {
+      addToast("error", "Erro ao carregar famílias.");
+    } finally {
+      setLoading(false);
+    }
   }, [addToast]);
 
-  useEffect(() => { fetchFamilies(); }, [fetchFamilies]);
+  useEffect(() => {
+    fetchFamilies();
+  }, [fetchFamilies]);
 
   const filtered = families.filter((f) => {
-    const ms = f.familyName.toLowerCase().includes(search.toLowerCase()) || f.territory.toLowerCase().includes(search.toLowerCase());
+    const ms =
+      f.familyName.toLowerCase().includes(search.toLowerCase()) ||
+      f.territory.toLowerCase().includes(search.toLowerCase());
     const mf = statusFilter === "TODOS" || f.status === statusFilter;
     return ms && mf;
   });
@@ -47,54 +79,252 @@ export default function FamiliasPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/familias", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ familyName: formName, territory: formTerritory, address: formAddress, observations: formObs || null }) });
+      const res = await fetch("/api/familias", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          familyName: formName,
+          territory: formTerritory,
+          address: formAddress,
+          observations: formObs || null,
+        }),
+      });
       if (!res.ok) throw new Error((await res.json()).error);
       const created = await res.json();
-      setFamilies((p) => [...p, { ...created, membersCount: 0, participationsCount: 0 }]);
+      setFamilies((p) => [
+        ...p,
+        { ...created, membersCount: 0, participationsCount: 0 },
+      ]);
       setShowModal(false);
-      setFormName(""); setFormTerritory(""); setFormAddress(""); setFormObs("");
+      setFormName("");
+      setFormTerritory("");
+      setFormAddress("");
+      setFormObs("");
       addToast("success", `Família "${created.familyName}" cadastrada!`);
-    } catch (err) { addToast("error", err instanceof Error ? err.message : "Erro ao criar família"); }
-    finally { setIsSubmitting(false); }
+    } catch (err) {
+      addToast(
+        "error",
+        err instanceof Error ? err.message : "Erro ao criar família",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
     <div className={styles.fp}>
-      <div className={styles["toast-c"]}>{toasts.map((t) => (<div key={t.id} className={`${styles.toast} ${styles[`t-${t.type}`]}`}>{t.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}<span>{t.message}</span><button className={styles["toast-x"]} onClick={() => setToasts((p) => p.filter((x) => x.id !== t.id))}><X size={12} /></button></div>))}</div>
+      <div className={styles["toast-c"]}>
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={`${styles.toast} ${styles[`t-${t.type}`]}`}
+          >
+            {t.type === "success" ? (
+              <CheckCircle2 size={16} />
+            ) : (
+              <AlertCircle size={16} />
+            )}
+            <span>{t.message}</span>
+            <button
+              className={styles["toast-x"]}
+              onClick={() => setToasts((p) => p.filter((x) => x.id !== t.id))}
+            >
+              <X size={12} />
+            </button>
+          </div>
+        ))}
+      </div>
 
       <div className={styles["fp-header"]}>
-        <div><h1 className={styles["fp-title"]}>Famílias</h1><p className={styles["fp-sub"]}>Gerencie as famílias acompanhadas pelo Instituto</p></div>
-        <button className={styles["fp-btn-add"]} onClick={() => setShowModal(true)} id="btn-nova-familia-page"><Plus size={16} />Nova Família</button>
+        <div>
+          <h1 className={styles["fp-title"]}>Famílias</h1>
+          <p className={styles["fp-sub"]}>
+            Gerencie as famílias acompanhadas pelo Instituto
+          </p>
+        </div>
+        <button
+          className={styles["fp-btn-add"]}
+          onClick={() => setShowModal(true)}
+          id="btn-nova-familia-page"
+        >
+          <Plus size={16} />
+          Nova Família
+        </button>
       </div>
 
       <div className={styles["fp-filters"]}>
-        <div className={styles["fp-search-wrap"]}><Search size={16} className={styles["fp-search-icon"]} /><input placeholder="Buscar por nome ou território..." value={search} onChange={(e) => setSearch(e.target.value)} className={styles["fp-search"]} id="filter-search-familia" /></div>
-        <div className={styles["fp-filter-group"]}><Filter size={14} /><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles["fp-filter-select"]}><option value="TODOS">Todos os status</option><option value="ATIVA">Ativa</option><option value="INATIVA">Inativa</option></select></div>
+        <div className={styles["fp-search-wrap"]}>
+          <Search size={16} className={styles["fp-search-icon"]} />
+          <input
+            placeholder="Buscar por nome ou território..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={styles["fp-search"]}
+            id="filter-search-familia"
+          />
+        </div>
+        <div className={styles["fp-filter-group"]}>
+          <Filter size={14} />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className={styles["fp-filter-select"]}
+          >
+            <option value="TODOS">Todos os status</option>
+            <option value="ATIVA">Ativa</option>
+            <option value="INATIVA">Inativa</option>
+          </select>
+        </div>
       </div>
 
-      {loading ? (<div className={styles["fp-loading"]}><Loader2 size={32} className="spinner" /><p>Carregando famílias...</p><style>{`:global(.spinner){animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>) : (
+      {loading ? (
+        <div className={styles["fp-loading"]}>
+          <Loader2 size={32} className="spinner" />
+          <p>Carregando famílias...</p>
+          <style>{`:global(.spinner){animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+        </div>
+      ) : (
         <div className={styles["fp-grid"]}>
           {filtered.map((f) => (
-            <Link key={f.id} href={`/familias/${f.id}`} className={styles.fc} id={`familia-card-${f.id}`}>
-              <div className={styles["fc-head"]}><h3 className={styles["fc-name"]}>{f.familyName}</h3><span className={`${styles["fc-status"]} ${f.status === "ATIVA" ? styles["st-a"] : styles["st-i"]}`}>{f.status === "ATIVA" ? "Ativa" : "Inativa"}</span></div>
-              <div className={styles["fc-info"]}><div className={styles["fc-row"]}><MapPin size={14} /><span>{f.territory}</span></div><div className={styles["fc-row"]}><Users size={14} /><span>{f.membersCount ?? 0} integrantes • {f.participationsCount ?? 0} participações</span></div></div>
-              <div className={styles["fc-foot"]}><span className={styles["fc-view"]}>Ver histórico</span><ChevronRight size={16} /></div>
+            <Link
+              key={f.id}
+              href={`/familias/${f.id}`}
+              className={styles.fc}
+              id={`familia-card-${f.id}`}
+            >
+              <div className={styles["fc-head"]}>
+                <h3 className={styles["fc-name"]}>{f.familyName}</h3>
+                <span
+                  className={`${styles["fc-status"]} ${f.status === "ATIVA" ? styles["st-a"] : styles["st-i"]}`}
+                >
+                  {f.status === "ATIVA" ? "Ativa" : "Inativa"}
+                </span>
+              </div>
+              <div className={styles["fc-info"]}>
+                <div className={styles["fc-row"]}>
+                  <MapPin size={14} />
+                  <span>{f.territory}</span>
+                </div>
+                <div className={styles["fc-row"]}>
+                  <Users size={14} />
+                  <span>
+                    {f.membersCount ?? 0} integrantes •{" "}
+                    {f.participationsCount ?? 0} participações
+                  </span>
+                </div>
+              </div>
+              <div className={styles["fc-foot"]}>
+                <span className={styles["fc-view"]}>Ver histórico</span>
+                <ChevronRight size={16} />
+              </div>
             </Link>
           ))}
-          {filtered.length === 0 && !loading && (<div className={styles["fp-empty"]}><Users size={40} /><p>Nenhuma família encontrada.</p><button className={styles["fp-btn-empty"]} onClick={() => setShowModal(true)}><Plus size={16} />Cadastrar Família</button></div>)}
+          {filtered.length === 0 && !loading && (
+            <div className={styles["fp-empty"]}>
+              <Users size={40} />
+              <p>Nenhuma família encontrada.</p>
+              <button
+                className={styles["fp-btn-empty"]}
+                onClick={() => setShowModal(true)}
+              >
+                <Plus size={16} />
+                Cadastrar Família
+              </button>
+            </div>
+          )}
         </div>
       )}
 
       {showModal && (
-        <div className={styles["modal-ov"]} onClick={() => !isSubmitting && setShowModal(false)}>
-          <div className={styles["modal-c"]} onClick={(e) => e.stopPropagation()}>
-            <div className={styles["modal-h"]}><h2>Nova Família</h2><button className={styles["modal-x"]} onClick={() => setShowModal(false)} disabled={isSubmitting}><X size={20} /></button></div>
+        <div
+          className={styles["modal-ov"]}
+          onClick={() => !isSubmitting && setShowModal(false)}
+        >
+          <div
+            className={styles["modal-c"]}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles["modal-h"]}>
+              <h2>Nova Família</h2>
+              <button
+                className={styles["modal-x"]}
+                onClick={() => setShowModal(false)}
+                disabled={isSubmitting}
+              >
+                <X size={20} />
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className={styles["modal-f"]}>
-              <div className={styles.ff}><label className={styles.fl}>Nome da Família *</label><input value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="Ex.: Silva Santos" className={styles.fi} required disabled={isSubmitting} autoFocus /></div>
-              <div className={styles.ff}><label className={styles.fl}>Território *</label><input value={formTerritory} onChange={(e) => setFormTerritory(e.target.value)} placeholder="Ex.: Comunidade São José" className={styles.fi} required disabled={isSubmitting} /></div>
-              <div className={styles.ff}><label className={styles.fl}>Endereço *</label><input value={formAddress} onChange={(e) => setFormAddress(e.target.value)} placeholder="Ex.: Rua das Flores, 123" className={styles.fi} required disabled={isSubmitting} /></div>
-              <div className={styles.ff}><label className={styles.fl}>Observações</label><textarea value={formObs} onChange={(e) => setFormObs(e.target.value)} placeholder="Informações adicionais..." className={styles.ft} rows={3} disabled={isSubmitting} /></div>
-              <div className={styles.fa}><button type="button" className={styles["btn-c"]} onClick={() => setShowModal(false)} disabled={isSubmitting}>Cancelar</button><button type="submit" className={styles["btn-s"]} disabled={isSubmitting}>{isSubmitting ? <span className={styles["btn-l"]}><Loader2 size={16} className="spinner" /><style>{`:global(.spinner){animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>Cadastrando...</span> : "Cadastrar Família"}</button></div>
+              <div className={styles.ff}>
+                <label className={styles.fl}>Nome da Família *</label>
+                <input
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  placeholder="Ex.: Silva Santos"
+                  className={styles.fi}
+                  required
+                  disabled={isSubmitting}
+                  autoFocus
+                />
+              </div>
+              <div className={styles.ff}>
+                <label className={styles.fl}>Território *</label>
+                <input
+                  value={formTerritory}
+                  onChange={(e) => setFormTerritory(e.target.value)}
+                  placeholder="Ex.: Comunidade São José"
+                  className={styles.fi}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className={styles.ff}>
+                <label className={styles.fl}>Endereço *</label>
+                <input
+                  value={formAddress}
+                  onChange={(e) => setFormAddress(e.target.value)}
+                  placeholder="Ex.: Rua das Flores, 123"
+                  className={styles.fi}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className={styles.ff}>
+                <label className={styles.fl}>Observações</label>
+                <textarea
+                  value={formObs}
+                  onChange={(e) => setFormObs(e.target.value)}
+                  placeholder="Informações adicionais..."
+                  className={styles.ft}
+                  rows={3}
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className={styles.fa}>
+                <button
+                  type="button"
+                  className={styles["btn-c"]}
+                  onClick={() => setShowModal(false)}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className={styles["btn-s"]}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <span className={styles["btn-l"]}>
+                      <Loader2 size={16} className="spinner" />
+                      <style>{`:global(.spinner){animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+                      Cadastrando...
+                    </span>
+                  ) : (
+                    "Cadastrar Família"
+                  )}
+                </button>
+              </div>
             </form>
           </div>
         </div>

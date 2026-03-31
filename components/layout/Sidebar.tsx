@@ -14,7 +14,7 @@ import {
 import styles from "./Sidebar.module.css";
 
 const navItems = [
-  { href: "/", label: "Início", icon: Home },
+  { href: "/home", label: "Início", icon: Home },
   { href: "/familias", label: "Famílias", icon: Users },
   { href: "/atividades", label: "Atividades", icon: CalendarDays },
   { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
