@@ -29,6 +29,7 @@ export default function LoginPage() {
       setErroDominio(
         "Acesso restrito a e-mails institucionais (@institutomondo.org.br).",
       );
+      setIsLoading(false); // <-- Adicione esta linha!
       return; // O 'return' cancela o resto da função, evitando que o login seja simulado.
     }
     // 2. O Carteiro (fetch) vai até o Segurança (API). Aqui começa avalidação da api
@@ -36,7 +37,7 @@ export default function LoginPage() {
       const resposta = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
-          "Content-Type": "applicationqjson",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email: email,
