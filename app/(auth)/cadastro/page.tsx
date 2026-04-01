@@ -3,7 +3,15 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Heart, Eye, EyeOff, AlertCircle, CheckCircle2, X, UserPlus } from "lucide-react";
+import {
+  Heart,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  CheckCircle2,
+  X,
+  UserPlus,
+} from "lucide-react";
 import styles from "./Cadastro.module.css";
 import { validarDominioMondo } from "../../../utils/validacoes";
 
@@ -14,7 +22,10 @@ interface Toast {
 }
 
 // ── Password strength ──
-function getPasswordStrength(password: string): { level: number; label: string } {
+function getPasswordStrength(password: string): {
+  level: number;
+  label: string;
+} {
   if (!password) return { level: 0, label: "" };
   let score = 0;
   if (password.length >= 6) score++;
@@ -50,7 +61,10 @@ export default function CadastroPage() {
   const addToast = useCallback((type: "success" | "error", message: string) => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, type, message }]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
+    setTimeout(
+      () => setToasts((prev) => prev.filter((t) => t.id !== id)),
+      4000,
+    );
   }, []);
 
   // ── Validation ──
@@ -91,16 +105,41 @@ export default function CadastroPage() {
     setIsLoading(true);
 
     try {
-      // Simulação de criação de conta (substituir por chamada API real)
-      await new Promise((r) => setTimeout(r, 1200));
+      // 1. O carteiro (fetch) leva o pacote para a API
+      const resposta = await fetch("/api/auth/cadastro", {
+        method: "POST", // Método resposável por enviar dados. Ao contrário do GET\
+        headers: {
+          "content-Type": "application/json", // Avisando que o pacote é do tipo JSON
+        },
+        // Embalamos as variáveis do React num formato de texto (JSON)
+        body: JSON.stringify({
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          password: password,
+        }),
+      });
 
+      // 2. Abrimos a resposta que a API mandou de volta
+      const dados = await resposta.json();
+
+      //3. Verificamos se houve algum problema (Status 400, 403, 409 ou 500)
+      if (!resposta.ok) {
+        // Se a resposta não foi "ok", disparamos um erro propositado
+        // usando a mensagem exata que escrevemos no backend!
+        throw new Error(dados.error || "Erro ao criar a conta.");
+      }
+
+      // 4. Se chegar aqui, é porque a resposta foi 201 (Sucesso)!
       addToast("success", "Conta criada com sucesso! Redirecionando...");
 
       setTimeout(() => {
         router.push("/login");
       }, 1500);
-    } catch {
-      addToast("error", "Erro ao criar conta. Tente novamente.");
+    } catch (erro: any) {
+      // O catch captura o erro que atiramos no "throw new Error" acima
+      //e exibe no toast vermelho para o usuário ler
+      addToast("error", erro.message || "Erro de conexão. Tente novamente.");
     } finally {
       setIsLoading(false);
     }
@@ -122,10 +161,20 @@ export default function CadastroPage() {
       {/* Toast */}
       <div className={styles["toast-container"]}>
         {toasts.map((t) => (
-          <div key={t.id} className={`${styles.toast} ${styles[`toast-${t.type}`]}`}>
-            {t.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+          <div
+            key={t.id}
+            className={`${styles.toast} ${styles[`toast-${t.type}`]}`}
+          >
+            {t.type === "success" ? (
+              <CheckCircle2 size={16} />
+            ) : (
+              <AlertCircle size={16} />
+            )}
             <span>{t.message}</span>
-            <button className={styles["toast-close"]} onClick={() => setToasts((p) => p.filter((x) => x.id !== t.id))}>
+            <button
+              className={styles["toast-close"]}
+              onClick={() => setToasts((p) => p.filter((x) => x.id !== t.id))}
+            >
               <X size={12} />
             </button>
           </div>
@@ -151,7 +200,11 @@ export default function CadastroPage() {
         </p>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className={styles["cadastro-form"]} id="cadastro-form">
+        <form
+          onSubmit={handleSubmit}
+          className={styles["cadastro-form"]}
+          id="cadastro-form"
+        >
           {/* Nome e Sobrenome */}
           <div className={styles["cadastro-row"]}>
             <div className={styles["cadastro-field"]}>
@@ -163,7 +216,10 @@ export default function CadastroPage() {
                 type="text"
                 placeholder="Ex.: Ana"
                 value={firstName}
-                onChange={(e) => { setFirstName(e.target.value); clearError("firstName"); }}
+                onChange={(e) => {
+                  setFirstName(e.target.value);
+                  clearError("firstName");
+                }}
                 className={`${styles["cadastro-input"]} ${errors.firstName ? styles["cadastro-input-error"] : ""}`}
                 disabled={isLoading}
                 autoFocus
@@ -185,7 +241,10 @@ export default function CadastroPage() {
                 type="text"
                 placeholder="Ex.: Silva"
                 value={lastName}
-                onChange={(e) => { setLastName(e.target.value); clearError("lastName"); }}
+                onChange={(e) => {
+                  setLastName(e.target.value);
+                  clearError("lastName");
+                }}
                 className={`${styles["cadastro-input"]} ${errors.lastName ? styles["cadastro-input-error"] : ""}`}
                 disabled={isLoading}
               />
@@ -208,7 +267,10 @@ export default function CadastroPage() {
               type="email"
               placeholder="Ex.: ana@institutomondo.org.br"
               value={email}
-              onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                clearError("email");
+              }}
               className={`${styles["cadastro-input"]} ${errors.email ? styles["cadastro-input-error"] : ""}`}
               disabled={isLoading}
             />
@@ -231,7 +293,10 @@ export default function CadastroPage() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Mínimo de 6 caracteres"
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  clearError("password");
+                }}
                 className={`${styles["cadastro-input"]} ${errors.password ? styles["cadastro-input-error"] : ""}`}
                 disabled={isLoading}
               />
@@ -259,7 +324,9 @@ export default function CadastroPage() {
                       key={i}
                       className={`${styles["strength-bar"]} ${
                         i <= strength.level
-                          ? styles[`strength-bar-active-${strength.level === 1 ? "weak" : strength.level === 2 ? "medium" : "strong"}`]
+                          ? styles[
+                              `strength-bar-active-${strength.level === 1 ? "weak" : strength.level === 2 ? "medium" : "strong"}`
+                            ]
                           : ""
                       }`}
                     />
@@ -267,7 +334,9 @@ export default function CadastroPage() {
                 </div>
                 <span
                   className={`${styles["strength-text"]} ${
-                    styles[`strength-text-${strength.level === 1 ? "weak" : strength.level === 2 ? "medium" : "strong"}`]
+                    styles[
+                      `strength-text-${strength.level === 1 ? "weak" : strength.level === 2 ? "medium" : "strong"}`
+                    ]
                   }`}
                 >
                   Senha {strength.label}
@@ -278,7 +347,10 @@ export default function CadastroPage() {
 
           {/* Confirmar Senha */}
           <div className={styles["cadastro-field"]}>
-            <label htmlFor="confirmPassword" className={styles["cadastro-label"]}>
+            <label
+              htmlFor="confirmPassword"
+              className={styles["cadastro-label"]}
+            >
               Repetir Senha
             </label>
             <div className={styles["cadastro-input-wrapper"]}>
@@ -287,7 +359,10 @@ export default function CadastroPage() {
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder="Digite a senha novamente"
                 value={confirmPassword}
-                onChange={(e) => { setConfirmPassword(e.target.value); clearError("confirmPassword"); }}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  clearError("confirmPassword");
+                }}
                 className={`${styles["cadastro-input"]} ${errors.confirmPassword ? styles["cadastro-input-error"] : ""}`}
                 disabled={isLoading}
               />
@@ -295,7 +370,9 @@ export default function CadastroPage() {
                 type="button"
                 className={styles["cadastro-eye-btn"]}
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+                aria-label={
+                  showConfirmPassword ? "Ocultar senha" : "Mostrar senha"
+                }
               >
                 {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -322,7 +399,10 @@ export default function CadastroPage() {
               </span>
             ) : (
               <>
-                <UserPlus size={18} style={{ marginRight: 6, verticalAlign: "middle" }} />
+                <UserPlus
+                  size={18}
+                  style={{ marginRight: 6, verticalAlign: "middle" }}
+                />
                 Criar Conta
               </>
             )}
@@ -333,7 +413,11 @@ export default function CadastroPage() {
         <div className={styles["cadastro-footer"]}>
           <span className={styles["cadastro-footer-text"]}>
             Já possui uma conta?{" "}
-            <Link href="/login" className={styles["cadastro-link"]} id="link-login">
+            <Link
+              href="/login"
+              className={styles["cadastro-link"]}
+              id="link-login"
+            >
               Faça login
             </Link>
           </span>
