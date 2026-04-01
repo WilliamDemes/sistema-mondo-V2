@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "../../../../infra/database";
+import { encrypt } from "../../../../utils/session" // 1. Importando o fabricante de crachás
+import { cookies } from "next/headers"; // 2. Importamos o bolso do navegador (cookies)
 
 export async function POST(request: Request) {
   try {
@@ -44,7 +46,30 @@ export async function POST(request: Request) {
       );
     }
 
-    // 5. Sucesso! O segurança libera a entrada
+    // --- 5. A MÁGICA DO CRACHÁ VIP COMEÇA AQUI ---
+
+    // 5.1 Separamos os dados que vão estar visíveis no crachá (Payload)
+    const payload = {
+      id: usuario.id,
+      firstName: usuario.firstName,
+      email: usuario.email
+    }
+
+    // 5.2 Fabricamos o crachá usando a nossa chave secreta
+    const token = await encrypt(payload);
+
+    // 5.3 Colocamos o crachá no bolso do navegador (Cookie)
+    // Nota: Dependendo da versão exata do Next.js, pode existir "await cookies()"
+    const cookieStore = await cookies();
+    cookieStore.set("session", token, {
+      httpOnly: true, // super seguro: Impede que hackers leiam o crachá com códigos maliciosos
+      secure: process.env.NODE_ENV ==="production", // Em produção exige site com cadeado (HTTPS)
+      sameSite: "lax",
+      path: "/", // O crachá serve para todas as páginas do Instituto Mondó
+      maxAge: 60 * 60 * 24, // Dura exatamente 24 horas (em segundos)
+    });
+
+    // 5.4 O segurança abre a porta!
     return NextResponse.json(
       {
         message: "Login efetuado com sucesso!",
@@ -55,8 +80,9 @@ export async function POST(request: Request) {
           email: usuario.email,
         },
       },
-      { status: 200 }, // 200 = ok
+      { status: 200}
     );
+
   } catch (error) {
     console.log("Erro no login", error);
     return NextResponse.json(
