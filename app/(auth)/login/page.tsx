@@ -31,9 +31,36 @@ export default function LoginPage() {
       );
       return; // O 'return' cancela o resto da função, evitando que o login seja simulado.
     }
-    // Se passou passou pela barreira acima, mostramos o loading e seguimos setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    router.push("/");
+    // 2. O Carteiro (fetch) vai até o Segurança (API). Aqui começa avalidação da api
+    try {
+      const resposta = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "applicationqjson",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password, // Enviamos a senha digitada
+        }),
+      });
+
+      const dados = await resposta.json();
+
+      // 3. Se o segurança barrar (Erro 401, 400, etc)
+      if (!resposta.ok) {
+        // Lançamos o erro genérico que programamos: "E-mail ou senha incorretos."
+        throw new Error(dados.error || "Erro ao fazer login.");
+      }
+
+      // 4. Se o crachá for válido, redirecionamos para o sistema!
+      // (Estou a redirecionar para "/home", altere para "/" se preferir)
+      router.push("/home");
+    } catch (erro: any) {
+      // Reutilizamos o seu estado `erroDominio` para mostrar o erro da API em vermelho na tela
+      setErroDominio(erro.message);
+    } finally {
+      setIsLoading(false); // Independentemente de dar certo ou errado, o botão para de girar
+    }
   };
 
   return (
@@ -133,7 +160,11 @@ export default function LoginPage() {
         </form>
 
         <div className={styles["login-footer"]}>
-          <Link href="/cadastro" className={styles["login-link"]} id="link-register">
+          <Link
+            href="/cadastro"
+            className={styles["login-link"]}
+            id="link-register"
+          >
             Clique aqui para se cadastrar
           </Link>
           <div className={styles["login-support"]}>
