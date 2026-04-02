@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
   Users,
@@ -23,6 +23,23 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter(); // Inicialkizando o router
+
+  // 2. A função que chama o segurança para destruir o crachá
+  const handlelogout = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Impede o navegador de recarregar a página
+    try {
+      const resposta = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      if (resposta.ok) {
+        router.push("/login"); // Vai para a rua!
+      }
+    } catch (erro) {
+      console.error("Erro ao fazer logout:", erro);
+    }
+  };
 
   return (
     <aside className={styles.sidebar} id="sidebar-navigation">
@@ -62,17 +79,23 @@ export default function Sidebar() {
 
       {/* Logout */}
       <div className={styles["sidebar-footer"]}>
-        <Link href="/login" className={`${styles["sidebar-nav-item"]} ${styles["sidebar-logout"]}`} id="nav-logout">
+        <a
+          href="#"
+          onClick={handlelogout}
+          className={`${styles["sidebar-nav-item"]} ${styles["sidebar-logout"]}`}
+          id="btn-logout"
+        >
           <LogOut size={20} strokeWidth={2} />
           <span>Logout</span>
-        </Link>
+        </a>
 
         {/* Branding */}
         <div className={styles["sidebar-branding"]}>
-          <p className={styles["sidebar-branding-text"]}>Juntes por um futuro melhor!</p>
+          <p className={styles["sidebar-branding-text"]}>
+            Juntes por um futuro melhor!
+          </p>
         </div>
       </div>
     </aside>
   );
 }
-
