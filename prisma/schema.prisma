@@ -25,25 +25,33 @@ model User {
 }
 
 // ── Famílias beneficiárias ──
-model Family {
+model Familia {
   id           String   @id @default(uuid())
-  familyName   String   @map("family_name")
-  territory    String
-  address      String
+  idmondo      String
+  cidade       String
+  estado       String
+  grupoReferencia  Grupo   @map("grupo_de_referencia")
   status       FamilyStatus @default(ATIVA)
-  observations String?
+  observacao String?
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   beneficiaries  Beneficiary[]
   participations Participation[]
 
-  @@map("families")
+  @@map("familias")
 }
 
 enum FamilyStatus {
   ATIVA
   INATIVA
+}
+
+enum Grupo {
+  APAE
+  PARTEIRA
+  SEMTRAS
+  SAO_TOME
 }
 
 // ── Integrantes da família ──
@@ -55,7 +63,7 @@ model Beneficiary {
   role     BeneficiaryRole
   createdAt DateTime @default(now()) @map("created_at")
 
-  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familia Familia @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("beneficiaries")
 }
@@ -103,7 +111,7 @@ model Participation {
   notes            String?
   createdAt        DateTime @default(now()) @map("created_at")
 
-  family   Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familia   Familia   @relation(fields: [id], references: [id], onDelete: Cascade)
   activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 
   @@map("participations")
