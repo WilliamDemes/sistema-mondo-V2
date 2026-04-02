@@ -1,9 +1,5 @@
 import Link from "next/link";
-import {
-  families,
-  getDashboardStats,
-  currentUser,
-} from "@/models/store";
+import { families, getDashboardStats, currentUser } from "@/models/store";
 import {
   Users,
   UserCheck,
@@ -14,8 +10,25 @@ import {
   ChevronRight,
 } from "lucide-react";
 import styles from "./Home.module.css";
+import { cookies } from "next/headers";
+import { decrypt } from "../../../utils/session";
 
-export default function HomePage() {
+export default async function HomePage() {
+  // 1. Abre o cofre de cookies (o await avisa pro servidor esperar abrir)
+  const cookieStore = await cookies();
+
+  // 2. Pega o valor do crachá chamado "session"
+  const token = cookieStore.get("session")?.value;
+
+  // 3. Passa o scanner (decrypt) para ler os dados (também precisa esperar)
+  const sessao = token ? await decrypt(token) : null;
+
+  // 4. Pegamos o primeiro nome
+  const nomeUsuario = sessao?.firstName;
+
+  // 5. formatando o nome
+  const nomeFormatado = nomeUsuario.charAt(0).toUpperCase() + nomeUsuario.slice(1).toLowerCase();
+
   const stats = getDashboardStats();
 
   const statCards = [
@@ -55,9 +68,12 @@ export default function HomePage() {
     <div className={styles["home-page"]}>
       {/* Welcome section */}
       <section className={styles["home-welcome"]}>
-        <h1 className={styles["home-welcome-title"]}>Bem-vinda, {currentUser.name}</h1>
+        <h1 className={styles["home-welcome-title"]}>
+          Bem-vindo(a), {nomeFormatado}
+        </h1>
         <p className={styles["home-welcome-subtitle"]}>
-          Gerencie atendimentos, atividades e participações das famílias acompanhadas pelo Instituto Mondó de forma simples e organizada.
+          Gerencie atendimentos, atividades e participações das famílias
+          acompanhadas pelo Instituto Mondó de forma simples e organizada.
         </p>
       </section>
 
@@ -73,7 +89,10 @@ export default function HomePage() {
             >
               <div className={styles["stat-card-header"]}>
                 <span className={styles["stat-card-label"]}>{card.label}</span>
-                <div className={styles["stat-card-icon"]} style={{ color: card.color, background: `${card.color}12` }}>
+                <div
+                  className={styles["stat-card-icon"]}
+                  style={{ color: card.color, background: `${card.color}12` }}
+                >
                   <Icon size={18} />
                 </div>
               </div>
@@ -81,7 +100,11 @@ export default function HomePage() {
             </div>
           );
         })}
-        <Link href="/relatorios" className={`${styles["stat-card"]} ${styles["stat-card-cta"]}`} id="btn-ver-relatorios">
+        <Link
+          href="/relatorios"
+          className={`${styles["stat-card"]} ${styles["stat-card-cta"]}`}
+          id="btn-ver-relatorios"
+        >
           <span className={styles["stat-card-cta-text"]}>Ver Relatórios</span>
           <ArrowRight size={18} />
         </Link>
@@ -91,7 +114,11 @@ export default function HomePage() {
       <section className={styles["home-families"]} id="recent-families">
         <div className={styles["home-families-header"]}>
           <h2 className={styles["home-families-title"]}>Famílias Recentes</h2>
-          <Link href="/familias" className={styles["home-families-add"]} id="btn-nova-familia">
+          <Link
+            href="/familias"
+            className={styles["home-families-add"]}
+            id="btn-nova-familia"
+          >
             <Plus size={16} />
             Nova Família
           </Link>
@@ -105,8 +132,12 @@ export default function HomePage() {
               id={`family-${family.id}`}
             >
               <div className={styles["family-row-info"]}>
-                <span className={styles["family-row-name"]}>{family.familyName}</span>
-                <span className={styles["family-row-territory"]}>{family.territory}</span>
+                <span className={styles["family-row-name"]}>
+                  {family.familyName}
+                </span>
+                <span className={styles["family-row-territory"]}>
+                  {family.territory}
+                </span>
               </div>
               <ChevronRight size={18} className={styles["family-row-arrow"]} />
             </Link>
