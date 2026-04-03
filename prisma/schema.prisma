@@ -26,23 +26,23 @@ model User {
 
 // ── Famílias beneficiárias ──
 model Familia {
-  id           String   @id @default(uuid())
-  idmondo      String
-  cidade       String
-  estado       String
-  grupoReferencia  Grupo   @map("grupo_de_referencia")
-  status       FamilyStatus @default(ATIVA)
-  observacao String?
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id              String        @id @default(uuid())
+  idMondoFamilia  String        @map("id_mondo_familia")
+  cidade          String
+  estado          String
+  grupoReferencia Grupo         @map("grupo_de_referencia")
+  status          StatusFamilia  @default(ATIVA)
+  observacao      String?
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
 
-  beneficiaries  Beneficiary[]
+  beneficiarios  Beneficiarios[]
   participations Participation[]
 
   @@map("familias")
 }
 
-enum FamilyStatus {
+enum StatusFamilia {
   ATIVA
   INATIVA
 }
@@ -52,23 +52,41 @@ enum Grupo {
   PARTEIRA
   SEMTRAS
   SAO_TOME
+  MONDO
 }
 
 // ── Integrantes da família ──
-model Beneficiary {
-  id       String         @id @default(uuid())
-  familyId String         @map("family_id")
-  name     String
-  age      Int
-  role     BeneficiaryRole
-  createdAt DateTime @default(now()) @map("created_at")
+model Beneficiarios {
+  id              String         @id @default(uuid())
+  familyId        String         @map("family_id")
+  idMondoMorador  String         @map("id_mondo_morador")
+  nome            String
+  dataNascimento  DateTime       @map("data_nascimento")
+  idade           Int
+  cor             Cor
+  responsavel     Responsavel          
+  parentesco      Parentesco
+  sexo            Sexo
+  cpf             String
+  createdAt       DateTime       @default(now()) @map("created_at")
 
   familia Familia @relation(fields: [id], references: [id], onDelete: Cascade)
 
-  @@map("beneficiaries")
+  @@map("beneficiarios")
 }
 
-enum BeneficiaryRole {
+enum Cor {
+  BRANCO
+  PRETO
+  PARDO
+}
+
+enum Responsavel {
+  Sim
+  Nao @map("Não")
+}
+
+enum Parentesco {
   PAI
   MAE
   FILHO
@@ -76,6 +94,12 @@ enum BeneficiaryRole {
   AVO
   OUTRO
 }
+
+enum Sexo {
+  Masculino
+  Feminino
+}
+
 
 // ── Ações/Atividades do instituto ──
 model Activity {
