@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { families, getDashboardStats, currentUser } from "@/models/store";
 import {
   Users,
   UserCheck,
@@ -12,8 +11,10 @@ import {
 import styles from "./Home.module.css";
 import { cookies } from "next/headers";
 import { decrypt } from "../../../utils/session";
+import { prisma } from "@/infra/database";
 
 export default async function HomePage() {
+  // ------ AUTENTICAÇÃO ---------
   // 1. Abre o cofre de cookies (o await avisa pro servidor esperar abrir)
   const cookieStore = await cookies();
 
@@ -27,42 +28,60 @@ export default async function HomePage() {
   const nomeUsuario = sessao?.firstName;
 
   // 5. formatando o nome
-  const nomeFormatado = nomeUsuario.charAt(0).toUpperCase() + nomeUsuario.slice(1).toLowerCase();
+  const nomeFormatado =
+    nomeUsuario.charAt(0).toUpperCase() + nomeUsuario.slice(1).toLowerCase();
 
-  const stats = getDashboardStats();
+  // ----------- BUSCANDO OS DADOS REAIS NO BANCO ------------------
+  const familiasAtivas = await prisma.familia.count({
+    where: { status: "ATIVA" },
+  });
+  const moradoresAtivos = await prisma.beneficiarios.count();
+  const atendimentos = await prisma.activity.count({
+    where: { type: "ATENDIMENTO" },
+  });
+  const atividades = await prisma.activity.count({
+    where: { type: "ATIVIDADE" },
+  });
+
+  // Buscando as últimas 5 famílias cadastradas
+  const familiasRecentes = await prisma.familia.findMany({
+    where: { status: "ATIVA" },
+    orderBy: { createdAt: "desc" }, // Traz as mais recentes primeiro
+    take: 5, // Limita a 5 famílias na tela inicial
+  });
 
   const statCards = [
     {
       label: "Famílias Ativas",
-      value: stats.activeFamilies,
+      value: familiasAtivas,
       icon: Users,
       color: "#6B7F3E",
       borderColor: "#6B7F3E",
     },
     {
       label: "Moradores Ativos",
-      value: stats.totalBeneficiaries,
+      value: moradoresAtivos,
       icon: UserCheck,
       color: "#C9943E",
       borderColor: "#C9943E",
     },
     {
       label: "Atendimentos",
-      value: stats.totalAtendimentos,
+      value: atendimentos,
       icon: Stethoscope,
       color: "#C0272D",
       borderColor: "#C0272D",
     },
     {
       label: "Atividades",
-      value: stats.totalAtividades,
+      value: atividades,
       icon: CalendarCheck,
       color: "#009999",
       borderColor: "#009999",
     },
   ];
 
-  const recentFamilies = families.filter((f) => f.status === "ATIVA");
+  // const recentFamilies = families.filter((f) => f.status === "ATIVA");
 
   return (
     <div className={styles["home-page"]}>
@@ -124,7 +143,7 @@ export default async function HomePage() {
           </Link>
         </div>
         <div className={styles["home-families-list"]}>
-          {recentFamilies.map((family) => (
+          {familiasRecentes.map((family) => (
             <Link
               key={family.id}
               href={`/familias/${family.id}`}
@@ -133,10 +152,10 @@ export default async function HomePage() {
             >
               <div className={styles["family-row-info"]}>
                 <span className={styles["family-row-name"]}>
-                  {family.familyName}
+                  {family.idMondoFamilia}
                 </span>
                 <span className={styles["family-row-territory"]}>
-                  {family.territory}
+                  {family.cidade} - {family.estado}
                 </span>
               </div>
               <ChevronRight size={18} className={styles["family-row-arrow"]} />

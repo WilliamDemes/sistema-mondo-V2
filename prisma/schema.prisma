@@ -67,10 +67,10 @@ model Beneficiarios {
   responsavel     Responsavel          
   parentesco      Parentesco
   sexo            Sexo
-  cpf             String
+  cpf             String?
   createdAt       DateTime       @default(now()) @map("created_at")
 
-  familia Familia @relation(fields: [id], references: [id], onDelete: Cascade)
+  familia Familia @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
   @@map("beneficiarios")
 }
@@ -79,25 +79,35 @@ enum Cor {
   BRANCO
   PRETO
   PARDO
+  INDIGENA
+  AMARELO
 }
 
 enum Responsavel {
   Sim
-  Nao @map("Não")
+  Nao
 }
 
 enum Parentesco {
   PAI
   MAE
   FILHO
-  FILHA
   AVO
+  CONJUGE
+  RESPONSAVEL
+  SOBRINHO
+  NETO
+  IRMAO    
+  TIO
+  ENTEADO
+  NAO_COLETADO  @map("NAO COLETADO")
   OUTRO
 }
 
 enum Sexo {
   Masculino
   Feminino
+  Outro_ou_Não_declarou  @map("Outro/Nao declarou")
 }
 
 
@@ -135,7 +145,7 @@ model Participation {
   notes            String?
   createdAt        DateTime @default(now()) @map("created_at")
 
-  familia   Familia   @relation(fields: [id], references: [id], onDelete: Cascade)
+  familia   Familia   @relation(fields: [familyId], references: [id], onDelete: Cascade)
   activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 
   @@map("participations")
