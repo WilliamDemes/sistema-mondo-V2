@@ -15,17 +15,22 @@ import {
 } from "lucide-react";
 import styles from "./Familias.module.css";
 
+// Interface de acordo com o prisma
 interface Family {
   id: string;
-  familyName: string;
-  territory: string;
-  address: string;
+  idMondoFamilia: string;
+  cidade: string;
+  estado: string;
+  grupoReferencia: string;
   status: string;
-  observations: string | null;
+  observacao: string | null;
   createdAt: string;
-  membersCount?: number;
-  participationsCount?: number;
+  _count?: {
+    beneficiarios: number;
+    participations: number;
+  };
 }
+
 interface Toast {
   id: number;
   type: "success" | "error";
@@ -40,9 +45,9 @@ export default function FamiliasPage() {
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const [formName, setFormName] = useState("");
-  const [formTerritory, setFormTerritory] = useState("");
-  const [formAddress, setFormAddress] = useState("");
+  const [formIdMondo, setFormIdMondo] = useState("");
+  const [formCidade, setFormCidade] = useState("");
+  const [formGrupo, setFormGrupo] = useState("");
   const [formObs, setFormObs] = useState("");
 
   const addToast = useCallback((type: "success" | "error", message: string) => {
@@ -68,9 +73,10 @@ export default function FamiliasPage() {
   }, [fetchFamilies]);
 
   const filtered = families.filter((f) => {
+    const termo = search.toLocaleLowerCase();
     const ms =
-      f.familyName.toLowerCase().includes(search.toLowerCase()) ||
-      f.territory.toLowerCase().includes(search.toLowerCase());
+      f.idMondoFamilia.toLowerCase().includes(search.toLowerCase()) ||
+      f.cidade.toLowerCase().includes(termo);
     const mf = statusFilter === "TODOS" || f.status === statusFilter;
     return ms && mf;
   });
@@ -83,10 +89,10 @@ export default function FamiliasPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          familyName: formName,
-          territory: formTerritory,
-          address: formAddress,
-          observations: formObs || null,
+          IdMondoFamilia: formIdMondo,
+          cidade: formCidade,
+          estado: "Estado",
+          observacao: formObs || null,
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error);
@@ -96,9 +102,8 @@ export default function FamiliasPage() {
         { ...created, membersCount: 0, participationsCount: 0 },
       ]);
       setShowModal(false);
-      setFormName("");
-      setFormTerritory("");
-      setFormAddress("");
+      setFormIdMondo("");
+      setFormObs("");
       setFormObs("");
       addToast("success", `Família "${created.familyName}" cadastrada!`);
     } catch (err) {
@@ -170,9 +175,9 @@ export default function FamiliasPage() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className={styles["fp-filter-select"]}
           >
-            <option value="TODOS">Todos os status</option>
-            <option value="ATIVA">Ativa</option>
-            <option value="INATIVA">Inativa</option>
+            <option value="TODOS">TODOS</option>
+            <option value="ATIVA">ATIVA</option>
+            <option value="INATIVA">INATIVA</option>
           </select>
         </div>
       </div>
@@ -193,7 +198,7 @@ export default function FamiliasPage() {
               id={`familia-card-${f.id}`}
             >
               <div className={styles["fc-head"]}>
-                <h3 className={styles["fc-name"]}>{f.familyName}</h3>
+                <h3 className={styles["fc-name"]}>{f.idMondoFamilia}</h3>
                 <span
                   className={`${styles["fc-status"]} ${f.status === "ATIVA" ? styles["st-a"] : styles["st-i"]}`}
                 >
@@ -203,13 +208,15 @@ export default function FamiliasPage() {
               <div className={styles["fc-info"]}>
                 <div className={styles["fc-row"]}>
                   <MapPin size={14} />
-                  <span>{f.territory}</span>
+                  <span>
+                    {f.cidade} - {f.estado}{" "}
+                  </span>
                 </div>
                 <div className={styles["fc-row"]}>
                   <Users size={14} />
                   <span>
-                    {f.membersCount ?? 0} integrantes •{" "}
-                    {f.participationsCount ?? 0} participações
+                    {f._count?.beneficiarios ?? 0} integrantes •{" "}
+                    {f._count?.participations ?? 0} participações
                   </span>
                 </div>
               </div>
@@ -258,8 +265,8 @@ export default function FamiliasPage() {
               <div className={styles.ff}>
                 <label className={styles.fl}>Nome da Família *</label>
                 <input
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
+                  value={formIdMondo}
+                  onChange={(e) => setFormIdMondo(e.target.value)}
                   placeholder="Ex.: Silva Santos"
                   className={styles.fi}
                   required
@@ -270,8 +277,8 @@ export default function FamiliasPage() {
               <div className={styles.ff}>
                 <label className={styles.fl}>Território *</label>
                 <input
-                  value={formTerritory}
-                  onChange={(e) => setFormTerritory(e.target.value)}
+                  value={formCidade}
+                  onChange={(e) => setFormCidade(e.target.value)}
                   placeholder="Ex.: Comunidade São José"
                   className={styles.fi}
                   required
@@ -281,8 +288,8 @@ export default function FamiliasPage() {
               <div className={styles.ff}>
                 <label className={styles.fl}>Endereço *</label>
                 <input
-                  value={formAddress}
-                  onChange={(e) => setFormAddress(e.target.value)}
+                  value={formCidade}
+                  onChange={(e) => setFormCidade(e.target.value)}
                   placeholder="Ex.: Rua das Flores, 123"
                   className={styles.fi}
                   required

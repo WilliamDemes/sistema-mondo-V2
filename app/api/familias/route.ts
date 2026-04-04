@@ -1,39 +1,42 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getAllFamilies, createFamily, getBeneficiariesByFamily, getAllParticipations } from "@/models/store";
+import { NextResponse } from 'next/server';
+import { prisma } from '@/infra/database';
 
+// FUNÇÃO PARA BUSCAR AS FAMÍLIAS (GET)
 export async function GET() {
   try {
-    const families = getAllFamilies();
-    const participations = getAllParticipations();
-    const enriched = families.map((f) => ({
-      ...f,
-      membersCount: getBeneficiariesByFamily(f.id).length,
-      participationsCount: participations.filter((p) => p.familyId === f.id).length,
-    }));
-    return NextResponse.json(enriched);
+    const familias = await prisma.familia.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        _count: {
+          select: { beneficiarios: true, participations: true }
+        }
+      }
+    });
+    return NextResponse.json(familias);
   } catch (error) {
-    console.error("Erro ao buscar famílias:", error);
-    return NextResponse.json({ error: "Erro ao buscar famílias" }, { status: 500 });
+    return NextResponse.json({ error: 'Erro ao buscar famílias' }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
+// FUNÇÃO PARA CRIAR NOVA FAMÍLIA (POST)
+export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { familyName, territory, address, observations, status } = body;
-    if (!familyName || !territory || !address) {
-      return NextResponse.json({ error: "Campos obrigatórios: familyName, territory, address" }, { status: 400 });
-    }
-    const family = createFamily({
-      familyName: familyName.trim(),
-      territory: territory.trim(),
-      address: address.trim(),
-      observations: observations?.trim() || null,
-      status: status || "ATIVA",
+    
+    // O Prisma converte os dados e salva na tabela "familias"
+    const novaFamilia = await prisma.familia.create({
+      data: {
+        idMondoFamilia: body.idMondoFamilia,
+        cidade: body.cidade,
+        estado: body.estado,
+        grupoReferencia: body.grupoReferencia,
+        observacao: body.observacao,
+        status: 'ATIVA', // Por padrão
+      }
     });
-    return NextResponse.json(family, { status: 201 });
+
+    return NextResponse.json(novaFamilia, { status: 201 });
   } catch (error) {
-    console.error("Erro ao criar família:", error);
-    return NextResponse.json({ error: "Erro ao criar família" }, { status: 500 });
+    return NextResponse.json({ error: 'Erro ao salvar família no banco' }, { status: 500 });
   }
 }
