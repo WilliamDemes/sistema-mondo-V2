@@ -29,6 +29,10 @@ interface Family {
     beneficiarios: number;
     participations: number;
   };
+  beneficiarios?: {
+    nome: string;
+    responsavel: string;
+  }[];
 }
 
 interface Toast {
@@ -74,9 +78,23 @@ export default function FamiliasPage() {
 
   const filtered = families.filter((f) => {
     const termo = search.toLocaleLowerCase();
-    const ms =
-      f.idMondoFamilia.toLowerCase().includes(search.toLowerCase()) ||
-      f.cidade.toLowerCase().includes(termo);
+
+    //Pesquisa no ID da familia
+    const matchId = (f.idMondoFamilia || "")
+      .toLocaleLowerCase()
+      .includes(termo);
+
+    // Pesquisa na cidade
+    const matchCidade = (f.cidade || "").toLowerCase().includes(termo);
+
+    //Pesquisa no nome de todos os beneficiarios daquela família
+    const matchMorador = f.beneficiarios?.some((b) =>
+      (b.nome || "").toLowerCase().includes(termo),
+    );
+
+    // Se o termo bater com o ID, com a cidade OU com o nome de alguém, a família aparece.
+
+    const ms = matchId || matchCidade || matchMorador;
     const mf = statusFilter === "TODOS" || f.status === statusFilter;
     return ms && mf;
   });
@@ -198,7 +216,18 @@ export default function FamiliasPage() {
               id={`familia-card-${f.id}`}
             >
               <div className={styles["fc-head"]}>
-                <h3 className={styles["fc-name"]}>{f.idMondoFamilia}</h3>
+                <h3 className={styles["fc-name"]}>
+                  {(() => {
+                    const responsavel = f.beneficiarios?.find(
+                      (b) => b.responsavel === "Sim",
+                    );
+
+                    // Se achou o rsposavel, mostra "ID - NOme". Se não acho mostra "Familia #ID"
+                    return responsavel
+                      ? `${f.idMondoFamilia} - ${responsavel.nome}`
+                      : `Familia #${f.idMondoFamilia}`;
+                  })()}
+                </h3>
                 <span
                   className={`${styles["fc-status"]} ${f.status === "ATIVA" ? styles["st-a"] : styles["st-i"]}`}
                 >
