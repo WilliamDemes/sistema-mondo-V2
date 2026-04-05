@@ -1,43 +1,76 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getFamilyById, updateFamily, deleteFamily, getBeneficiariesByFamily, getParticipationsByFamily } from "@/models/store";
+import { NextResponse } from "next/server";
+import { prisma } from "@/infra/database";
 
-interface RouteParams { params: Promise<{ id: string }> }
-
-export async function GET(_req: NextRequest, { params }: RouteParams) {
+// 1. BUSCAR A FAMÍLIA (GET)
+export async function GET(
+  request: Request,
+  props: { params: Promise<{ id: string }> },
+) {
   try {
-    const { id } = await params;
-    const family = getFamilyById(id);
-    if (!family) return NextResponse.json({ error: "Família não encontrada" }, { status: 404 });
-    const beneficiaries = getBeneficiariesByFamily(id);
-    const participations = getParticipationsByFamily(id);
-    return NextResponse.json({ ...family, beneficiaries, participations });
+    // 👇 ADICIONADO: "Abrindo a caixa" dos parâmetros com await
+    const params = await props.params;
+    const familiaId = params.id;
+
+    const familia = await prisma.familia.findUnique({
+      where: {
+        id: familiaId, // Usando o ID que acabamos de abrir
+      },
+      include: {
+        beneficiarios: {
+          orderBy: { responsavel: "asc" }, // Traz o responsável primeiro
+        },
+        participations: {
+          include: { activity: true },
+          orderBy: { createdAt: "desc" },
+        },
+      },
+    });
+
+    if (!familia) {
+      return NextResponse.json(
+        { error: "Família não encontrada" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json(familia);
   } catch (error) {
-    console.error("Erro:", error);
-    return NextResponse.json({ error: "Erro ao buscar família" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Erro ao buscar família" },
+      { status: 500 },
+    );
   }
 }
 
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+// 2. EDITAR A FAMÍLIA (PUT)
+export async function PUT(
+  request: Request,
+  props: { params: Promise<{ id: string }> },
+) {
   try {
-    const { id } = await params;
     const body = await request.json();
-    const updated = updateFamily(id, body);
-    if (!updated) return NextResponse.json({ error: "Família não encontrada" }, { status: 404 });
-    return NextResponse.json(updated);
-  } catch (error) {
-    console.error("Erro:", error);
-    return NextResponse.json({ error: "Erro ao atualizar família" }, { status: 500 });
-  }
-}
 
-export async function DELETE(_req: NextRequest, { params }: RouteParams) {
-  try {
-    const { id } = await params;
-    const ok = deleteFamily(id);
-    if (!ok) return NextResponse.json({ error: "Família não encontrada" }, { status: 404 });
-    return NextResponse.json({ message: "Família excluída" });
+    // 👇 ADICIONADO: Abrindo a caixa no PUT também
+    const params = await props.params;
+    const familiaId = params.id;
+
+    const familiaAtualizada = await prisma.familia.update({
+      where: { id: familiaId },
+      data: {
+        idMondoFamilia: body.idMondoFamilia,
+        cidade: body.cidade,
+        estado: body.estado,
+        grupoReferencia: body.grupoReferencia,
+        status: body.status,
+        observacao: body.observacao,
+      },
+    });
+
+    return NextResponse.json(familiaAtualizada);
   } catch (error) {
-    console.error("Erro:", error);
-    return NextResponse.json({ error: "Erro ao excluir família" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Erro ao atualizar família" },
+      { status: 500 },
+    );
   }
 }

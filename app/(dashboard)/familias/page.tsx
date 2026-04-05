@@ -53,6 +53,7 @@ export default function FamiliasPage() {
   const [formCidade, setFormCidade] = useState("");
   const [formGrupo, setFormGrupo] = useState("");
   const [formObs, setFormObs] = useState("");
+  const [showSugestoes, setShowSugestoes] = useState(false);
 
   const addToast = useCallback((type: "success" | "error", message: string) => {
     const id = Date.now();
@@ -76,28 +77,56 @@ export default function FamiliasPage() {
     fetchFamilies();
   }, [fetchFamilies]);
 
-  const filtered = families.filter((f) => {
-    const termo = search.toLocaleLowerCase();
+  const filtered = families
+    .filter((f) => {
+      const termo = search.toLocaleLowerCase();
 
-    //Pesquisa no ID da familia
-    const matchId = (f.idMondoFamilia || "")
-      .toLocaleLowerCase()
-      .includes(termo);
+      //Pesquisa no ID da familia
+      const matchId = (f.idMondoFamilia || "")
+        .toLocaleLowerCase()
+        .includes(termo);
 
-    // Pesquisa na cidade
-    const matchCidade = (f.cidade || "").toLowerCase().includes(termo);
+      // Pesquisa na cidade
+      const matchCidade = (f.cidade || "").toLowerCase().includes(termo);
 
-    //Pesquisa no nome de todos os beneficiarios daquela família
-    const matchMorador = f.beneficiarios?.some((b) =>
-      (b.nome || "").toLowerCase().includes(termo),
-    );
+      //Pesquisa no nome de todos os beneficiarios daquela família
+      const matchMorador = f.beneficiarios?.some((b) =>
+        (b.nome || "").toLowerCase().includes(termo),
+      );
 
-    // Se o termo bater com o ID, com a cidade OU com o nome de alguém, a família aparece.
+      // Se o termo bater com o ID, com a cidade OU com o nome de alguém, a família aparece.
 
-    const ms = matchId || matchCidade || matchMorador;
-    const mf = statusFilter === "TODOS" || f.status === statusFilter;
-    return ms && mf;
-  });
+      const ms = matchId || matchCidade || matchMorador;
+      const mf = statusFilter === "TODOS" || f.status === statusFilter;
+      return ms && mf;
+    })
+    .sort((a, b) => {
+      // Ordena os IDs de forma crescente e inteligente (Numérica)
+      return (a.idMondoFamilia || "").localeCompare(
+        b.idMondoFamilia || "",
+        undefined,
+        {
+          numeric: true,
+          sensitivity: "base",
+        },
+      );
+    });
+
+  // 👇 ADICIONANDO LÓGICA DE SUGESTÕES:
+  const sugestoes = families
+    .flatMap(
+      (f) =>
+        f.beneficiarios?.map((b) => ({
+          nome: b.nome,
+          idFamilia: f.idMondoFamilia,
+        })) || [],
+    )
+    .filter(
+      (b) =>
+        search.length > 1 &&
+        (b.nome || "").toLowerCase().includes(search.toLowerCase()),
+    )
+    .slice(0, 5); // Pega apenas os 5 primeiros para a lista não ficar gigante
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -181,10 +210,38 @@ export default function FamiliasPage() {
           <input
             placeholder="Buscar por nome ou território..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setShowSugestoes(true);
+            }}
+            onFocus={() => setShowSugestoes(true)}
+            onBlur={() => setTimeout(() => setShowSugestoes(false), 200)}
             className={styles["fp-search"]}
             id="filter-search-familia"
           />
+
+          {showSugestoes && sugestoes.length > 0 && (
+            <ul className={styles.suggestionsList}>
+              {sugestoes.map((sug, idx) => (
+                <li
+                  key={idx}
+                  onClick={() => {
+                    setSearch(sug.nome);
+                    setShowSugestoes(false);
+                  }}
+                  className={styles.suggestionItem}
+                >
+                  <Search size={14} color="#94a3b8" />
+                  <span>
+                    <strong>{sug.nome}</strong>{" "}
+                    <span className={styles.suggestionSubtext}>
+                      (Família #{sug.idFamilia})
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <div className={styles["fp-filter-group"]}>
           <Filter size={14} />
