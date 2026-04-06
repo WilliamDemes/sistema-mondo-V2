@@ -24,8 +24,8 @@ export default async function HomePage() {
   // 3. Passa o scanner (decrypt) para ler os dados (também precisa esperar)
   const sessao = token ? await decrypt(token) : null;
 
-  // 4. Pegamos o primeiro nome
-  const nomeUsuario = sessao?.firstName;
+  // 4. Pegamos o primeiro nome (com fallback para evitar erro se estiver vazio)
+  const nomeUsuario = sessao?.firstName || "Usuário";
 
   // 5. formatando o nome
   const nomeFormatado =
@@ -36,11 +36,14 @@ export default async function HomePage() {
     where: { status: "ATIVA" },
   });
   const moradoresAtivos = await prisma.beneficiarios.count();
+  
   const atendimentos = await prisma.activity.count({
-    where: { type: "ATENDIMENTO" },
+    where: { tipo: "ATENDIMENTO" },
   });
+  
+  // 👇 CORRIGIDO AQUI: Trocamos prisma.acoes por prisma.activity
   const atividades = await prisma.activity.count({
-    where: { type: "ATIVIDADE" },
+    where: { tipo: "ATIVIDADE" },
   });
 
   // Buscando as últimas 5 famílias cadastradas
@@ -80,8 +83,6 @@ export default async function HomePage() {
       borderColor: "#009999",
     },
   ];
-
-  // const recentFamilies = families.filter((f) => f.status === "ATIVA");
 
   return (
     <div className={styles["home-page"]}>

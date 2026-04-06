@@ -114,7 +114,7 @@ enum Sexo {
 // ── Ações/Atividades do instituto ──
 model Activity {
   id          String         @id @default(uuid())
-  nomeAção    String         @map("nome_acao")
+  nomeAcao    String         @map("nome_acao")
   descricao   String?        
   dimensao    Dimensao
   projeto     Projeto

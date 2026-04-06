@@ -25,10 +25,10 @@ type FamilyStatus = "ATIVA" | "INATIVA";
 type BeneficiaryRole = "PAI" | "MAE" | "FILHO" | "FILHA" | "AVO" | "OUTRO";
 interface Activity {
   id: string;
-  title: string;
-  description: string | null;
-  type: string;
-  format: string;
+  nomeAção: string;
+  descricao: string | null;
+  tipo: string;
+  formato: string;
   date: string;
 }
 interface Participation {
@@ -415,7 +415,7 @@ export default function FamilyHistoryPage() {
             </div>
             <div className={styles.tl}>
               {family.participations.map((p, i) => {
-                const isA = p.activity.type === "ATENDIMENTO";
+                const isA = p.activity.tipo === "ATENDIMENTO";
                 return (
                   <div key={p.id} className={styles.ti}>
                     <div className={styles.tc2}>
@@ -433,7 +433,7 @@ export default function FamilyHistoryPage() {
                           <span className={styles.tdt}>
                             {fmtDate(p.activity.date)}
                           </span>
-                          <h3 className={styles.tt2}>{p.activity.title}</h3>
+                          <h3 className={styles.tt2}>{p.activity.nomeAção}</h3>
                         </div>
                         <div className={styles.tgs}>
                           <span
@@ -442,14 +442,14 @@ export default function FamilyHistoryPage() {
                             {isA ? "Atendimento" : "Atividade"}
                           </span>
                           <span className={`${styles.tg} ${styles.tgf}`}>
-                            {p.activity.format === "INDIVIDUAL"
+                            {p.activity.formato === "INDIVIDUAL"
                               ? "Individual"
                               : "Grupo"}
                           </span>
                         </div>
                       </div>
-                      {p.activity.description && (
-                        <p className={styles.tds}>{p.activity.description}</p>
+                      {p.activity.descricao && (
+                        <p className={styles.tds}>{p.activity.descricao}</p>
                       )}
                       <div className={styles.tfo}>
                         <span className={styles.tp2}>
@@ -672,8 +672,8 @@ export default function FamilyHistoryPage() {
                   <option value="">Selecione uma atividade...</option>
                   {activities.map((a) => (
                     <option key={a.id} value={a.id}>
-                      {a.title} (
-                      {a.type === "ATENDIMENTO" ? "Atendimento" : "Atividade"} -{" "}
+                      {a.nomeAção} (
+                      {a.tipo === "ATENDIMENTO" ? "Atendimento" : "Atividade"} -{" "}
                       {fmtDate(a.date)})
                     </option>
                   ))}
