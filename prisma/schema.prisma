@@ -114,27 +114,45 @@ enum Sexo {
 // ── Ações/Atividades do instituto ──
 model Activity {
   id          String         @id @default(uuid())
-  title       String
-  description String?
-  type        ActivityType
-  format      ActivityFormat
+  nomeAção    String         @map("nome_acao")
+  descricao   String?        
+  dimensao    Dimensao
+  projeto     Projeto
+  tipo        TipoAtividade  @map("tipo_de_acao")
+  formato     FormatoAtividade    @map("formato_da_atividade")
+  local       String
+  semestre    DateTime
   date        DateTime
   createdAt   DateTime       @default(now()) @map("created_at")
 
   participations Participation[]
 
-  @@map("activities")
+  @@map("acoes")
 }
 
-enum ActivityType {
+enum Dimensao {
+  EDUCACAO  @map("EDUCACÃO")
+  SAUDE  @map("SAÚDE")
+  MAE     @map("MORADIA_ÁGUA_ENERGIA")
+  DESENVOLVIMENTO_ECONOMICO   @map("DESENVOLVIMENTO_ECONOMICO")
+  NUTRICAO    @map("NUTRIÇÃO")
+}
+
+enum Projeto {
+  REDEMAIS    @map("REDE+")
+  PROA
+}
+
+enum TipoAtividade {
   ATENDIMENTO
   ATIVIDADE
 }
 
-enum ActivityFormat {
+enum FormatoAtividade {
   INDIVIDUAL
   GRUPO
 }
+
 
 // ── Registros de Participação ──
 model Participation {
