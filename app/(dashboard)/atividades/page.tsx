@@ -20,16 +20,22 @@ import {
 } from "lucide-react";
 import styles from "./Atividades.module.css";
 
-// â”€â”€ Types â”€â”€
-type ActivityType = "ATENDIMENTO" | "ATIVIDADE";
-type ActivityFormat = "INDIVIDUAL" | "GRUPO";
+// Opções da interface
+type TipoAtividade = "ATENDIMENTO" | "ATIVIDADE";
+type FormatoAtividade = "INDIVIDUAL" | "GRUPO";
+type Dimensao = "EDUCACAO" | "SAUDE" | "MAE" | "DESENVOLVIMENTO_ECONOMICO" | "NUTRICAO"
+type Projeto = "REDEMAIS" | "PROA"
 
 interface Activity {
   id: string;
-  title: string;
-  description: string | null;
-  type: ActivityType;
-  format: ActivityFormat;
+  nomeAcao: string;
+  descricao: string | null;
+  dimensao: Dimensao;
+  projeto: Projeto;
+  tipo: TipoAtividade;
+  formato: FormatoAtividade;
+  local: string;
+  semestre: string;
   date: string;
   createdAt: string;
 }
@@ -55,8 +61,8 @@ export default function AtividadesPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState<"TODOS" | ActivityType>("TODOS");
-  const [filterFormat, setFilterFormat] = useState<"TODOS" | ActivityFormat>(
+  const [filterType, setFilterType] = useState<"TODOS" | TipoAtividade>("TODOS");
+  const [filterFormat, setFilterFormat] = useState<"TODOS" | FormatoAtividade>(
     "TODOS",
   );
   const [showModal, setShowModal] = useState(false);
@@ -71,11 +77,15 @@ export default function AtividadesPage() {
     null,
   );
 
-  // Form state
-  const [formTitle, setFormTitle] = useState("");
-  const [formDescription, setFormDescription] = useState("");
-  const [formType, setFormType] = useState<ActivityType>("ATIVIDADE");
-  const [formFormat, setFormFormat] = useState<ActivityFormat>("GRUPO");
+  // Form state, memória da página
+  const [formNomeAcao, setFormNomeAcao] = useState("");
+  const [formDescricao, setFormDescricao] = useState("");
+  const [formDimensao, setFormDimensao] = useState<Dimensao>("EDUCACAO");
+  const [formProjeto, setFormProjeto] = useState<Projeto>("REDEMAIS");
+  const [formTipoAtividade, setFormTipoAtividade] = useState<TipoAtividade>("ATIVIDADE");
+  const [formFormatoAtividade, setFormFormatoAtividade] = useState<FormatoAtividade>("GRUPO");
+  const [formLocal, setFormLocal] = useState("");
+  const [formSemestre, setFormSemestre] = useState("");
   const [formDate, setFormDate] = useState("");
 
   // â”€â”€ Toast system â”€â”€
@@ -148,17 +158,21 @@ export default function AtividadesPage() {
     setShowModal(true);
   }
 
-  // â”€â”€ Create or Update activity â”€â”€
+  // Preparando o pacote de dados para mandar para a api, função utilizado ao clicar no botão "Enviar formulário"
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+    e.preventDefault(); // Evita o carregamento da página inteira
     setIsSubmitting(true);
 
     try {
       const payload = {
-        title: formTitle,
-        description: formDescription || null,
-        type: formType,
-        format: formFormat,
+        nomeAcao: formNomeAcao,
+        descricao: formDescricao || null,
+        dimensao: formDimensao,
+        projeto: formProjeto,
+        tipoAtividade: formTipoAtividade,
+        formatoAtividade: formFormatoAtividade,
+        local: formLocal,
+        semestre: formSemestre,
         date: formDate,
       };
 
