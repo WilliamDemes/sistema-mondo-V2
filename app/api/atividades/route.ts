@@ -2,10 +2,19 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/infra/database";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // 0. Pegando o termo digitado no campo de pesquisa. "busca" é o nome da etiqueta que vai pendurado na url na pesquisa
+    const termoBusca = request.nextUrl.searchParams.get("busca") || "";
+
     // 1. Busca todas as atividades do banco de dados REAL, da mais nova pra mais velha
     const activities = await prisma.activity.findMany({
+      where: {
+        OR: [
+          {nomeAcao: {contains: termoBusca, mode: "insensitive"}},
+          {descricao: {contains: termoBusca, mode: "insensitive"}}
+        ],
+      },
       orderBy: { date: "desc" },
     });
 

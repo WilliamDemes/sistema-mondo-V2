@@ -62,7 +62,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function AtividadesPage() {
-  // â”€â”€ State â”€â”€
+  // Memória da página de atividades
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -109,7 +109,7 @@ export default function AtividadesPage() {
   // â”€â”€ Fetch activities from API â”€â”€
   const fetchActivities = useCallback(async () => {
     try {
-      const res = await fetch("/api/atividades");
+      const res = await fetch(`/api/atividades?busca=${searchTerm}`);
       if (!res.ok) throw new Error("Erro ao carregar atividades");
       const data: Activity[] = await res.json();
       setActivities(data);

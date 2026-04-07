@@ -75,8 +75,8 @@ export default function LoginPage() {
         </div>
 
         <div className={styles["login-brand"]}>
-          <span className={styles["login-brand-instituto"]}>instituto</span>
-          <span className={styles["login-brand-mondo"]}> mondó</span>
+          <span className={styles["login-brand-instituto"]}>Instituto</span>
+          <span className={styles["login-brand-mondo"]}> Mondó</span>
         </div>
 
         <h1 className={styles["login-title"]}>Bem-vinda de volta!</h1>
