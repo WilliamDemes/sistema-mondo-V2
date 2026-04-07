@@ -51,7 +51,7 @@ interface Toast {
   message: string;
 }
 
-// â”€â”€ Helpers â”€â”€
+// ─── Helpers ───
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr + "T12:00:00");
   return date.toLocaleDateString("pt-BR", {
@@ -66,38 +66,35 @@ export default function AtividadesPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState<"TODOS" | TipoAtividade>(
-    "TODOS",
-  );
-  const [filterFormat, setFilterFormat] = useState<"TODOS" | FormatoAtividade>(
-    "TODOS",
-  );
+  const [filterType, setFilterType] = useState<"TODOS" | TipoAtividade>("TODOS");
+  const [filterFormat, setFilterFormat] = useState<"TODOS" | FormatoAtividade>("TODOS");
   const [showModal, setShowModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
-    null,
-  );
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
-    null,
-  );
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+
+  // novas memórias de paginação e totais
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [totalAtividades, setTotalAtividades] = useState(0);
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [totalApenasAtividades, setTotalApenasAtividades] = useState(0);
+  const [totalApenasAtendimentos, setTotalApenasAtendimentos] = useState(0);
 
   // Form state, memória da página
   const [formNomeAcao, setFormNomeAcao] = useState("");
   const [formDescricao, setFormDescricao] = useState("");
   const [formDimensao, setFormDimensao] = useState<Dimensao>("EDUCACAO");
   const [formProjeto, setFormProjeto] = useState<Projeto>("REDEMAIS");
-  const [formTipoAtividade, setFormTipoAtividade] =
-    useState<TipoAtividade>("ATIVIDADE");
-  const [formFormatoAtividade, setFormFormatoAtividade] =
-    useState<FormatoAtividade>("GRUPO");
+  const [formTipoAtividade, setFormTipoAtividade] = useState<TipoAtividade>("ATIVIDADE");
+  const [formFormatoAtividade, setFormFormatoAtividade] = useState<FormatoAtividade>("GRUPO");
   const [formLocal, setFormLocal] = useState("");
   const [formSemestre, setFormSemestre] = useState("");
   const [formDate, setFormDate] = useState("");
 
-  // â”€â”€ Toast system â”€â”€
+  // ─── Toast system ───
   const addToast = useCallback((type: "success" | "error", message: string) => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, type, message }]);
@@ -106,28 +103,41 @@ export default function AtividadesPage() {
     }, 4000);
   }, []);
 
-  // â”€â”€ Fetch activities from API â”€â”€
+  // ─── Fetch activities from API ───
   const fetchActivities = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const res = await fetch(`/api/atividades?busca=${searchTerm}`);
+      const res = await fetch(`/api/atividades?busca=${searchTerm}&pagina=${paginaAtual}`);
       if (!res.ok) throw new Error("Erro ao carregar atividades");
-      const data: Activity[] = await res.json();
-      setActivities(data);
+      
+      const data = await res.json();
+      
+      // BLINDAGEM: Lemos activities (novo) ou atividadesDaPagina (original do backend)
+      // O || [] garante que se falhar, fica uma lista vazia e não quebra a tela!
+      const listaSegura = data.activities || data.atividadesDaPagina || [];
+      setActivities(listaSegura);
+      
+      setTotalPaginas(data.totalPaginas || 1);
+      
+      // Aplicamos a mesma blindagem para os contadores, garantindo que sejam sempre números
+      setTotalAtividades(data.totalAtividades || data.totalGeralEncontrado || 0);
+      setTotalApenasAtividades(data.contagemAtividades || 0);
+      setTotalApenasAtendimentos(data.contagemAtendimentos || 0);
+
     } catch (err) {
       console.error(err);
       addToast("error", "Erro ao carregar atividades do servidor.");
     } finally {
       setIsLoading(false);
     }
-  }, [addToast]);
+  }, [addToast, searchTerm, paginaAtual]);
 
   useEffect(() => {
     fetchActivities();
   }, [fetchActivities]);
 
-  // â”€â”€ Filtered & sorted â”€â”€
+  // ─── Filtered & sorted ───
   const filteredActivities = activities.filter((a) => {
-    // Tentamos ler o nomeAcao novo. Se vier vazio, tentamos o title antigo. Se tudo falhar, fica "".
     const nomeSeguro = a.nomeAcao || (a as any).title || "";
     const descricaoSegura = a.descricao || (a as any).description || "";
     const termo = searchTerm.toLowerCase();
@@ -142,16 +152,13 @@ export default function AtividadesPage() {
     return matchSearch && matchType && matchFormat;
   });
 
-  // â”€â”€ Stats â”€â”€
-  const totalAtividades = activities.filter(
-    (a) => a.tipo === "ATIVIDADE",
-  ).length;
-  const totalAtendimentos = activities.filter(
-    (a) => a.tipo === "ATENDIMENTO",
-  ).length;
-  const totalTotal = activities.length;
+  // ─── Stats ───
+  // Agora os cálculos são automáticos usando os dados cravados do banco de dados
+  const todasAtividades = totalApenasAtividades;
+  const totalAtendimentos = totalApenasAtendimentos;
+  const totalTotal = totalAtividades;
 
-  // â”€â”€ Open new modal â”€â”€
+  // ─── Open new modal ───
   function handleOpenNew() {
     setEditingActivity(null);
     setFormNomeAcao("");
@@ -166,7 +173,7 @@ export default function AtividadesPage() {
     setShowModal(true);
   }
 
-  // â”€â”€ Open edit modal â”€â”€
+  // ─── Open edit modal ───
   function handleOpenEdit(activity: Activity) {
     setEditingActivity(activity);
     setFormNomeAcao(activity.nomeAcao);
@@ -175,15 +182,15 @@ export default function AtividadesPage() {
     setFormProjeto(activity.projeto);
     setFormTipoAtividade(activity.tipo);
     setFormFormatoAtividade(activity.formato);
-    setFormLocal(activity.local); // Campo novo
-    setFormSemestre(activity.semestre); // Campo novo
+    setFormLocal(activity.local);
+    setFormSemestre(activity.semestre);
     setFormDate(activity.date);
     setShowModal(true);
   }
 
-  // Preparando o pacote de dados para mandar para a api, função utilizado ao clicar no botão "Enviar formulário"
+  // Preparando o pacote de dados para mandar para a api
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault(); // Evita o carregamento da página inteira
+    e.preventDefault();
     setIsSubmitting(true);
 
     try {
@@ -217,10 +224,7 @@ export default function AtividadesPage() {
               (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
             ),
         );
-        addToast(
-          "success",
-          `Atividade "${updated.nomeAcao}" atualizada com sucesso!`,
-        );
+        addToast("success", `Atividade "${updated.nomeAcao}" atualizada com sucesso!`);
       } else {
         // POST - criar
         const res = await fetch("/api/atividades", {
@@ -240,10 +244,12 @@ export default function AtividadesPage() {
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
           ),
         );
-        addToast(
-          "success",
-          `Atividade "${created.nomeAcao}" cadastrada com sucesso!`,
-        );
+        
+        // Atualiza a paginação e força a voltar para a página 1 ao criar
+        setPaginaAtual(1);
+        fetchActivities();
+
+        addToast("success", `Atividade "${created.nomeAcao}" cadastrada com sucesso!`);
       }
 
       setShowModal(false);
@@ -263,14 +269,18 @@ export default function AtividadesPage() {
 
       setActivities((prev) => prev.filter((a) => a.id !== id));
       setShowDeleteConfirm(null);
-      addToast("success", "Atividade excluÃ­da com sucesso!");
+      
+      // Atualiza os dados da tela após deletar
+      fetchActivities();
+
+      addToast("success", "Atividade excluída com sucesso!");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro ao excluir";
       addToast("error", message);
     }
   }
 
-  // â”€â”€ View detail â”€â”€
+  // ─── View detail ───
   function handleViewDetail(activity: Activity) {
     setSelectedActivity(activity);
     setShowDetailModal(true);
@@ -308,7 +318,7 @@ export default function AtividadesPage() {
         <div>
           <h1 className={styles["atividades-title"]}>Atividades</h1>
           <p className={styles["atividades-subtitle"]}>
-            Cadastre e gerencie atividades e atendimentos para os beneficiÃ¡rios
+            Cadastre e gerencie atividades e atendimentos para os beneficiários
           </p>
         </div>
         <button
@@ -334,7 +344,7 @@ export default function AtividadesPage() {
             <ClipboardList size={18} />
           </div>
           <div className={styles["stat-mini-content"]}>
-            <span className={styles["stat-mini-value"]}>{totalAtividades}</span>
+            <span className={styles["stat-mini-value"]}>{todasAtividades}</span>
             <span className={styles["stat-mini-label"]}>Atividades</span>
           </div>
         </div>
@@ -378,7 +388,7 @@ export default function AtividadesPage() {
           <Search size={16} className={styles["filter-search-icon"]} />
           <input
             type="text"
-            placeholder="Buscar por tÃ­tulo ou descriÃ§Ã£o..."
+            placeholder="Buscar por título ou descrição..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles["filter-search-input"]}
@@ -391,7 +401,7 @@ export default function AtividadesPage() {
             <select
               value={filterType}
               onChange={(e) =>
-                setFilterType(e.target.value as "TODOS" | ActivityType)
+                setFilterType(e.target.value as "TODOS" | TipoAtividade)
               }
               className={styles["filter-select"]}
               id="filter-tipo-atividade"
@@ -406,7 +416,7 @@ export default function AtividadesPage() {
             <select
               value={filterFormat}
               onChange={(e) =>
-                setFilterFormat(e.target.value as "TODOS" | ActivityFormat)
+                setFilterFormat(e.target.value as "TODOS" | FormatoAtividade)
               }
               className={styles["filter-select"]}
               id="filter-formato-atividade"
@@ -545,6 +555,34 @@ export default function AtividadesPage() {
           )}
         </div>
       )}
+
+      {/* --- INÍCIO DA PAGINAÇÃO --- */}
+      {!isLoading && totalPaginas > 1 && (
+        <div className={styles["pagination-container"]} style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
+          
+          <button 
+            disabled={paginaAtual === 1}
+            onClick={() => setPaginaAtual(paginaAtual - 1)}
+            className={styles["btn-pagination"]}
+          >
+            Anterior
+          </button>
+          
+          <span style={{ alignSelf: 'center' }}>
+            Página {paginaAtual} de {totalPaginas}
+          </span>
+          
+          <button 
+            disabled={paginaAtual === totalPaginas}
+            onClick={() => setPaginaAtual(paginaAtual + 1)}
+            className={styles["btn-pagination"]}
+          >
+            Próxima
+          </button>
+
+        </div>
+      )}
+      {/* --- FIM DA PAGINAÇÃO --- */}
 
       {/* Modal - Nova/Editar Atividade */}
       {showModal && (
@@ -825,7 +863,7 @@ export default function AtividadesPage() {
               {selectedActivity.descricao && (
                 <div className={styles["detail-section"]}>
                   <h3 className={styles["detail-section-title"]}>
-                    DescriÃ§Ã£o
+                    Descrição
                   </h3>
                   <p className={styles["detail-description"]}>
                     {selectedActivity.descricao}
@@ -834,7 +872,7 @@ export default function AtividadesPage() {
               )}
               <div className={styles["detail-section"]}>
                 <h3 className={styles["detail-section-title"]}>
-                  InformaÃ§Ãµes
+                  Informações
                 </h3>
                 <div className={styles["detail-info-grid"]}>
                   <div className={styles["detail-info-item"]}>
