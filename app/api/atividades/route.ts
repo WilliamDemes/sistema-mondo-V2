@@ -1,33 +1,80 @@
 import { NextResponse } from "next/server";
-import { getAllActivities, createActivity, getParticipationsByActivity } from "@/models/store";
 import type { NextRequest } from "next/server";
+import { prisma } from "@/infra/database";
 
 export async function GET() {
   try {
-    const activities = getAllActivities();
-    const sorted = [...activities].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    const enriched = sorted.map((a) => ({
-      ...a,
-      participationCount: getParticipationsByActivity(a.id).length,
-    }));
-    return NextResponse.json(enriched);
+    // 1. Busca todas as atividades do banco de dados REAL, da mais nova pra mais velha
+    const activities = await prisma.activity.findMany({
+      orderBy: { date: "desc" },
+    });
+
+    return NextResponse.json(activities);
   } catch (error) {
-    console.error("Erro:", error);
-    return NextResponse.json({ error: "Erro ao buscar atividades" }, { status: 500 });
+    console.error("Erro no GET:", error);
+    return NextResponse.json(
+      { error: "Erro ao buscar atividades" },
+      { status: 500 },
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, description, type, format, date } = body;
-    if (!title || !type || !format || !date) {
-      return NextResponse.json({ error: "Campos obrigatórios: title, type, format, date" }, { status: 400 });
+
+    // 2. Abrindo a "caixa" (payload) com os nomes exatos que o seu Front-end mandou
+    const {
+      nomeAcao,
+      descricao,
+      dimensao,
+      projeto,
+      tipo,
+      formato,
+      local,
+      semestre,
+      date,
+    } = body;
+
+    // 3. Validação de segurança
+    if (
+      !nomeAcao ||
+      !tipo ||
+      !formato ||
+      !date ||
+      !dimensao ||
+      !projeto ||
+      !local
+    ) {
+      return NextResponse.json(
+        { error: "Preencha todos os campos obrigatórios." },
+        { status: 400 },
+      );
     }
-    const activity = createActivity({ title: title.trim(), description: description?.trim() || null, type, format, date });
+
+    // 4. Salvando de verdade no PostgreSQL via Prisma
+    const activity = await prisma.activity.create({
+      data: {
+        nomeAcao: nomeAcao.trim(),
+        descricao: descricao?.trim() || null,
+        dimensao,
+        projeto,
+        tipo,
+        formato,
+        local,
+        // O Prisma exige que Datas sejam transformadas em Objetos do tipo Date
+        date: new Date(date + "T12:00:00Z"),
+        // Veja a explicação sobre o semestre logo abaixo!
+        semestre: semestre,
+      },
+    });
+
     return NextResponse.json(activity, { status: 201 });
   } catch (error) {
-    console.error("Erro:", error);
-    return NextResponse.json({ error: "Erro ao criar atividade" }, { status: 500 });
+    console.error("Erro no POST:", error);
+    return NextResponse.json(
+      { error: "Erro ao criar atividade" },
+      { status: 500 },
+    );
   }
 }

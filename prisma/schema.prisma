@@ -121,7 +121,7 @@ model Activity {
   tipo        TipoAtividade  @map("tipo_de_acao")
   formato     FormatoAtividade    @map("formato_da_atividade")
   local       String
-  semestre    DateTime
+  semestre    String
   date        DateTime
   createdAt   DateTime       @default(now()) @map("created_at")
 

@@ -23,8 +23,13 @@ import styles from "./Atividades.module.css";
 // Opções da interface
 type TipoAtividade = "ATENDIMENTO" | "ATIVIDADE";
 type FormatoAtividade = "INDIVIDUAL" | "GRUPO";
-type Dimensao = "EDUCACAO" | "SAUDE" | "MAE" | "DESENVOLVIMENTO_ECONOMICO" | "NUTRICAO"
-type Projeto = "REDEMAIS" | "PROA"
+type Dimensao =
+  | "EDUCACAO"
+  | "SAUDE"
+  | "MAE"
+  | "DESENVOLVIMENTO_ECONOMICO"
+  | "NUTRICAO";
+type Projeto = "REDEMAIS" | "PROA";
 
 interface Activity {
   id: string;
@@ -61,7 +66,9 @@ export default function AtividadesPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState<"TODOS" | TipoAtividade>("TODOS");
+  const [filterType, setFilterType] = useState<"TODOS" | TipoAtividade>(
+    "TODOS",
+  );
   const [filterFormat, setFilterFormat] = useState<"TODOS" | FormatoAtividade>(
     "TODOS",
   );
@@ -82,8 +89,10 @@ export default function AtividadesPage() {
   const [formDescricao, setFormDescricao] = useState("");
   const [formDimensao, setFormDimensao] = useState<Dimensao>("EDUCACAO");
   const [formProjeto, setFormProjeto] = useState<Projeto>("REDEMAIS");
-  const [formTipoAtividade, setFormTipoAtividade] = useState<TipoAtividade>("ATIVIDADE");
-  const [formFormatoAtividade, setFormFormatoAtividade] = useState<FormatoAtividade>("GRUPO");
+  const [formTipoAtividade, setFormTipoAtividade] =
+    useState<TipoAtividade>("ATIVIDADE");
+  const [formFormatoAtividade, setFormFormatoAtividade] =
+    useState<FormatoAtividade>("GRUPO");
   const [formLocal, setFormLocal] = useState("");
   const [formSemestre, setFormSemestre] = useState("");
   const [formDate, setFormDate] = useState("");
@@ -118,31 +127,41 @@ export default function AtividadesPage() {
 
   // â”€â”€ Filtered & sorted â”€â”€
   const filteredActivities = activities.filter((a) => {
+    // Tentamos ler o nomeAcao novo. Se vier vazio, tentamos o title antigo. Se tudo falhar, fica "".
+    const nomeSeguro = a.nomeAcao || (a as any).title || "";
+    const descricaoSegura = a.descricao || (a as any).description || "";
+    const termo = searchTerm.toLowerCase();
+
     const matchSearch =
-      a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (a.description &&
-        a.description.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchType = filterType === "TODOS" || a.type === filterType;
-    const matchFormat = filterFormat === "TODOS" || a.format === filterFormat;
+      nomeSeguro.toLowerCase().includes(termo) ||
+      descricaoSegura.toLowerCase().includes(termo);
+
+    const matchType = filterType === "TODOS" || a.tipo === filterType;
+    const matchFormat = filterFormat === "TODOS" || a.formato === filterFormat;
+
     return matchSearch && matchType && matchFormat;
   });
 
   // â”€â”€ Stats â”€â”€
   const totalAtividades = activities.filter(
-    (a) => a.type === "ATIVIDADE",
+    (a) => a.tipo === "ATIVIDADE",
   ).length;
   const totalAtendimentos = activities.filter(
-    (a) => a.type === "ATENDIMENTO",
+    (a) => a.tipo === "ATENDIMENTO",
   ).length;
   const totalTotal = activities.length;
 
   // â”€â”€ Open new modal â”€â”€
   function handleOpenNew() {
     setEditingActivity(null);
-    setFormTitle("");
-    setFormDescription("");
-    setFormType("ATIVIDADE");
-    setFormFormat("GRUPO");
+    setFormNomeAcao("");
+    setFormDescricao("");
+    setFormDimensao("EDUCACAO");
+    setFormProjeto("REDEMAIS");
+    setFormTipoAtividade("ATIVIDADE");
+    setFormFormatoAtividade("GRUPO");
+    setFormLocal("");
+    setFormSemestre("");
     setFormDate(new Date().toISOString().split("T")[0]);
     setShowModal(true);
   }
@@ -150,10 +169,14 @@ export default function AtividadesPage() {
   // â”€â”€ Open edit modal â”€â”€
   function handleOpenEdit(activity: Activity) {
     setEditingActivity(activity);
-    setFormTitle(activity.title);
-    setFormDescription(activity.description || "");
-    setFormType(activity.type);
-    setFormFormat(activity.format);
+    setFormNomeAcao(activity.nomeAcao);
+    setFormDescricao(activity.descricao || "");
+    setFormDimensao(activity.dimensao);
+    setFormProjeto(activity.projeto);
+    setFormTipoAtividade(activity.tipo);
+    setFormFormatoAtividade(activity.formato);
+    setFormLocal(activity.local); // Campo novo
+    setFormSemestre(activity.semestre); // Campo novo
     setFormDate(activity.date);
     setShowModal(true);
   }
@@ -169,8 +192,8 @@ export default function AtividadesPage() {
         descricao: formDescricao || null,
         dimensao: formDimensao,
         projeto: formProjeto,
-        tipoAtividade: formTipoAtividade,
-        formatoAtividade: formFormatoAtividade,
+        tipo: formTipoAtividade,
+        formato: formFormatoAtividade,
         local: formLocal,
         semestre: formSemestre,
         date: formDate,
@@ -196,7 +219,7 @@ export default function AtividadesPage() {
         );
         addToast(
           "success",
-          `Atividade "${updated.title}" atualizada com sucesso!`,
+          `Atividade "${updated.nomeAcao}" atualizada com sucesso!`,
         );
       } else {
         // POST - criar
@@ -219,7 +242,7 @@ export default function AtividadesPage() {
         );
         addToast(
           "success",
-          `Atividade "${created.title}" cadastrada com sucesso!`,
+          `Atividade "${created.nomeAcao}" cadastrada com sucesso!`,
         );
       }
 
@@ -232,7 +255,7 @@ export default function AtividadesPage() {
     }
   }
 
-  // â”€â”€ Delete activity â”€â”€
+  // DELETANDO ATIVIDADE
   async function handleDelete(id: string) {
     try {
       const res = await fetch(`/api/atividades/${id}`, { method: "DELETE" });
@@ -408,7 +431,7 @@ export default function AtividadesPage() {
       {!isLoading && (
         <div className={styles["atividades-list"]} id="atividades-list">
           {filteredActivities.map((activity) => {
-            const isAtendimento = activity.type === "ATENDIMENTO";
+            const isAtendimento = activity.tipo === "ATENDIMENTO";
             return (
               <div
                 key={activity.id}
@@ -425,7 +448,7 @@ export default function AtividadesPage() {
                   <div className={styles["activity-card-content"]}>
                     <div className={styles["activity-card-top"]}>
                       <h3 className={styles["activity-card-title"]}>
-                        {activity.title}
+                        {activity.nomeAcao}
                       </h3>
                       <div className={styles["activity-card-tags"]}>
                         <span
@@ -436,15 +459,15 @@ export default function AtividadesPage() {
                         <span
                           className={`${styles["activity-tag"]} ${styles["tag-format"]}`}
                         >
-                          {activity.format === "INDIVIDUAL"
+                          {activity.formato === "INDIVIDUAL"
                             ? "Individual"
                             : "Grupo"}
                         </span>
                       </div>
                     </div>
-                    {activity.description && (
+                    {activity.descricao && (
                       <p className={styles["activity-card-description"]}>
-                        {activity.description}
+                        {activity.descricao}
                       </p>
                     )}
                     <div className={styles["activity-card-meta"]}>
@@ -485,7 +508,7 @@ export default function AtividadesPage() {
                   <div className={styles["delete-confirm-overlay"]}>
                     <div className={styles["delete-confirm-content"]}>
                       <p>
-                        Excluir <strong>{activity.title}</strong>?
+                        Excluir <strong>{activity.nomeAcao}</strong>?
                       </p>
                       <div className={styles["delete-confirm-actions"]}>
                         <button
@@ -550,13 +573,13 @@ export default function AtividadesPage() {
             <form onSubmit={handleSubmit} className={styles["modal-form"]}>
               <div className={styles["form-field"]}>
                 <label htmlFor="form-title" className={styles["form-label"]}>
-                  TÃ­tulo da Atividade *
+                  Título da Atividade *
                 </label>
                 <input
                   id="form-title"
                   type="text"
-                  value={formTitle}
-                  onChange={(e) => setFormTitle(e.target.value)}
+                  value={formNomeAcao}
+                  onChange={(e) => setFormNomeAcao(e.target.value)}
                   placeholder="Ex.: Oficina de Artes"
                   className={styles["form-input"]}
                   required
@@ -564,23 +587,73 @@ export default function AtividadesPage() {
                   autoFocus
                 />
               </div>
+
               <div className={styles["form-field"]}>
                 <label
                   htmlFor="form-description"
                   className={styles["form-label"]}
                 >
-                  DescriÃ§Ã£o
+                  Descrição
                 </label>
                 <textarea
                   id="form-description"
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
+                  value={formDescricao}
+                  onChange={(e) => setFormDescricao(e.target.value)}
                   placeholder="Descreva a atividade..."
                   className={styles["form-textarea"]}
                   rows={3}
                   disabled={isSubmitting}
                 />
               </div>
+
+              {/* --- BLOCO NOVO: Dimensão e Projeto --- */}
+              <div className={styles["form-row"]}>
+                <div className={styles["form-field"]}>
+                  <label
+                    htmlFor="form-dimensao"
+                    className={styles["form-label"]}
+                  >
+                    Dimensão *
+                  </label>
+                  <select
+                    id="form-dimensao"
+                    value={formDimensao}
+                    onChange={(e) =>
+                      setFormDimensao(e.target.value as Dimensao)
+                    }
+                    className={styles["form-select"]}
+                    disabled={isSubmitting}
+                  >
+                    <option value="EDUCACAO">Educação</option>
+                    <option value="SAUDE">Saúde</option>
+                    <option value="MAE">Moradia, Água e Energia</option>
+                    <option value="DESENVOLVIMENTO_ECONOMICO">
+                      Desenvolvimento Econômico
+                    </option>
+                    <option value="NUTRICAO">Nutrição</option>
+                  </select>
+                </div>
+                <div className={styles["form-field"]}>
+                  <label
+                    htmlFor="form-projeto"
+                    className={styles["form-label"]}
+                  >
+                    Projeto *
+                  </label>
+                  <select
+                    id="form-projeto"
+                    value={formProjeto}
+                    onChange={(e) => setFormProjeto(e.target.value as Projeto)}
+                    className={styles["form-select"]}
+                    disabled={isSubmitting}
+                  >
+                    <option value="REDEMAIS">Rede+</option>
+                    <option value="PROA">PROA</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* --- BLOCO ORIGINAL: Tipo e Formato --- */}
               <div className={styles["form-row"]}>
                 <div className={styles["form-field"]}>
                   <label htmlFor="form-type" className={styles["form-label"]}>
@@ -588,9 +661,9 @@ export default function AtividadesPage() {
                   </label>
                   <select
                     id="form-type"
-                    value={formType}
+                    value={formTipoAtividade}
                     onChange={(e) =>
-                      setFormType(e.target.value as ActivityType)
+                      setFormTipoAtividade(e.target.value as TipoAtividade)
                     }
                     className={styles["form-select"]}
                     disabled={isSubmitting}
@@ -605,9 +678,11 @@ export default function AtividadesPage() {
                   </label>
                   <select
                     id="form-format"
-                    value={formFormat}
+                    value={formFormatoAtividade}
                     onChange={(e) =>
-                      setFormFormat(e.target.value as ActivityFormat)
+                      setFormFormatoAtividade(
+                        e.target.value as FormatoAtividade,
+                      )
                     }
                     className={styles["form-select"]}
                     disabled={isSubmitting}
@@ -617,6 +692,45 @@ export default function AtividadesPage() {
                   </select>
                 </div>
               </div>
+
+              {/* --- BLOCO NOVO: Local e Semestre --- */}
+              <div className={styles["form-row"]}>
+                <div className={styles["form-field"]}>
+                  <label htmlFor="form-local" className={styles["form-label"]}>
+                    Local *
+                  </label>
+                  <input
+                    id="form-local"
+                    type="text"
+                    value={formLocal}
+                    onChange={(e) => setFormLocal(e.target.value)}
+                    placeholder="Ex.: Sede do Instituto"
+                    className={styles["form-input"]}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div className={styles["form-field"]}>
+                  <label
+                    htmlFor="form-semestre"
+                    className={styles["form-label"]}
+                  >
+                    Semestre (Ano.Semestre) *
+                  </label>
+                  <input
+                    id="form-semestre"
+                    type="text"
+                    value={formSemestre}
+                    onChange={(e) => setFormSemestre(e.target.value)}
+                    placeholder="Ex.: 2024.1"
+                    className={styles["form-input"]}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+
+              {/* --- BLOCO ORIGINAL: Data --- */}
               <div className={styles["form-field"]}>
                 <label htmlFor="form-date" className={styles["form-label"]}>
                   Data *
@@ -631,6 +745,7 @@ export default function AtividadesPage() {
                   disabled={isSubmitting}
                 />
               </div>
+
               <div className={styles["form-actions"]}>
                 <button
                   type="button"
@@ -652,7 +767,7 @@ export default function AtividadesPage() {
                       {editingActivity ? "Salvando..." : "Cadastrando..."}
                     </span>
                   ) : editingActivity ? (
-                    "Salvar AlteraÃ§Ãµes"
+                    "Salvar Alterações"
                   ) : (
                     "Cadastrar Atividade"
                   )}
@@ -676,7 +791,7 @@ export default function AtividadesPage() {
           >
             <div className={styles["modal-header"]}>
               <h2 className={styles["modal-title"]}>
-                {selectedActivity.title}
+                {selectedActivity.nomeAcao}
               </h2>
               <button
                 className={styles["modal-close"]}
@@ -689,16 +804,16 @@ export default function AtividadesPage() {
             <div className={styles["detail-body"]}>
               <div className={styles["detail-tags"]}>
                 <span
-                  className={`${styles["activity-tag"]} ${selectedActivity.type === "ATENDIMENTO" ? styles["tag-atendimento"] : styles["tag-atividade"]}`}
+                  className={`${styles["activity-tag"]} ${selectedActivity.tipo === "ATENDIMENTO" ? styles["tag-atendimento"] : styles["tag-atividade"]}`}
                 >
-                  {selectedActivity.type === "ATENDIMENTO"
+                  {selectedActivity.tipo === "ATENDIMENTO"
                     ? "Atendimento"
                     : "Atividade"}
                 </span>
                 <span
                   className={`${styles["activity-tag"]} ${styles["tag-format"]}`}
                 >
-                  {selectedActivity.format === "INDIVIDUAL"
+                  {selectedActivity.formato === "INDIVIDUAL"
                     ? "Individual"
                     : "Grupo"}
                 </span>
@@ -707,13 +822,13 @@ export default function AtividadesPage() {
                   {formatDate(selectedActivity.date)}
                 </span>
               </div>
-              {selectedActivity.description && (
+              {selectedActivity.descricao && (
                 <div className={styles["detail-section"]}>
                   <h3 className={styles["detail-section-title"]}>
                     DescriÃ§Ã£o
                   </h3>
                   <p className={styles["detail-description"]}>
-                    {selectedActivity.description}
+                    {selectedActivity.descricao}
                   </p>
                 </div>
               )}
@@ -731,7 +846,7 @@ export default function AtividadesPage() {
                   <div className={styles["detail-info-item"]}>
                     <span className={styles["detail-info-label"]}>Tipo</span>
                     <span className={styles["detail-info-value"]}>
-                      {selectedActivity.type === "ATENDIMENTO"
+                      {selectedActivity.tipo === "ATENDIMENTO"
                         ? "Atendimento"
                         : "Atividade"}
                     </span>
@@ -739,7 +854,7 @@ export default function AtividadesPage() {
                   <div className={styles["detail-info-item"]}>
                     <span className={styles["detail-info-label"]}>Formato</span>
                     <span className={styles["detail-info-value"]}>
-                      {selectedActivity.format === "INDIVIDUAL"
+                      {selectedActivity.formato === "INDIVIDUAL"
                         ? "Individual"
                         : "Grupo"}
                     </span>
