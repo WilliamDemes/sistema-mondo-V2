@@ -37,7 +37,7 @@ model Familia {
   updatedAt       DateTime      @updatedAt @map("updated_at")
 
   beneficiarios  Beneficiarios[]
-  participations Participation[]
+  participacoes Participacoes[]
 
   @@map("familias")
 }
@@ -125,7 +125,7 @@ model Activity {
   date        DateTime
   createdAt   DateTime       @default(now()) @map("created_at")
 
-  participations Participation[]
+  participacoes Participacoes[]
 
   @@map("acoes")
 }
@@ -155,16 +155,16 @@ enum FormatoAtividade {
 
 
 // ── Registros de Participação ──
-model Participation {
-  id               String   @id @default(uuid())
-  familyId         String   @map("family_id")
-  activityId       String   @map("activity_id")
-  participantCount Int      @default(1) @map("participant_count")
-  notes            String?
-  createdAt        DateTime @default(now()) @map("created_at")
+model Participacoes {
+  id                    String   @id @default(uuid())
+  familiaId             String   @map("familia_id")
+  acaoId                String   @map("acao_id")
+  contagemParticipantes Int      @default(1) @map("contagem_de_participantes")
+  Observacoes           String?
+  createdAt             DateTime @default(now()) @map("created_at")
 
-  familia   Familia   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  familia   Familia   @relation(fields: [familiaId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [acaoId], references: [id], onDelete: Cascade)
 
-  @@map("participations")
+  @@map("participacoes")
 }
