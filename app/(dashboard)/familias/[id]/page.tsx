@@ -136,10 +136,15 @@ export default function FamilyHistoryPage() {
 
   const fetchActivities = useCallback(async () => {
     try {
-      const res = await fetch("/api/atividades");
-      if (res.ok) setActivities(await res.json());
-    } catch {
-      /* ignore */
+      const res = await fetch("/api/atividades?limite=50");
+      if (res.ok) {
+        const data = await res.json();
+        // Abrimos a gaveta certa da nossa caixa organizadora!
+        const listaSegura = data.activities || data.atividadesDaPagina || [];
+        setActivities(listaSegura);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar atividades para o select:", err);
     }
   }, []);
 
@@ -672,7 +677,7 @@ export default function FamilyHistoryPage() {
                   <option value="">Selecione uma atividade...</option>
                   {activities.map((a) => (
                     <option key={a.id} value={a.id}>
-                      {a.nomeAção} (
+                      {a.nomeAcao} (
                       {a.tipo === "ATENDIMENTO" ? "Atendimento" : "Atividade"} -{" "}
                       {fmtDate(a.date)})
                     </option>

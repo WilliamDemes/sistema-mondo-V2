@@ -5,11 +5,22 @@ import { prisma } from "@/infra/database";
 export async function GET(request: NextRequest) {
   try {
     // 0. Pegando o termo digitado no campo de pesquisa. "busca" é o nome da etiqueta que vai pendurado na url na pesquisa
+    // 0. Pegando o termo de busca
     const termoBusca = request.nextUrl.searchParams.get("busca") || "";
+
+    // 1. Descobrindo em qual página estamos
     const paginaTexto = request.nextUrl.searchParams.get("pagina") || "1";
     const paginaAtual = parseInt(paginaTexto);
-    const itensPorPagina = 3;
+
+    // 2. Descobrindo o Limite (Quantos itens por página?)
+    // Se a URL não tiver a palavra "limite", ele usa o "10" como padrão.
+    const limiteTexto = request.nextUrl.searchParams.get("limite") || "10";
+    const itensPorPagina = parseInt(limiteTexto);
+
+    // 3. AGORA calculamos o pulo (skip), porque já sabemos exatamente o tamanho da página!
     const skip = (paginaAtual - 1) * itensPorPagina;
+    
+
 
     // 1. DADOS DA TELA: Busca apenas os 10 itens da página atual, filtrados pela busca
     const atividadesDaPagina = await prisma.activity.findMany({
@@ -57,8 +68,8 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({
-      activities: atividadesDaPagina,
-      totalAtividades: totalGeralEncontrado,  // O número total (ex: 15)
+      atividadesDaPagina,
+      totalGeralEncontrado,  // O número total (ex: 15)
       paginaAtual,  // A página que ele está vendo
       contagemAtividades,
       contagemAtendimentos,
