@@ -282,7 +282,7 @@ export default function FamilyHistoryPage() {
       </div>
     );
 
-  const lastP = family.participations[0];
+  const lastP = family.participacoes[0];
 
   // 1. Descobre quem é o responsável
   const resp = family.beneficiarios.find((b) => b.responsavel === "Sim");
@@ -405,7 +405,7 @@ export default function FamilyHistoryPage() {
                   Total de participações
                 </div>
                 <span className={`${styles.siv} ${styles.svh}`}>
-                  {family.participations.length}
+                  {family.participacoes.length}
                 </span>
               </div>
             </div>
@@ -415,11 +415,11 @@ export default function FamilyHistoryPage() {
             <div className={styles["hc-h"]}>
               <h2 className={styles["hc-t"]}>Linha do Tempo</h2>
               <span className={styles.th}>
-                Total: {family.participations.length}
+                Total: {family.participacoes.length}
               </span>
             </div>
             <div className={styles.tl}>
-              {family.participations.map((p, i) => {
+              {family.participacoes.map((p, i) => {
                 const isA = p.activity.tipo === "ATENDIMENTO";
                 return (
                   <div key={p.id} className={styles.ti}>
@@ -428,7 +428,7 @@ export default function FamilyHistoryPage() {
                         className={styles.td}
                         style={{ background: isA ? "#6B7F3E" : "#C9943E" }}
                       />
-                      {i < family.participations.length - 1 && (
+                      {i < family.participacoes.length - 1 && (
                         <div className={styles.tln} />
                       )}
                     </div>
@@ -468,7 +468,7 @@ export default function FamilyHistoryPage() {
                   </div>
                 );
               })}
-              {family.participations.length === 0 && (
+              {family.participacoes.length === 0 && (
                 <div className={styles.te}>
                   <p>Nenhuma participação registrada.</p>
                   <button

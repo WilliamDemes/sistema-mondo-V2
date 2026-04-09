@@ -8,7 +8,7 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
       include: {
         _count: {
-          select: { beneficiarios: true, participations: true },
+          select: { beneficiarios: true, participacoes: true },
         },
         // Trazendo os beneficiarios junto com as familias
         beneficiarios: {

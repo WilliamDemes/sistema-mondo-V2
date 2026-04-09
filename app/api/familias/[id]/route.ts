@@ -19,7 +19,7 @@ export async function GET(
         beneficiarios: {
           orderBy: { responsavel: "asc" }, // Traz o responsável primeiro
         },
-        participations: {
+        participacoes: {
           include: { activity: true },
           orderBy: { createdAt: "desc" },
         },
