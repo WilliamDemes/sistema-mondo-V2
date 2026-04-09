@@ -31,12 +31,12 @@ interface Activity {
   formato: string;
   date: string;
 }
-interface Participation {
+interface Participacoes {
   id: string;
-  familyId: string;
-  activityId: string;
-  participantCount: number;
-  notes: string | null;
+  familiaId: string;
+  acaoId: string;
+  contagemParticipantes: number;
+  Observacoes: string | null;
   activity: Activity;
 }
 interface Beneficiary {
@@ -58,7 +58,7 @@ interface FamilyDetail {
   observacao: string | null;
   createdAt: string;
   beneficiarios: Beneficiary[];
-  participations: Participation[];
+  participations: Participacoes[];
 }
 interface Toast {
   id: number;
@@ -105,9 +105,9 @@ export default function FamilyHistoryPage() {
   const [eStatus, setEStatus] = useState<FamilyStatus>("ATIVA");
 
   // Action form
-  const [aActivityId, setAActivityId] = useState("");
+  const [aacaoId, setAacaoId] = useState("");
   const [aCount, setACount] = useState("1");
-  const [aNotes, setANotes] = useState("");
+  const [aObservacoes, setAObservacoes] = useState("");
 
   // Member form
   const [mNome, setMNome] = useState("");
@@ -192,7 +192,7 @@ export default function FamilyHistoryPage() {
     }
   }
 
-  async function handleActionSubmit(e: React.FormEvent) {
+  async function registrarAcao(e: React.FormEvent) {
     e.preventDefault();
     setIsSubmitting(true);
     try {
@@ -200,16 +200,16 @@ export default function FamilyHistoryPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          activityId: aActivityId,
-          participantCount: Number(aCount),
-          notes: aNotes || null,
+          acaoId: aacaoId,
+          contagemParticipantes: Number(aCount),
+          observacoes: aObservacoes || null,
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error);
       setShowActionModal(false);
-      setAActivityId("");
+      setAacaoId("");
       setACount("1");
-      setANotes("");
+      setAObservacoes("");
       addToast("success", "Ação registrada com sucesso!");
       await fetchFamily();
     } catch (err) {
@@ -346,7 +346,7 @@ export default function FamilyHistoryPage() {
           <button
             className={styles["hp-btn-pri"]}
             onClick={() => {
-              setAActivityId(activities[0]?.id || "");
+              setAacaoId(activities[0]?.id || "");
               setShowActionModal(true);
             }}
             id="btn-registrar-acao"
@@ -458,10 +458,10 @@ export default function FamilyHistoryPage() {
                       )}
                       <div className={styles.tfo}>
                         <span className={styles.tp2}>
-                          Participantes: {p.participantCount}
+                          Participantes: {p.contagemParticipantes}
                         </span>
-                        {p.notes && (
-                          <span className={styles.tn}>Obs: {p.notes}</span>
+                        {p.Observacoes && (
+                          <span className={styles.tn}>Obs: {p.Observacoes}</span>
                         )}
                       </div>
                     </div>
@@ -664,12 +664,12 @@ export default function FamilyHistoryPage() {
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleActionSubmit} className={styles.mfo}>
+            <form onSubmit={registrarAcao} className={styles.mfo}>
               <div className={styles.ff}>
                 <label className={styles.fl}>Atividade *</label>
                 <select
-                  value={aActivityId}
-                  onChange={(e) => setAActivityId(e.target.value)}
+                  value={aacaoId}
+                  onChange={(e) => setAacaoId(e.target.value)}
                   className={styles.fin}
                   required
                   disabled={isSubmitting}
@@ -699,8 +699,8 @@ export default function FamilyHistoryPage() {
               <div className={styles.ff}>
                 <label className={styles.fl}>Observações</label>
                 <textarea
-                  value={aNotes}
-                  onChange={(e) => setANotes(e.target.value)}
+                  value={aObservacoes}
+                  onChange={(e) => setAObservacoes(e.target.value)}
                   placeholder="Detalhes adicionais..."
                   className={styles.fta}
                   rows={2}

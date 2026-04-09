@@ -160,7 +160,7 @@ model Participacoes {
   familiaId             String   @map("familia_id")
   acaoId                String   @map("acao_id")
   contagemParticipantes Int      @default(1) @map("contagem_de_participantes")
-  Observacoes           String?
+  observacoes           String?
   createdAt             DateTime @default(now()) @map("created_at")
 
   familia   Familia   @relation(fields: [familiaId], references: [id], onDelete: Cascade)
