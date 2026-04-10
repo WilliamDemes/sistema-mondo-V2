@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 import { decrypt } from "./utils/session"; // O nosso leitor de crachás!
 
 // 1. O mapa do edifício: Quais rotas precisam de crachá?
-const rotasProtegidas = ["/home", "/atividades", "/familias"];
+const rotasProtegidas = ["/home", "/atividades", "/familias", "/relatorios", "/dashboard"];
 // Rotas onde o utilizador não deve ir se JÁ tiver feito login
 const rotasPublicas = ["/login", "/cadastro"];
 
