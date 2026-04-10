@@ -4,11 +4,11 @@ import { FileSpreadsheet, FileText, Download, Search, Check, X, Loader2, CheckCi
 import * as XLSX from "xlsx";
 import styles from "./Relatorios.module.css";
 
-interface Family { id:string; familyName:string; territory:string; address:string; status:string; observations:string|null; createdAt:string; membersCount?:number; participationsCount?:number; }
+interface Family { id:string; familyName:string; territory:string; address:string; status:string; observations:string|null; createdAt:string; membersCount?:number; participacoesCount?:number; }
 interface Beneficiary { id:string; name:string; age:number; role:string; }
 interface Activity { id:string; title:string; type:string; format:string; date:string; description:string|null; }
 interface Participation { id:string; activityId:string; participantCount:number; notes:string|null; activity:Activity; }
-interface FamilyDetail extends Family { beneficiaries:Beneficiary[]; participations:Participation[]; }
+interface FamilyDetail extends Family { beneficiarios:Beneficiary[]; participacoes:Participation[]; }
 interface Toast { id:number; type:"success"|"error"; message:string; }
 
 const roleLabels: Record<string,string> = { PAI:"Pai", MAE:"Mãe", FILHO:"Filho", FILHA:"Filha", AVO:"Avó/Avô", OUTRO:"Outro" };
@@ -16,8 +16,8 @@ function fmtDate(d:string){ return new Date(d+"T12:00:00").toLocaleDateString("p
 
 const REPORT_FIELDS = [
   { key: "general", label: "Dados Gerais", desc: "Nome, território, endereço, status, data de cadastro" },
-  { key: "beneficiaries", label: "Integrantes", desc: "Nome, idade e papel de cada membro da família" },
-  { key: "participationCount", label: "Número de Participações", desc: "Total de ações que a família participou" },
+  { key: "beneficiarios", label: "Integrantes", desc: "Nome, idade e papel de cada membro da família" },
+  { key: "contagemParticipantes", label: "Número de Participações", desc: "Total de ações que a família participou" },
   { key: "participationList", label: "Lista de Ações", desc: "Detalhes de cada atividade participada" },
   { key: "observations", label: "Observações", desc: "Notas e observações registradas" },
 ];
@@ -38,27 +38,20 @@ export default function RelatoriosPage() {
 
   useEffect(() => {
     (async () => {
-      try { const res = await fetch("/api/familias"); if(res.ok) setFamilies(await res.json()); }
-      catch { addToast("error","Erro ao carregar famílias."); }
-      finally { setLoading(false); }
+      try { const res = await fetch("/api/relatorios");
+        if(res.ok) {
+          const dadosCompletos = await res.json();
+          setFamilies(dadosCompletos);
+          setFamilyDetails(dadosCompletos); // Preenchemos os detalhes instantaneamente.
+        };
+      } catch {
+        addToast("error","Erro ao carregar famílias.");
+      } finally {
+        setLoading(false);
+        setLoadingDetails(false);  // Já desligamos o segundo "carregando" da tela
+      }
     })();
   },[addToast]);
-
-  const fetchDetails = useCallback(async () => {
-    setLoadingDetails(true);
-    try {
-      if (selectedFamilyId === "ALL") {
-        const promises = families.map(f => fetch(`/api/familias/${f.id}`).then(r => r.json()));
-        setFamilyDetails(await Promise.all(promises));
-      } else {
-        const res = await fetch(`/api/familias/${selectedFamilyId}`);
-        if(res.ok) setFamilyDetails([await res.json()]);
-      }
-    } catch { addToast("error","Erro ao carregar detalhes."); }
-    finally { setLoadingDetails(false); }
-  },[selectedFamilyId, families, addToast]);
-
-  useEffect(() => { if(families.length > 0) fetchDetails(); },[fetchDetails, families.length]);
 
   function toggleField(key:string) {
     setSelectedFields(p => { const n = new Set(p); n.has(key) ? n.delete(key) : n.add(key); return n; });
@@ -98,22 +91,26 @@ export default function RelatoriosPage() {
       const data = familyDetails.map(f => ({
         "Nome": f.familyName, "Território": f.territory, "Endereço": f.address,
         "Status": f.status, "Data Cadastro": fmtDate(f.createdAt),
-        ...(selectedFields.has("participationCount") ? {"Total Participações": f.participations.length} : {}),
+        ...(selectedFields.has("contagemParticipantes") ? {"Total Participações": f.participacoes.length} : {}),
         ...(selectedFields.has("observations") ? {"Observações": f.observations || "-"} : {}),
       }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Famílias");
     }
-    if(selectedFields.has("beneficiaries")) {
-      const data = familyDetails.flatMap(f => f.beneficiaries.map(b => ({ "Família": f.familyName, "Nome": b.name, "Idade": b.age, "Papel": roleLabels[b.role]||b.role })));
+    if(selectedFields.has("beneficiarios")) {
+      const data = familyDetails.flatMap(f => f.beneficiarios.map(b => ({ "Família": f.familyName, "Nome": b.name, "Idade": b.age, "Papel": roleLabels[b.role]||b.role })));
       if(data.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Integrantes");
     }
     if(selectedFields.has("participationList")) {
-      const data = familyDetails.flatMap(f => f.participations.map(p => ({ "Família": f.familyName, "Atividade": p.activity.title, "Tipo": p.activity.type==="ATENDIMENTO"?"Atendimento":"Atividade", "Formato": p.activity.format==="INDIVIDUAL"?"Individual":"Grupo", "Data": fmtDate(p.activity.date), "Participantes": p.participantCount, "Observações": p.notes || "-" })));
+      const data = familyDetails.flatMap(f => f.participacoes.map(p => ({ "Família": f.familyName, "Atividade": p.activity.title, "Tipo": p.activity.type==="ATENDIMENTO"?"Atendimento":"Atividade", "Formato": p.activity.format==="INDIVIDUAL"?"Individual":"Grupo", "Data": fmtDate(p.activity.date), "Participantes": p.participantCount, "Observações": p.notes || "-" })));
       if(data.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Participações");
     }
     XLSX.writeFile(wb, `relatorio_mondo_${new Date().toISOString().split("T")[0]}.xlsx`);
     addToast("success","Arquivo Excel baixado com sucesso!");
   }
+
+  const familiasFiltradas = selectedFamilyId === "ALL"
+    ? familyDetails
+    : familyDetails.filter(f => f.id === selectedFamilyId)
 
   return (
     <div className={styles.rp}>
@@ -132,7 +129,7 @@ export default function RelatoriosPage() {
           <div className={styles["rp-field"]}><label className={styles["rp-label"]}>Família</label>
             <select value={selectedFamilyId} onChange={e=>setSelectedFamilyId(e.target.value)} className={styles["rp-select"]} disabled={loading}>
               <option value="ALL">Todas as famílias</option>
-              {families.map(f=>(<option key={f.id} value={f.id}>{f.familyName}</option>))}
+              {families.map(f=>(<option key={f.id} value={f.id}>{f.idMondoFamilia}</option>))}
             </select>
           </div>
           <h2 className={styles["rp-sect"]} style={{marginTop:20}}>Campos do Relatório</h2>
@@ -149,24 +146,24 @@ export default function RelatoriosPage() {
           <h2 className={styles["rp-sect"]}><Eye size={16}/>Pré-visualização</h2>
           {loadingDetails ? (<div className={styles["rp-loading"]}><Loader2 size={24} className="spinner"/><p>Carregando...</p></div>) : (
             <div ref={previewRef} className={styles["rp-preview-content"]}>
-              {familyDetails.map(f=>(
+              {familiasFiltradas.map(f=>(
                 <div key={f.id} className={styles.pf}>
                   {selectedFields.has("general")&&(
                     <div className={styles.pg}>
-                      <h2 className={styles["pf-name"]}>{f.familyName} <span className={`${styles.pb} ${f.status==="ATIVA"?styles.pba:styles.pbi}`}>{f.status}</span></h2>
+                      <h2 className={styles["pf-name"]}>{f.idMondoFamilia} <span className={`${styles.pb} ${f.status==="ATIVA"?styles.pba:styles.pbi}`}>{f.status}</span></h2>
                       <table className={styles.pt}><tbody>
-                        <tr><th>Território</th><td>{f.territory}</td></tr>
-                        <tr><th>Endereço</th><td>{f.address}</td></tr>
+                        <tr><th>Território</th><td>{f.cidade}</td></tr>
+                        <tr><th>Endereço</th><td>{f.estado}</td></tr>
                         <tr><th>Cadastro</th><td>{fmtDate(f.createdAt)}</td></tr>
                       </tbody></table>
                     </div>
                   )}
-                  {selectedFields.has("participationCount")&&(<div className={styles.ps}><span className={styles.pst}>{f.participations.length} participações registradas</span></div>)}
-                  {selectedFields.has("beneficiaries")&&f.beneficiaries.length>0&&(
-                    <div className={styles.pb2}><h3 className={styles.ph3}>Integrantes ({f.beneficiaries.length})</h3><table className={styles.pt}><thead><tr><th>Nome</th><th>Idade</th><th>Papel</th></tr></thead><tbody>{f.beneficiaries.map(b=>(<tr key={b.id}><td>{b.name}</td><td>{b.age}</td><td>{roleLabels[b.role]||b.role}</td></tr>))}</tbody></table></div>
+                  {selectedFields.has("contagemParticipantes")&&(<div className={styles.ps}><span className={styles.pst}>{f.participacoes.length} participações registradas</span></div>)}
+                  {selectedFields.has("beneficiarios")&&f.beneficiarios.length>0&&(
+                    <div className={styles.pb2}><h3 className={styles.ph3}>Integrantes ({f.beneficiarios.length})</h3><table className={styles.pt}><thead><tr><th>Nome</th><th>Idade</th><th>Papel</th></tr></thead><tbody>{f.beneficiarios.map(b=>(<tr key={b.id}><td>{b.nome}</td><td>{b.idade}</td><td>{roleLabels[b.parentesco]||b.parentesco}</td></tr>))}</tbody></table></div>
                   )}
-                  {selectedFields.has("participationList")&&f.participations.length>0&&(
-                    <div className={styles.pp}><h3 className={styles.ph3}>Ações Participadas ({f.participations.length})</h3><table className={styles.pt}><thead><tr><th>Atividade</th><th>Tipo</th><th>Data</th><th>Part.</th></tr></thead><tbody>{f.participations.map(p=>(<tr key={p.id}><td>{p.activity.title}</td><td>{p.activity.type==="ATENDIMENTO"?"Atendimento":"Atividade"}</td><td>{fmtDate(p.activity.date)}</td><td>{p.participantCount}</td></tr>))}</tbody></table></div>
+                  {selectedFields.has("participationList")&&f.participacoes.length>0&&(
+                    <div className={styles.pp}><h3 className={styles.ph3}>Ações Participadas ({f.participacoes.length})</h3><table className={styles.pt}><thead><tr><th>Atividade</th><th>Tipo</th><th>Data</th><th>Part.</th></tr></thead><tbody>{f.participacoes.map(p=>(<tr key={p.id}><td>{p.activity.nomeAcao}</td><td>{p.activity.type==="ATENDIMENTO"?"Atendimento":"Atividade"}</td><td>{fmtDate(p.activity.date)}</td><td>{p.contagemParticipantes}</td></tr>))}</tbody></table></div>
                   )}
                   {selectedFields.has("observations")&&f.observations&&(<div className={styles.po}><h3 className={styles.ph3}>Observações</h3><p className={styles.pot}>{f.observations}</p></div>)}
                 </div>
