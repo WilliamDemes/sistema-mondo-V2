@@ -155,35 +155,72 @@
   transform: translateY(-2px);
 }
 
+.fc-body-split {
+  display: flex;
+  gap: 16px;
+}
+
+.fc-left {
+  flex-shrink: 0;
+}
+
+.fc-photo-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #F0E6D8;
+  border: 1px solid #E8D5C0;
+}
+
+.fc-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fc-right {
+  flex: 1;
+}
+
 .fc-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .fc-name {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: #491B02;
+  line-height: 1.2;
 }
 
-.fc-status {
+.fc-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.fc-pill {
   padding: 3px 10px;
   border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
-.st-a {
-  background: #ECFDF5;
-  color: #059669;
-}
+/* Cores de Status Padrão */
+.st-ativa { background: #ECFDF5; color: #059669; }
+.st-inativa { background: #FEF2F2; color: #DC2626; }
 
-.st-i {
-  background: #FEF2F2;
-  color: #DC2626;
-}
+/* Cores de Engajamento e Autonomia (Padrão: Alto=Azul, Médio=Amarelo, Baixo=Vermelho) */
+.st-eng-alto, .st-aut-alta { background: #EFF6FF; color: #2563EB; }
+.st-eng-med, .st-aut-med { background: #FEF9C3; color: #CA8A04; border: 1px solid #FEF08A; }
+.st-eng-baixo, .st-aut-baixa { background: #FEF2F2; color: #DC2626; }
 
 .fc-info {
   display: flex;

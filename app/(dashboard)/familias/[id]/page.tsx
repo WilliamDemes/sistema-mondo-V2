@@ -59,6 +59,11 @@ interface FamilyDetail {
   createdAt: string;
   beneficiarios: Beneficiary[];
   participations: Participacoes[];
+  
+  // Novos indicadores frontend mockados
+  engajamento?: "Alto" | "Médio" | "Baixo";
+  autonomia?: "Alto" | "Médio" | "Baixo";
+  foto?: string;
 }
 interface Toast {
   id: number;
@@ -126,7 +131,22 @@ export default function FamilyHistoryPage() {
     try {
       const res = await fetch(`/api/familias/${id}`);
       if (!res.ok) throw new Error();
-      setFamily(await res.json());
+      const f = await res.json();
+      
+      const fotosMock = [
+        "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=250&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?q=80&w=250&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1484665754804-74b091211472?q=80&w=250&auto=format&fit=crop"
+      ];
+      const niveis = ["Alto", "Médio", "Baixo"] as const;
+      const hash = f.idMondoFamilia ? f.idMondoFamilia.charCodeAt(0) + f.idMondoFamilia.length : 0;
+      
+      setFamily({
+        ...f,
+        engajamento: niveis[(hash) % 3],
+        autonomia: niveis[(hash + 1) % 3],
+        foto: fotosMock[hash % fotosMock.length]
+      });
     } catch {
       addToast("error", "Erro ao carregar família.");
     } finally {
@@ -356,10 +376,28 @@ export default function FamilyHistoryPage() {
           </button>
         </div>
       </div>
-      <h1 className={styles["hp-title"]}>{tituloFamilia}</h1>
-      <p className={styles["hp-sub"]}>
-        Acompanhamento e histórico de participações
-      </p>
+      <div className={styles["hp-profile"]}>
+        <div className={styles["hp-profile-photo"]}>
+          <img src={family.foto} alt="Família" />
+        </div>
+        <div className={styles["hp-profile-info"]}>
+          <h1 className={styles["hp-title"]}>
+            {tituloFamilia}
+          </h1>
+          <div className={styles["hp-badges"]}>
+            <span className={`${styles["hp-pill"]} ${family.status === "ATIVA" ? styles["st-ativa"] : styles["st-inativa"]}`}>
+              {family.status === "ATIVA" ? "Ativa" : "Inativa"}
+            </span>
+            <span className={`${styles["hp-pill"]} ${family.engajamento === "Alto" ? styles["st-eng-alto"] : family.engajamento === "Médio" ? styles["st-eng-med"] : styles["st-eng-baixo"]}`}>
+              Engajamento {family.engajamento}
+            </span>
+            <span className={`${styles["hp-pill"]} ${family.autonomia === "Alto" ? styles["st-aut-alta"] : family.autonomia === "Médio" ? styles["st-aut-med"] : styles["st-aut-baixa"]}`}>
+              Autonomia {family.autonomia}
+            </span>
+          </div>
+          <p className={styles["hp-sub"]}>Acompanhamento e histórico de participações</p>
+        </div>
+      </div>
 
       <div className={styles["hp-grid"]}>
         <div className={styles["hp-left"]}>

@@ -76,14 +76,70 @@
   font-size: 28px;
   font-weight: 700;
   color: #491B02;
-  margin-bottom: 4px;
+  line-height: 1.2;
 }
 
 .hp-sub {
   font-size: 14px;
   color: #8B7355;
+  margin-top: 6px;
   margin-bottom: 24px;
 }
+
+/* --- ESTILOS DE LAYOUT PERFIL DA FAMILIA --- */
+.hp-profile {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.hp-profile-photo {
+  width: 96px;
+  height: 96px;
+  border-radius: 16px;
+  background: #F0E6D8;
+  border: 1px solid #E8D5C0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.hp-profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hp-profile-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.hp-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.hp-pill {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Cores de Status Padrão */
+.st-ativa { background: #ECFDF5; color: #059669; }
+.st-inativa { background: #FEF2F2; color: #DC2626; }
+
+/* Cores de Engajamento e Autonomia (Padrão: Alto=Azul, Médio=Amarelo, Baixo=Vermelho) */
+.st-eng-alto, .st-aut-alta { background: #EFF6FF; color: #2563EB; }
+.st-eng-med, .st-aut-med { background: #FEF9C3; color: #CA8A04; border: 1px solid #FEF08A; }
+.st-eng-baixo, .st-aut-baixa { background: #FEF2F2; color: #DC2626; }
 
 .hp-grid {
   display: grid;

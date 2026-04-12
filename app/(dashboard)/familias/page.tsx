@@ -33,6 +33,10 @@ interface Family {
     nome: string;
     responsavel: string;
   }[];
+  // Novos indicadores frontend
+  engajamento?: "Alto" | "Médio" | "Baixo";
+  autonomia?: "Alto" | "Médio" | "Baixo";
+  foto?: string;
 }
 
 interface Toast {
@@ -46,6 +50,8 @@ export default function FamiliasPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("TODOS");
+  const [engajamentoFilter, setEngajamentoFilter] = useState("TODOS");
+  const [autonomiaFilter, setAutonomiaFilter] = useState("TODOS");
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -65,7 +71,28 @@ export default function FamiliasPage() {
     try {
       const res = await fetch("/api/familias");
       if (!res.ok) throw new Error();
-      setFamilies(await res.json());
+      const rawFamilies: Family[] = await res.json();
+      
+      // Injeção de dados simulados (Engajamento, Autonomia, Foto)
+      const fotosMock = [
+        "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=250&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?q=80&w=250&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1484665754804-74b091211472?q=80&w=250&auto=format&fit=crop"
+      ];
+      const niveis = ["Alto", "Médio", "Baixo"] as const;
+
+      const enhancedFamilies = rawFamilies.map(f => {
+        // Usa o hash simples do ID para manter os dados os mesmos entre renders
+        const hash = f.idMondoFamilia ? f.idMondoFamilia.charCodeAt(0) + f.idMondoFamilia.length : 0;
+        return {
+          ...f,
+          engajamento: niveis[(hash) % 3],
+          autonomia: niveis[(hash + 1) % 3],
+          foto: fotosMock[hash % fotosMock.length]
+        };
+      });
+
+      setFamilies(enhancedFamilies);
     } catch {
       addToast("error", "Erro ao carregar famílias.");
     } finally {
@@ -98,7 +125,9 @@ export default function FamiliasPage() {
 
       const ms = matchId || matchCidade || matchMorador;
       const mf = statusFilter === "TODOS" || f.status === statusFilter;
-      return ms && mf;
+      const mfEng = engajamentoFilter === "TODOS" || f.engajamento === engajamentoFilter;
+      const mfAut = autonomiaFilter === "TODOS" || f.autonomia === autonomiaFilter;
+      return ms && mf && mfEng && mfAut;
     })
     .sort((a, b) => {
       // Ordena os IDs de forma crescente e inteligente (Numérica)
@@ -245,15 +274,39 @@ export default function FamiliasPage() {
         </div>
         <div className={styles["fp-filter-group"]}>
           <Filter size={14} />
+          
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className={styles["fp-filter-select"]}
           >
-            <option value="TODOS">TODOS</option>
+            <option value="TODOS">Status</option>
             <option value="ATIVA">ATIVA</option>
             <option value="INATIVA">INATIVA</option>
           </select>
+
+          <select
+            value={engajamentoFilter}
+            onChange={(e) => setEngajamentoFilter(e.target.value)}
+            className={styles["fp-filter-select"]}
+          >
+            <option value="TODOS">Engajamento</option>
+            <option value="Alto">Alto</option>
+            <option value="Médio">Médio</option>
+            <option value="Baixo">Baixo</option>
+          </select>
+
+          <select
+            value={autonomiaFilter}
+            onChange={(e) => setAutonomiaFilter(e.target.value)}
+            className={styles["fp-filter-select"]}
+          >
+            <option value="TODOS">Autonomia</option>
+            <option value="Alto">Alto</option>
+            <option value="Médio">Médio</option>
+            <option value="Baixo">Baixo</option>
+          </select>
+
         </div>
       </div>
 
@@ -272,40 +325,47 @@ export default function FamiliasPage() {
               className={styles.fc}
               id={`familia-card-${f.id}`}
             >
-              <div className={styles["fc-head"]}>
-                <h3 className={styles["fc-name"]}>
-                  {(() => {
-                    const responsavel = f.beneficiarios?.find(
-                      (b) => b.responsavel === "Sim",
-                    );
+              <div className={styles["fc-body-split"]}>
+                <div className={styles["fc-left"]}>
+                  <div className={styles["fc-photo-wrap"]}>
+                    <img src={f.foto} alt="Foto da familia" className={styles["fc-photo"]}/>
+                  </div>
+                </div>
 
-                    // Se achou o rsposavel, mostra "ID - NOme". Se não acho mostra "Familia #ID"
-                    return responsavel
-                      ? `${f.idMondoFamilia} - ${responsavel.nome}`
-                      : `Familia #${f.idMondoFamilia}`;
-                  })()}
-                </h3>
-                <span
-                  className={`${styles["fc-status"]} ${f.status === "ATIVA" ? styles["st-a"] : styles["st-i"]}`}
-                >
-                  {f.status === "ATIVA" ? "Ativa" : "Inativa"}
-                </span>
-              </div>
-              <div className={styles["fc-info"]}>
-                <div className={styles["fc-row"]}>
-                  <MapPin size={14} />
-                  <span>
-                    {f.cidade} - {f.estado}{" "}
-                  </span>
+                <div className={styles["fc-right"]}>
+                  <div className={styles["fc-head"]}>
+                    <h3 className={styles["fc-name"]}>
+                      {(() => {
+                        const responsavel = f.beneficiarios?.find((b) => b.responsavel === "Sim");
+                        return responsavel ? `${f.idMondoFamilia} - ${responsavel.nome}` : `Familia #${f.idMondoFamilia}`;
+                      })()}
+                    </h3>
+                    <div className={styles["fc-badges"]}>
+                      <span className={`${styles["fc-pill"]} ${f.status === "ATIVA" ? styles["st-ativa"] : styles["st-inativa"]}`}>
+                        {f.status === "ATIVA" ? "Ativa" : "Inativa"}
+                      </span>
+                      <span className={`${styles["fc-pill"]} ${f.engajamento === "Alto" ? styles["st-eng-alto"] : f.engajamento === "Médio" ? styles["st-eng-med"] : styles["st-eng-baixo"]}`}>
+                        Engajamento {f.engajamento}
+                      </span>
+                      <span className={`${styles["fc-pill"]} ${f.autonomia === "Alto" ? styles["st-aut-alta"] : f.autonomia === "Médio" ? styles["st-aut-med"] : styles["st-aut-baixa"]}`}>
+                        Autonomia {f.autonomia}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className={styles["fc-info"]}>
+                    <div className={styles["fc-row"]}>
+                      <MapPin size={14} />
+                      <span>{f.cidade} - {f.estado} </span>
+                    </div>
+                    <div className={styles["fc-row"]}>
+                      <Users size={14} />
+                      <span>{f._count?.beneficiarios ?? 0} integrantes • {f._count?.participations ?? 0} participações</span>
+                    </div>
+                  </div>
                 </div>
-                <div className={styles["fc-row"]}>
-                  <Users size={14} />
-                  <span>
-                    {f._count?.beneficiarios ?? 0} integrantes •{" "}
-                    {f._count?.participations ?? 0} participações
-                  </span>
-                </div>
               </div>
+
               <div className={styles["fc-foot"]}>
                 <span className={styles["fc-view"]}>Ver histórico</span>
                 <ChevronRight size={16} />
