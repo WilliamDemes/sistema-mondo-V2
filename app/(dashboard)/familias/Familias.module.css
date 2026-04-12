@@ -146,7 +146,8 @@
   box-shadow: 0 1px 3px rgba(73, 27, 2, 0.06);
   border: 1px solid transparent;
   transition: all 0.2s;
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .fc:hover {
@@ -158,6 +159,7 @@
 .fc-body-split {
   display: flex;
   gap: 16px;
+  flex: 1;
 }
 
 .fc-left {
