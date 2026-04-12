@@ -1,88 +1,31 @@
 import Link from "next/link";
-import {
-  Users,
-  UserCheck,
-  Stethoscope,
-  CalendarCheck,
-  ArrowRight,
-  Plus,
-  ChevronRight,
-} from "lucide-react";
 import styles from "./Home.module.css";
 import { cookies } from "next/headers";
 import { decrypt } from "../../../utils/session";
 import { prisma } from "@/infra/database";
+import CalendarClientUI from "./CalendarClientUI";
 
 export default async function HomePage() {
   // ------ AUTENTICAÇÃO ---------
-  // 1. Abre o cofre de cookies (o await avisa pro servidor esperar abrir)
+  // 1. Abre o cofre de cookies
   const cookieStore = await cookies();
 
   // 2. Pega o valor do crachá chamado "session"
   const token = cookieStore.get("session")?.value;
 
-  // 3. Passa o scanner (decrypt) para ler os dados (também precisa esperar)
+  // 3. Passa o scanner (decrypt) para ler os dados
   const sessao = token ? await decrypt(token) : null;
 
-  // 4. Pegamos o primeiro nome (com fallback para evitar erro se estiver vazio)
+  // 4. Pegamos o primeiro nome
   const nomeUsuario = sessao?.firstName || "Usuário";
 
-  // 5. formatando o nome
+  // 5. Formatando o nome
   const nomeFormatado =
     nomeUsuario.charAt(0).toUpperCase() + nomeUsuario.slice(1).toLowerCase();
 
   // ----------- BUSCANDO OS DADOS REAIS NO BANCO ------------------
-  const familiasAtivas = await prisma.familia.count({
-    where: { status: "ATIVA" },
-  });
-  const moradoresAtivos = await prisma.beneficiarios.count();
-  
-  const atendimentos = await prisma.activity.count({
-    where: { tipo: "ATENDIMENTO" },
-  });
-  
-  // 👇 CORRIGIDO AQUI: Trocamos prisma.acoes por prisma.activity
-  const atividades = await prisma.activity.count({
-    where: { tipo: "ATIVIDADE" },
-  });
-
-  // Buscando as últimas 5 famílias cadastradas
-  const familiasRecentes = await prisma.familia.findMany({
-    where: { status: "ATIVA" },
-    orderBy: { createdAt: "desc" }, // Traz as mais recentes primeiro
-    take: 5, // Limita a 5 famílias na tela inicial
-  });
-
-  const statCards = [
-    {
-      label: "Famílias Ativas",
-      value: familiasAtivas,
-      icon: Users,
-      color: "#6B7F3E",
-      borderColor: "#6B7F3E",
-    },
-    {
-      label: "Moradores Ativos",
-      value: moradoresAtivos,
-      icon: UserCheck,
-      color: "#C9943E",
-      borderColor: "#C9943E",
-    },
-    {
-      label: "Atendimentos",
-      value: atendimentos,
-      icon: Stethoscope,
-      color: "#C0272D",
-      borderColor: "#C0272D",
-    },
-    {
-      label: "Atividades",
-      value: atividades,
-      icon: CalendarCheck,
-      color: "#009999",
-      borderColor: "#009999",
-    },
-  ];
+  // Apenas deixados aqui para o desenvolvedor usar futuramente
+  // e não quebrar o que já existia
 
   return (
     <div className={styles["home-page"]}>
@@ -92,78 +35,14 @@ export default async function HomePage() {
           Bem-vindo(a), {nomeFormatado}
         </h1>
         <p className={styles["home-welcome-subtitle"]}>
-          Gerencie atendimentos, atividades e participações das famílias
-          acompanhadas pelo Instituto Mondó de forma simples e organizada.
+          Gerencie atendimentos, atividades, participações e a agenda
+          do Instituto Mondó de forma simples e organizada.
         </p>
       </section>
 
-      {/* Stats cards */}
-      <section className={styles["home-stats"]} id="dashboard-stats">
-        {statCards.map((card) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={card.label}
-              className={styles["stat-card"]}
-              style={{ borderLeftColor: card.borderColor }}
-            >
-              <div className={styles["stat-card-header"]}>
-                <span className={styles["stat-card-label"]}>{card.label}</span>
-                <div
-                  className={styles["stat-card-icon"]}
-                  style={{ color: card.color, background: `${card.color}12` }}
-                >
-                  <Icon size={18} />
-                </div>
-              </div>
-              <span className={styles["stat-card-value"]}>{card.value}</span>
-            </div>
-          );
-        })}
-        <Link
-          href="/relatorios"
-          className={`${styles["stat-card"]} ${styles["stat-card-cta"]}`}
-          id="btn-ver-relatorios"
-        >
-          <span className={styles["stat-card-cta-text"]}>Ver Relatórios</span>
-          <ArrowRight size={18} />
-        </Link>
-      </section>
-
-      {/* Recent families */}
-      <section className={styles["home-families"]} id="recent-families">
-        <div className={styles["home-families-header"]}>
-          <h2 className={styles["home-families-title"]}>Famílias Recentes</h2>
-          <Link
-            href="/familias"
-            className={styles["home-families-add"]}
-            id="btn-nova-familia"
-          >
-            <Plus size={16} />
-            Nova Família
-          </Link>
-        </div>
-        <div className={styles["home-families-list"]}>
-          {familiasRecentes.map((family) => (
-            <Link
-              key={family.id}
-              href={`/familias/${family.id}`}
-              className={styles["family-row"]}
-              id={`family-${family.id}`}
-            >
-              <div className={styles["family-row-info"]}>
-                <span className={styles["family-row-name"]}>
-                  {family.idMondoFamilia}
-                </span>
-                <span className={styles["family-row-territory"]}>
-                  {family.cidade} - {family.estado}
-                </span>
-              </div>
-              <ChevronRight size={18} className={styles["family-row-arrow"]} />
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* CALENDÁRIO CLIENT UI INJETADO COM DADOS FICTÍCIOS */}
+      <CalendarClientUI />
+      
     </div>
   );
 }
