@@ -50,6 +50,7 @@ interface Activity {
   id: string;
   nomeAção: string;
   descricao: string | null;
+  dimensao: string;
   tipo: string;
   formato: string;
   date: string;
@@ -114,21 +115,16 @@ interface DimensionStyle {
 const DIMENSION_MAP: Record<string, DimensionStyle> = {
   "SAUDE":       { icon: HeartPulse,    color: "#C0272D", bgLight: "rgba(192, 39, 45, 0.08)",  label: "Saúde" },
   "EDUCACAO":    { icon: GraduationCap,  color: "#2D6A4F", bgLight: "rgba(45, 106, 79, 0.08)",  label: "Educação" },
-  "INFRAESTRUTURA": { icon: Wrench,      color: "#6C5B7B", bgLight: "rgba(108, 91, 123, 0.08)", label: "Infraestrutura" },
+  "MAE":         { icon: Wrench,         color: "#6C5B7B", bgLight: "rgba(108, 91, 123, 0.08)", label: "Moradia/Água/Energia" },
   "DESENVOLVIMENTO_ECONOMICO": { icon: Briefcase, color: "#C9943E", bgLight: "rgba(201, 148, 62, 0.08)",  label: "Des. Econômico" },
   "NUTRICAO":    { icon: Apple,          color: "#6B7F3E", bgLight: "rgba(107, 127, 62, 0.08)",  label: "Nutrição" },
 };
 const DEFAULT_DIMENSION: DimensionStyle = { icon: HelpCircle, color: "#8B7355", bgLight: "rgba(139, 115, 85, 0.08)", label: "Geral" };
 
-// Infere a dimensão a partir do nome da ação (Mock)
-function inferDimension(activityName: string | undefined | null): DimensionStyle {
-  const name = (activityName || "").toUpperCase();
-  if (name.includes("SAÚDE") || name.includes("VACINA") || name.includes("MÉDIC") || name.includes("SAUDE")) return DIMENSION_MAP["SAUDE"];
-  if (name.includes("EDUCA") || name.includes("ESCOLA") || name.includes("CURSO") || name.includes("CAPACITA")) return DIMENSION_MAP["EDUCACAO"];
-  if (name.includes("INFRA") || name.includes("MORADIA") || name.includes("SANEA") || name.includes("CONSTRU")) return DIMENSION_MAP["INFRAESTRUTURA"];
-  if (name.includes("ECONÔM") || name.includes("RENDA") || name.includes("EMPREG") || name.includes("ECONOMICO")) return DIMENSION_MAP["DESENVOLVIMENTO_ECONOMICO"];
-  if (name.includes("NUTRI") || name.includes("ALIMENT") || name.includes("CESTA") || name.includes("COMIDA")) return DIMENSION_MAP["NUTRICAO"];
-  return DEFAULT_DIMENSION;
+// Busca a dimensão diretamente do campo do banco de dados
+function getDimensionStyle(dimensao: string | undefined | null): DimensionStyle {
+  if (!dimensao) return DEFAULT_DIMENSION;
+  return DIMENSION_MAP[dimensao] || DEFAULT_DIMENSION;
 }
 
 function fmtDate(d: string) {
@@ -556,7 +552,7 @@ export default function FamilyHistoryPage() {
             </div>
             <div className={styles.tl}>
               {family.participacoes.map((p, i) => {
-                const dim = inferDimension(p.activity.nomeAção);
+                const dim = getDimensionStyle(p.activity.dimensao);
                 const DimIcon = dim.icon;
                 return (
                   <div key={p.id} className={styles.ti}>
