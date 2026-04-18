@@ -18,8 +18,31 @@ import {
   CheckCircle2,
   AlertCircle,
   User,
+  CalendarDays,
+  FileText,
+  TrendingUp,
+  Radar,
+  LineChart,
+  Globe,
+  HeartPulse,
+  GraduationCap,
+  Wrench,
+  Briefcase,
+  Apple,
+  HelpCircle,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import styles from "./FamiliaDetail.module.css";
+import { FamilyAnalyticsCharts } from "./FamilyAnalyticsCharts";
+import dynamic from 'next/dynamic';
+
+const FamilyLocationMap = dynamic(
+  () => import('./FamilyLocationMap'),
+  { 
+    ssr: false, 
+    loading: () => <div style={{ height: '400px', backgroundColor: '#FEFBF7', borderRadius: '12px', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8B7355', border: '1px solid #E8D5C0' }}>Carregando Satélite Logístico...</div> 
+  }
+);
 
 type FamilyStatus = "ATIVA" | "INATIVA";
 type BeneficiaryRole = "PAI" | "MAE" | "FILHO" | "FILHA" | "AVO" | "OUTRO";
@@ -79,6 +102,35 @@ const roleLabels: Record<string, string> = {
   AVO: "Avó/Avô",
   OUTRO: "Outro",
 };
+
+// --- Mapeamento de Dimensões para a Timeline ---
+interface DimensionStyle {
+  icon: LucideIcon;
+  color: string;
+  bgLight: string;
+  label: string;
+}
+
+const DIMENSION_MAP: Record<string, DimensionStyle> = {
+  "SAUDE":       { icon: HeartPulse,    color: "#C0272D", bgLight: "rgba(192, 39, 45, 0.08)",  label: "Saúde" },
+  "EDUCACAO":    { icon: GraduationCap,  color: "#2D6A4F", bgLight: "rgba(45, 106, 79, 0.08)",  label: "Educação" },
+  "INFRAESTRUTURA": { icon: Wrench,      color: "#6C5B7B", bgLight: "rgba(108, 91, 123, 0.08)", label: "Infraestrutura" },
+  "DESENVOLVIMENTO_ECONOMICO": { icon: Briefcase, color: "#C9943E", bgLight: "rgba(201, 148, 62, 0.08)",  label: "Des. Econômico" },
+  "NUTRICAO":    { icon: Apple,          color: "#6B7F3E", bgLight: "rgba(107, 127, 62, 0.08)",  label: "Nutrição" },
+};
+const DEFAULT_DIMENSION: DimensionStyle = { icon: HelpCircle, color: "#8B7355", bgLight: "rgba(139, 115, 85, 0.08)", label: "Geral" };
+
+// Infere a dimensão a partir do nome da ação (Mock)
+function inferDimension(activityName: string | undefined | null): DimensionStyle {
+  const name = (activityName || "").toUpperCase();
+  if (name.includes("SAÚDE") || name.includes("VACINA") || name.includes("MÉDIC") || name.includes("SAUDE")) return DIMENSION_MAP["SAUDE"];
+  if (name.includes("EDUCA") || name.includes("ESCOLA") || name.includes("CURSO") || name.includes("CAPACITA")) return DIMENSION_MAP["EDUCACAO"];
+  if (name.includes("INFRA") || name.includes("MORADIA") || name.includes("SANEA") || name.includes("CONSTRU")) return DIMENSION_MAP["INFRAESTRUTURA"];
+  if (name.includes("ECONÔM") || name.includes("RENDA") || name.includes("EMPREG") || name.includes("ECONOMICO")) return DIMENSION_MAP["DESENVOLVIMENTO_ECONOMICO"];
+  if (name.includes("NUTRI") || name.includes("ALIMENT") || name.includes("CESTA") || name.includes("COMIDA")) return DIMENSION_MAP["NUTRICAO"];
+  return DEFAULT_DIMENSION;
+}
+
 function fmtDate(d: string) {
   return new Date(d + "T12:00:00").toLocaleDateString("pt-BR", {
     day: "2-digit",
@@ -99,6 +151,9 @@ export default function FamilyHistoryPage() {
   const [showActionModal, setShowActionModal] = useState(false);
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Controle do Carrossel Visual
+  const [activeCarouselTab, setActiveCarouselTab] = useState<"MAPA" | "RADAR" | "LINHA">("RADAR");
 
   //Formulario de edição das famílias
   // Edit form
@@ -399,6 +454,7 @@ export default function FamilyHistoryPage() {
         </div>
       </div>
 
+
       <div className={styles["hp-grid"]}>
         <div className={styles["hp-left"]}>
           {/* Summary */}
@@ -448,6 +504,48 @@ export default function FamilyHistoryPage() {
               </div>
             </div>
           </section>
+
+          {/* === CARROSSSEL DE MÓDULOS (MAPA/RADAR/LINHA) === */}
+          <div className={styles.carouselContainer}>
+            <div className={styles.carouselToggle}>
+              <button 
+                className={`${styles.carouselBtn} ${activeCarouselTab === "RADAR" ? styles.active : ""}`}
+                onClick={() => setActiveCarouselTab("RADAR")}
+              >
+                <Radar size={15} /> Violações
+              </button>
+              <button 
+                className={`${styles.carouselBtn} ${activeCarouselTab === "LINHA" ? styles.active : ""}`}
+                onClick={() => setActiveCarouselTab("LINHA")}
+              >
+                <LineChart size={15} /> Histórico
+              </button>
+              <button 
+                className={`${styles.carouselBtn} ${activeCarouselTab === "MAPA" ? styles.active : ""}`}
+                onClick={() => setActiveCarouselTab("MAPA")}
+              >
+                <Globe size={15} /> Satélite
+              </button>
+            </div>
+
+            <div className={styles.carouselContent} key={activeCarouselTab}>
+              {activeCarouselTab === "RADAR" && (
+                 <FamilyAnalyticsCharts activeTab="RADAR" />
+              )}
+              {activeCarouselTab === "LINHA" && (
+                 <FamilyAnalyticsCharts activeTab="LINE" />
+              )}
+              {activeCarouselTab === "MAPA" && (
+                <FamilyLocationMap 
+                  lat={-1.45502} 
+                  lng={-48.49018} 
+                  familyName={sobrenomeFamilia || "Não listado"} 
+                />
+              )}
+            </div>
+          </div>
+          {/* ============================================== */}
+
           {/* Timeline */}
           <section className={styles.hc}>
             <div className={styles["hc-h"]}>
@@ -458,19 +556,30 @@ export default function FamilyHistoryPage() {
             </div>
             <div className={styles.tl}>
               {family.participacoes.map((p, i) => {
-                const isA = p.activity.tipo === "ATENDIMENTO";
+                const dim = inferDimension(p.activity.nomeAção);
+                const DimIcon = dim.icon;
                 return (
                   <div key={p.id} className={styles.ti}>
                     <div className={styles.tc2}>
                       <div
                         className={styles.td}
-                        style={{ background: isA ? "#6B7F3E" : "#C9943E" }}
-                      />
+                        style={{ 
+                          background: dim.color, 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          width: '28px',
+                          height: '28px',
+                          boxShadow: `0 0 0 3px #FFF, 0 0 0 4px ${dim.color}30`
+                        }}
+                      >
+                        <DimIcon size={14} color="#FFF" />
+                      </div>
                       {i < family.participacoes.length - 1 && (
-                        <div className={styles.tln} />
+                        <div className={styles.tln} style={{ background: `${dim.color}30` }} />
                       )}
                     </div>
-                    <div className={styles.tco}>
+                    <div className={styles.tco} style={{ borderLeft: `3px solid ${dim.color}` }}>
                       <div className={styles.tch}>
                         <div>
                           <span className={styles.tdt}>
@@ -480,9 +589,10 @@ export default function FamilyHistoryPage() {
                         </div>
                         <div className={styles.tgs}>
                           <span
-                            className={`${styles.tg} ${isA ? styles.tga : styles.tgv}`}
+                            className={styles.tg}
+                            style={{ color: dim.color, borderColor: dim.color, background: dim.bgLight }}
                           >
-                            {isA ? "Atendimento" : "Atividade"}
+                            {dim.label}
                           </span>
                           <span className={`${styles.tg} ${styles.tgf}`}>
                             {p.activity.formato === "INDIVIDUAL"

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -19,6 +19,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import styles from "./Atividades.module.css";
+import { ActivityFloatingForms } from "./ActivityFloatingForms";
 
 // Opções da interface
 type TipoAtividade = "ATENDIMENTO" | "ATIVIDADE";
@@ -931,6 +932,9 @@ export default function AtividadesPage() {
           </div>
         </div>
       )}
+
+      {/* COMPONENTES ASSÍNCRONOS: Botão Flutuante e Formulários Específicos */}
+      <ActivityFloatingForms />
     </div>
   );
 }

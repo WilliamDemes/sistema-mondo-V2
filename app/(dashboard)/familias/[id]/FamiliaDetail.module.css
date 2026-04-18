@@ -199,6 +199,61 @@
   color: #DC2626;
 }
 
+/* --- CARROSSEL MÓDULO ESTILOS --- */
+.carouselContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 24px 0 16px 0;
+  width: 100%;
+}
+
+.carouselToggle {
+  display: flex;
+  background: transparent;
+  border-radius: 8px;
+  padding: 2px;
+  border: 1px solid #E8D5C0;
+  gap: 0;
+  margin-bottom: 8px;
+}
+
+.carouselBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #B0996F;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.carouselBtn:hover {
+  color: #8B7355;
+}
+
+.carouselBtn.active {
+  background: #FFF;
+  color: #491B02;
+  box-shadow: 0 1px 4px rgba(73, 27, 2, 0.08);
+}
+
+.carouselContent {
+  width: 100%;
+  min-height: 480px;
+  animation: slideFadeIn 0.3s ease;
+}
+
+@keyframes slideFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .sg {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -1,0 +1,326 @@
+.fab {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #009999, #007777); /* Verde Mondó base */
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 153, 153, 0.4);
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 900;
+}
+
+.fab:hover {
+  transform: scale(1.1) translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 153, 153, 0.5);
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+.fab svg {
+  transition: transform 0.3s;
+}
+
+.fabClose svg {
+  transform: rotate(135deg);
+}
+
+/* Modais de Background */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(73, 27, 2, 0.5);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+  padding: 20px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Container do Modal de Catálogo (Grid) */
+.catalogContainer {
+  background: #FFF;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 800px;
+  padding: 32px;
+  box-shadow: 0 24px 60px rgba(73, 27, 2, 0.2);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Container do Form Modal */
+.formContainer {
+  background: #FFF;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+  padding: 32px;
+  box-shadow: 0 24px 60px rgba(73, 27, 2, 0.2);
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Headers dos Modais */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #491B02;
+  margin: 0;
+}
+
+.subTitle {
+  font-size: 14px;
+  color: #8B7355;
+  margin-top: 4px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+}
+
+.btnIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: #FEFBF7;
+  color: #8B7355;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #F0E6D8;
+}
+
+.btnIcon:hover {
+  background: #F8E4CC;
+  color: #491B02;
+  border-color: #C9943E;
+}
+
+/* Grid de Catálogo */
+.gridBox {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.typeCard {
+  background: #FEFBF7;
+  border: 1px solid #F0E6D8;
+  border-radius: 16px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  gap: 12px;
+}
+
+.typeCard:hover {
+  background: #FFF;
+  border-color: #009999;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 153, 153, 0.1);
+}
+
+.typeIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(0, 153, 153, 0.1);
+  color: #009999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.typeCard:hover .typeIcon {
+  background: #009999;
+  color: #FFF;
+}
+
+.typeName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #491B02;
+  margin: 0;
+}
+
+.typeDesc {
+  font-size: 12px;
+  color: #8B7355;
+  line-height: 1.4;
+}
+
+/* Campos de Formulário Generais */
+.formBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formRow {
+  display: flex;
+  gap: 16px;
+}
+
+.formRow > * {
+  flex: 1;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6B3A1F;
+}
+
+.input, .textarea, .select {
+  padding: 12px 14px;
+  border: 1.5px solid #E8D5C0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #491B02;
+  background: #FEFBF7;
+  outline: none;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.input:focus, .textarea:focus, .select:focus {
+  border-color: #009999;
+  box-shadow: 0 0 0 3px rgba(0, 153, 153, 0.1);
+  background: #FFF;
+}
+
+.input::placeholder, .textarea::placeholder {
+  color: rgba(139, 115, 85, 0.6);
+}
+
+/* Rodapé do Form */
+.formFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #F0E6D8;
+}
+
+.btnCancel {
+  padding: 10px 20px;
+  background: transparent;
+  color: #6B3A1F;
+  border: 1px solid #E8D5C0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnCancel:hover {
+  background: #FEF2F2;
+  color: #C0272D;
+  border-color: #FCA5A5;
+}
+
+.btnSubmit {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #009999, #007777);
+  color: #FFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 153, 153, 0.25);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnSubmit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 153, 153, 0.35);
+}
+
+/* Toast Mock */
+.mockToast {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 8px 30px rgba(5, 150, 105, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1001;
+  animation: slideDownToast 0.4s ease;
+}
+
+@keyframes slideDownToast {
+  from { opacity: 0; transform: translate(-50%, -20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
