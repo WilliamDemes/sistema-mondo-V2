@@ -24,11 +24,11 @@ export default function CalendarClientUI() {
           setAtividades(dados);   // Guardamos a caixa de dados no nosso estado
 
           // 1. Criamos o nosso mapa de eventos reais
-          const eventosReais = {};
+          const eventosReais: Record<string, any[]> = {};
 
-          dados.forEach((acao) => {
+          dados.forEach((acao: any) => {
             // Cortamos a data para ficar no formato de calendario "YYY-MM-DD"
-            const dataFormatada = acao.date.split("T")[0];
+            const dataFormatada = acao.data.split("T")[0];
 
             if (!eventosReais[dataFormatada]) {
               eventosReais[dataFormatada] = [];
@@ -37,7 +37,7 @@ export default function CalendarClientUI() {
             // 2. Inserimos a ação no dia correto
             eventosReais[dataFormatada].push({
               title: acao.nomeAcao,
-              category: acao.tipo
+              category: acao.categoria
             });
           });
 

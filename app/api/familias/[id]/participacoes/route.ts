@@ -15,13 +15,14 @@ export async function POST(request: NextRequest, props: RouteParams) {
     const dados = await request.json();
 
     // 3. Pegando os dados do JSON
-    const { acaoId, contagemParticipantes, observacoes } = dados
+    const { idAcao, sequencialMorador, contagemParticipantes, observacoes } = dados
 
     // 4. Fazendo o de-para com o banco de dados. Criando a ponte
     const novaParticipacao = await prisma.participacoes.create({
       data: {
-        familiaId: familiaId,
-        acaoId: acaoId,
+        idFamilia: familiaId, // Pode precisar ser o valor do idFamilia ao invés do id_sistema, caso o router não seja mais idFamilia
+        idAcao,
+        sequencialMorador: sequencialMorador || "01", // Fake fallback temporarily
         contagemParticipantes,
         observacoes
       }

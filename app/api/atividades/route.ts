@@ -23,20 +23,20 @@ export async function GET(request: NextRequest) {
 
 
     // 1. DADOS DA TELA: Busca apenas os 10 itens da página atual, filtrados pela busca
-    const atividadesDaPagina = await prisma.activity.findMany({
+    const atividadesDaPagina = await prisma.acoes.findMany({
       where: {
         OR: [
           { nomeAcao: { contains: termoBusca, mode: "insensitive" } },
           { descricao: { contains: termoBusca, mode: "insensitive" } }
         ],
       },
-      orderBy: { date: "desc" }, // Da mais nova para a mais velha
+      orderBy: { data: "desc" }, // Da mais nova para a mais velha
       skip,                      // Pula os itens das páginas anteriores
       take: itensPorPagina       // Pega apenas o limite da página (ex: 10)
     });
 
     // 2. MATEMÁTICA DA PAGINAÇÃO: Conta todos os cadastros que batem com a busca (para saber o total de páginas)
-    const totalGeralEncontrado = await prisma.activity.count({
+    const totalGeralEncontrado = await prisma.acoes.count({
       where: {
         OR: [
           { nomeAcao: { contains: termoBusca, mode: "insensitive" } },
@@ -46,9 +46,9 @@ export async function GET(request: NextRequest) {
     });
 
     // 3. ESTATÍSTICAS: Conta apenas os itens com tipo "ATIVIDADE" para as caixinhas coloridas do Front-end
-    const contagemAtividades = await prisma.activity.count({
+    const contagemAtividades = await prisma.acoes.count({
       where: {
-        tipo: "ATIVIDADE",
+        categoria: "ATIVIDADE",
         OR: [
           { nomeAcao: { contains: termoBusca, mode: "insensitive" } },
           { descricao: { contains: termoBusca, mode: "insensitive" } }
@@ -57,9 +57,9 @@ export async function GET(request: NextRequest) {
     });
 
     // 4. ESTATÍSTICAS: Conta apenas os itens com tipo "ATENDIMENTO" para as caixinhas coloridas do Front-end
-    const contagemAtendimentos = await prisma.activity.count({
+    const contagemAtendimentos = await prisma.acoes.count({
       where: {
-        tipo: "ATENDIMENTO",
+        categoria: "ATENDIMENTO",
         OR: [
           { nomeAcao: { contains: termoBusca, mode: "insensitive" } },
           { descricao: { contains: termoBusca, mode: "insensitive" } }
@@ -93,20 +93,21 @@ export async function POST(request: NextRequest) {
       nomeAcao,
       descricao,
       dimensao,
+      rubrica,
       projeto,
-      tipo,
+      categoria,
       formato,
       local,
       semestre,
-      date,
+      data,
     } = body;
 
     // 3. Validação de segurança
     if (
       !nomeAcao ||
-      !tipo ||
+      !categoria ||
       !formato ||
-      !date ||
+      !data ||
       !dimensao ||
       !projeto ||
       !local
@@ -118,17 +119,18 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Salvando de verdade no PostgreSQL via Prisma
-    const activity = await prisma.activity.create({
+    const activity = await prisma.acoes.create({
       data: {
         nomeAcao: nomeAcao.trim(),
         descricao: descricao?.trim() || null,
         dimensao,
+        rubrica: rubrica || "Geral",
         projeto,
-        tipo,
+        categoria,
         formato,
         local,
         // O Prisma exige que Datas sejam transformadas em Objetos do tipo Date
-        date: new Date(date + "T12:00:00Z"),
+        data: new Date(data + "T12:00:00Z"),
         // Veja a explicação sobre o semestre logo abaixo!
         semestre: semestre,
       },

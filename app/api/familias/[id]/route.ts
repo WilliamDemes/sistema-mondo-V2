@@ -13,15 +13,15 @@ export async function GET(
 
     const familia = await prisma.familia.findUnique({
       where: {
-        id: familiaId, // Usando o ID que acabamos de abrir
+        id_sistema: familiaId, // Usando o ID que acabamos de abrir
       },
       include: {
         beneficiarios: {
           orderBy: { responsavel: "asc" }, // Traz o responsável primeiro
         },
         participacoes: {
-          include: { activity: true },
-          orderBy: { createdAt: "desc" },
+          include: { acoes: true },
+          orderBy: { criadoEm: "desc" },
         },
       },
     });
@@ -55,9 +55,9 @@ export async function PUT(
     const familiaId = params.id;
 
     const familiaAtualizada = await prisma.familia.update({
-      where: { id: familiaId },
+      where: { id_sistema: familiaId },
       data: {
-        idMondoFamilia: body.idMondoFamilia,
+        idFamilia: body.idFamilia,
         cidade: body.cidade,
         estado: body.estado,
         grupoReferencia: body.grupoReferencia,

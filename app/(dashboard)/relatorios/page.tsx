@@ -18,36 +18,34 @@ import * as XLSX from "xlsx";
 import styles from "./Relatorios.module.css";
 
 interface Family {
-  id: string;
-  familyName: string;
-  territory: string;
-  address: string;
+  id_sistema: string;
+  idFamilia: string;
+  cidade: string;
+  estado: string;
+  grupoReferencia: string | null;
   status: string;
-  observations: string | null;
-  createdAt: string;
-  membersCount?: number;
-  participacoesCount?: number;
+  observacao: string | null;
+  criadoEm: string;
 }
 interface Beneficiary {
   id: string;
-  name: string;
-  age: number;
-  role: string;
+  nome: string;
+  idade: number;
+  parentesco: string;
 }
 interface Activity {
-  id: string;
-  title: string;
-  type: string;
-  format: string;
-  date: string;
-  description: string | null;
+  idAcao: string;
+  nomeAcao: string;
+  categoria: string;
+  formato: string;
+  data: string;
+  descricao: string | null;
 }
 interface Participation {
   id: string;
-  activityId: string;
-  participantCount: number;
-  notes: string | null;
-  activity: Activity;
+  contagemParticipantes: number;
+  observacoes: string | null;
+  acoes: Activity;
 }
 interface FamilyDetail extends Family {
   beneficiarios: Beneficiary[];
@@ -185,16 +183,16 @@ export default function RelatoriosPage() {
     const wb = XLSX.utils.book_new();
     if (selectedFields.has("general")) {
       const data = familyDetails.map((f) => ({
-        Nome: f.familyName,
-        Território: f.territory,
-        Endereço: f.address,
+        Nome: f.grupoReferencia || "Não informado",
+        Território: f.cidade,
+        Endereço: f.estado,
         Status: f.status,
-        "Data Cadastro": fmtDate(f.createdAt),
+        "Data Cadastro": fmtDate(f.criadoEm),
         ...(selectedFields.has("contagemParticipantes")
           ? { "Total Participações": f.participacoes.length }
           : {}),
         ...(selectedFields.has("observations")
-          ? { Observações: f.observations || "-" }
+          ? { Observações: f.observacao || "-" }
           : {}),
       }));
       XLSX.utils.book_append_sheet(
@@ -206,10 +204,10 @@ export default function RelatoriosPage() {
     if (selectedFields.has("beneficiarios")) {
       const data = familyDetails.flatMap((f) =>
         f.beneficiarios.map((b) => ({
-          Família: f.familyName,
-          Nome: b.name,
-          Idade: b.age,
-          Papel: roleLabels[b.role] || b.role,
+          Família: f.grupoReferencia || "Não informado",
+          Nome: b.nome,
+          Idade: b.idade,
+          Papel: roleLabels[b.parentesco] || b.parentesco,
         })),
       );
       if (data.length)
@@ -222,13 +220,13 @@ export default function RelatoriosPage() {
     if (selectedFields.has("participationList")) {
       const data = familyDetails.flatMap((f) =>
         f.participacoes.map((p) => ({
-          Família: f.familyName,
-          Atividade: p.activity.title,
-          Tipo: p.activity.type === "ATENDIMENTO" ? "Atendimento" : "Atividade",
-          Formato: p.activity.format === "INDIVIDUAL" ? "Individual" : "Grupo",
-          Data: fmtDate(p.activity.date),
-          Participantes: p.participantCount,
-          Observações: p.notes || "-",
+          Família: f.grupoReferencia || "Não informado",
+          Atividade: p.acoes.nomeAcao,
+          Tipo: p.acoes.categoria,
+          Formato: p.acoes.formato,
+          Data: fmtDate(p.acoes.data),
+          Participantes: p.contagemParticipantes,
+          Observações: p.observacoes || "-",
         })),
       );
       if (data.length)
@@ -248,7 +246,7 @@ export default function RelatoriosPage() {
   const familiasFiltradas =
     selectedFamilyId === "ALL"
       ? familyDetails
-      : familyDetails.filter((f) => f.id === selectedFamilyId);
+      : familyDetails.filter((f) => f.id_sistema === selectedFamilyId);
 
   return (
     <div className={styles.rp}>
@@ -313,8 +311,8 @@ export default function RelatoriosPage() {
             >
               <option value="ALL">Todas as famílias</option>
               {families.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.idMondoFamilia}
+                <option key={f.id_sistema} value={f.id_sistema}>
+                  {f.idFamilia}
                 </option>
               ))}
             </select>
@@ -355,11 +353,11 @@ export default function RelatoriosPage() {
           ) : (
             <div ref={previewRef} className={styles["rp-preview-content"]}>
               {familiasFiltradas.map((f) => (
-                <div key={f.id} className={styles.pf}>
+                <div key={f.id_sistema} className={styles.pf}>
                   {selectedFields.has("general") && (
                     <div className={styles.pg}>
                       <h2 className={styles["pf-name"]}>
-                        {f.idMondoFamilia}{" "}
+                        {f.idFamilia}{" "}
                         <span
                           className={`${styles.pb} ${f.status === "ATIVA" ? styles.pba : styles.pbi}`}
                         >
@@ -378,7 +376,7 @@ export default function RelatoriosPage() {
                           </tr>
                           <tr>
                             <th>Cadastro</th>
-                            <td>{fmtDate(f.createdAt)}</td>
+                            <td>{fmtDate(f.criadoEm)}</td>
                           </tr>
                         </tbody>
                       </table>
@@ -437,13 +435,11 @@ export default function RelatoriosPage() {
                           <tbody>
                             {f.participacoes.map((p) => (
                               <tr key={p.id}>
-                                <td>{p.activity.nomeAcao}</td>
+                                <td>{p.acoes.nomeAcao}</td>
                                 <td>
-                                  {p.activity.type === "ATENDIMENTO"
-                                    ? "Atendimento"
-                                    : "Atividade"}
+                                  {p.acoes.categoria}
                                 </td>
-                                <td>{fmtDate(p.activity.date)}</td>
+                                <td>{fmtDate(p.acoes.data)}</td>
                                 <td>{p.contagemParticipantes}</td>
                               </tr>
                             ))}
@@ -451,10 +447,10 @@ export default function RelatoriosPage() {
                         </table>
                       </div>
                     )}
-                  {selectedFields.has("observations") && f.observations && (
+                  {selectedFields.has("observations") && f.observacao && (
                     <div className={styles.po}>
                       <h3 className={styles.ph3}>Observações</h3>
-                      <p className={styles.pot}>{f.observations}</p>
+                      <p className={styles.pot}>{f.observacao}</p>
                     </div>
                   )}
                 </div>

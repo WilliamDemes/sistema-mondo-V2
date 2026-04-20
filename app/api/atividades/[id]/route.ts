@@ -8,8 +8,8 @@ interface RouteParams {
 export async function GET(_req: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const atividade = await prisma.activity.findUnique({
-      where: {id}
+    const atividade = await prisma.acoes.findUnique({
+      where: { idAcao: id }
     });
     if (!atividade)
       return NextResponse.json(
@@ -27,19 +27,20 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const body = await request.json();
-    const { nomeAcao, descricao, dimensao, projeto, tipo, formato, local, semestre, date } = body;
-    const updated = await prisma.activity.update({
-      where: { id },
+    const { nomeAcao, descricao, dimensao, projeto, rubrica, categoria, formato, local, semestre, data } = body;
+    const updated = await prisma.acoes.update({
+      where: { idAcao: id },
       data: {
         nomeAcao,
         descricao,
         dimensao,
+        rubrica,
         projeto,
-        tipo,
+        categoria,
         formato,
         local,
         semestre,
-        date: new Date(date + "T12:00:00Z")
+        data: new Date(data + "T12:00:00Z")
       },
     });
     if (!updated)
@@ -57,8 +58,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(_req: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const ok = await prisma.activity.delete({
-      where: { id },
+    const ok = await prisma.acoes.delete({
+      where: { idAcao: id },
     });
     if (!ok)
       return NextResponse.json(

@@ -13,12 +13,12 @@ datasource db {
 
 // ── Colaboradores do sistema ──
 model User {
-  id           String   @id @default(uuid())
+  idSistema    String   @id @default(uuid())
   firstName    String
   lastName     String
   email        String   @unique
   passwordHash String   @map("password_hash")
-  createdAt    DateTime @default(now()) @map("created_at")
+  criadoEm    DateTime @default(now()) @map("criado_em")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@map("users")
@@ -26,15 +26,15 @@ model User {
 
 // ── Famílias beneficiárias ──
 model Familia {
-  id              String        @id @default(uuid())
-  idMondoFamilia  String        @map("id_mondo_familia")
+  id_sistema      String        @id @default(dbgenerated("gen_random_uuid()")) @map("id_sistema")
+  idFamilia       String        @unique @map("id_familia")
   cidade          String
   estado          String
   grupoReferencia Grupo         @map("grupo_de_referencia")
   status          StatusFamilia  @default(ATIVA)
   observacao      String?
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  criadoEm        DateTime      @default(now()) @map("criado_em")
+  atualizadoEm    DateTime      @updatedAt @map("atualizado_em")
 
   beneficiarios  Beneficiarios[]
   participacoes Participacoes[]
@@ -57,20 +57,20 @@ enum Grupo {
 
 // ── Integrantes da família ──
 model Beneficiarios {
-  id              String         @id @default(uuid())
-  familyId        String         @map("family_id")
-  idMondoMorador  String         @map("id_mondo_morador")
-  nome            String
-  dataNascimento  DateTime       @map("data_nascimento")
-  idade           Int
-  cor             Cor
-  responsavel     Responsavel          
-  parentesco      Parentesco
-  sexo            Sexo
-  cpf             String?
-  createdAt       DateTime       @default(now()) @map("created_at")
+  idSistema          String        @id @default(dbgenerated("gen_random_uuid()")) @map("id_sistema")
+  idFamilia          String        @map("id_familia")
+  sequencialMorador  String        @map("sequencial_morador")
+  nome               String
+  dataNascimento     DateTime      @map("data_nascimento")
+  idade              Int
+  cor                Cor
+  responsavel        Responsavel          
+  parentesco         Parentesco
+  sexo               Sexo
+  cpf                String?
+  criadoEm           DateTime       @default(now()) @map("criado_em")
 
-  familia Familia @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familia Familia @relation(fields: [idFamilia], references: [idFamilia], onDelete: Cascade)
 
   @@map("beneficiarios")
 }
@@ -112,18 +112,20 @@ enum Sexo {
 
 
 // ── Ações/Atividades do instituto ──
-model Activity {
-  id          String         @id @default(uuid())
+model Acoes {
+  idAcao      String         @id @default(uuid())
   nomeAcao    String         @map("nome_acao")
   descricao   String?        
   dimensao    Dimensao
+  rubrica     String
   projeto     Projeto
-  tipo        TipoAtividade  @map("tipo_de_acao")
+  categoria   Categoria  @map("categoria")
   formato     FormatoAtividade    @map("formato_da_atividade")
   local       String
   semestre    String
-  date        DateTime
-  createdAt   DateTime       @default(now()) @map("created_at")
+  data        DateTime
+  metadados   Json?
+  criadoEm   DateTime       @default(now()) @map("criado_em")
 
   participacoes Participacoes[]
 
@@ -131,11 +133,11 @@ model Activity {
 }
 
 enum Dimensao {
-  EDUCACAO  @map("EDUCACÃO")
-  SAUDE  @map("SAÚDE")
-  MAE     @map("MORADIA_ÁGUA_ENERGIA")
+  EDUCACAO                    @map("EDUCACÃO")
+  SAUDE                       @map("SAÚDE")
+  MAE                         @map("MORADIA_ÁGUA_ENERGIA")
   DESENVOLVIMENTO_ECONOMICO   @map("DESENVOLVIMENTO_ECONOMICO")
-  NUTRICAO    @map("NUTRIÇÃO")
+  NUTRICAO                    @map("NUTRIÇÃO")
 }
 
 enum Projeto {
@@ -143,7 +145,7 @@ enum Projeto {
   PROA
 }
 
-enum TipoAtividade {
+enum Categoria {
   ATENDIMENTO
   ATIVIDADE
 }
@@ -156,15 +158,16 @@ enum FormatoAtividade {
 
 // ── Registros de Participação ──
 model Participacoes {
-  id                    String   @id @default(uuid())
-  familiaId             String   @map("familia_id")
-  acaoId                String   @map("acao_id")
+  idParticipacao        String   @id @default(uuid()) @map("id_participacao")
+  idFamilia             String   @map("id_familia")
+  idAcao                String   @map("id_acao")
+  sequencialMorador     String   @map("sequencial_morador")
   contagemParticipantes Int      @default(1) @map("contagem_de_participantes")
   observacoes           String?
-  createdAt             DateTime @default(now()) @map("created_at")
+  criadoEm             DateTime @default(now()) @map("criado_em")
 
-  familia   Familia   @relation(fields: [familiaId], references: [id], onDelete: Cascade)
-  activity Activity @relation(fields: [acaoId], references: [id], onDelete: Cascade)
+  familia   Familia   @relation(fields: [idFamilia], references: [idFamilia], onDelete: Cascade)
+  acoes Acoes @relation(fields: [idAcao], references: [idAcao], onDelete: Cascade)
 
   @@map("participacoes")
 }

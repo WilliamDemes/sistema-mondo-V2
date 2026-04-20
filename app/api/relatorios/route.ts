@@ -5,12 +5,12 @@ export async function GET() {
     try {
         // Conectando ao bando de dados
         const relatorioCompleto = await prisma.familia.findMany({
-            orderBy: {createdAt: "desc"},
+            orderBy: {criadoEm: "desc"},
             include: {   // o include inclui dados de outras bases que estão relacionadas com a base principal
                 beneficiarios: true,   // Traga os beneficiários (true), e nas participações, abra as chaves e inclua a atividade.
                 participacoes: {
                     include: {
-                        activity: true
+                        acoes: true
                     }
                 }
             }

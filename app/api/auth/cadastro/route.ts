@@ -55,8 +55,9 @@ export async function POST(request: Request) {
       {
         message: "Conta criada com sucesso",
         user: {
-          id: novoUsuario.id,
-          name: novoUsuario.name,
+          id: novoUsuario.idSistema,
+          firstName: novoUsuario.firstName,
+          lastName: novoUsuario.lastName,
           email: novoUsuario.email,
         },
       },

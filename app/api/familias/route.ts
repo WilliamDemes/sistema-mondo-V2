@@ -5,7 +5,7 @@ import { prisma } from "@/infra/database";
 export async function GET() {
   try {
     const familias = await prisma.familia.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { criadoEm: "desc" },
       include: {
         _count: {
           select: { beneficiarios: true, participacoes: true },
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     // O Prisma converte os dados e salva na tabela "familias"
     const novaFamilia = await prisma.familia.create({
       data: {
-        idMondoFamilia: body.idMondoFamilia,
+        idFamilia: body.idMondoFamilia, // Keeping body mapping since frontend might send the old name, but mapped to new DB column
         cidade: body.cidade,
         estado: body.estado,
         grupoReferencia: body.grupoReferencia,

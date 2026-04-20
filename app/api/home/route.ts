@@ -3,14 +3,14 @@ import { prisma } from "@/infra/database";
 
 export async function GET() {
     try {
-        const acoes = await prisma.activity.findMany({
+        const acoes = await prisma.acoes.findMany({
             select: {
                 nomeAcao: true,
-                date: true,
-                tipo: true
+                data: true,
+                categoria: true
             },
             orderBy: {
-                date: "asc"  // Traz os acoes mais recentemente primeiro
+                data: "asc"  // Traz os acoes mais recentemente primeiro
             }
         });
         console.log(acoes)

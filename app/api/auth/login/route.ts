@@ -50,7 +50,7 @@ export async function POST(request: Request) {
 
     // 5.1 Separamos os dados que vão estar visíveis no crachá (Payload)
     const payload = {
-      id: usuario.id,
+      id: usuario.idSistema,
       firstName: usuario.firstName,
       email: usuario.email
     }
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
       {
         message: "Login efetuado com sucesso!",
         user: {
-          id: usuario.id,
+          id: usuario.idSistema,
           firstName: usuario.firstName,
           lastName: usuario.lastName,
           email: usuario.email,

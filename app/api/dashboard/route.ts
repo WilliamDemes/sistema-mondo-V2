@@ -15,21 +15,21 @@ export async function GET() {
     const moradoresAtivos = await prisma.beneficiarios.count();
 
     // Contagem de atendimentos e atividades
-    const atendimentos = await prisma.activity.count({
-      where: { tipo: "ATENDIMENTO" },
+    const atendimentos = await prisma.acoes.count({
+      where: { categoria: "ATENDIMENTO" },
     });
 
     // Contagem de atendimentos e atividades
-    const atividades = await prisma.activity.count({
-      where: { tipo: "ATIVIDADE" },
+    const atividades = await prisma.acoes.count({
+      where: { categoria: "ATIVIDADE" },
     });
 
     // As cinco aatividades mais recentes
-    const atividadesRecentes = await prisma.activity.findMany({
-      orderBy: { date: "desc" },
+    const atividadesRecentes = await prisma.acoes.findMany({
+      orderBy: { data: "desc" },
       take: 5, // 👉 O limite de 5 itens!
       include: {
-        participacoes: true, // Incluímos isto para podermos contar quantas famílias participaram
+         participacoes: true, // Incluímos isto para podermos contar quantas famílias participaram
       },
     });
 
@@ -37,9 +37,9 @@ export async function GET() {
     const totalParticipacoes = await prisma.participacoes.count();
 
     //Participações por Mês
-    const acoesComData = await prisma.activity.findMany({
+    const acoesComData = await prisma.acoes.findMany({
       select: {
-        date: true,
+        data: true,
         _count: { select: { participacoes: true } },
       },
     });
@@ -48,7 +48,7 @@ export async function GET() {
 
     acoesComData.forEach((acao) => {
       // Extrai o mês abreviado em português e deixa em maiúsculo
-      const month = new Date(acao.date)
+      const month = new Date(acao.data)
         .toLocaleString("pt-BR", { month: "short" })
         .replace(".", "")
         .toUpperCase();
@@ -72,7 +72,7 @@ export async function GET() {
     });
 
     const topFamilias2 = topFamilias.map((f) => ({
-      id: f.id,
+      id: f.idFamilia,
       nome: f.grupoReferencia || "Sem Nome",
       territory: f.cidade || "Não informado",
       status: f.status,

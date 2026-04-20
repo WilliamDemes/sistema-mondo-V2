@@ -47,21 +47,21 @@ const FamilyLocationMap = dynamic(
 type FamilyStatus = "ATIVA" | "INATIVA";
 type BeneficiaryRole = "PAI" | "MAE" | "FILHO" | "FILHA" | "AVO" | "OUTRO";
 interface Activity {
-  id: string;
-  nomeAção: string;
+  idAcao: string;
+  nomeAcao: string;
   descricao: string | null;
   dimensao: string;
-  tipo: string;
+  categoria: string;
   formato: string;
-  date: string;
+  data: string;
 }
 interface Participacoes {
   id: string;
-  familiaId: string;
-  acaoId: string;
+  idFamilia: string;
+  idAcao: string;
   contagemParticipantes: number;
-  Observacoes: string | null;
-  activity: Activity;
+  observacoes: string | null;
+  acoes: Activity;
 }
 interface Beneficiary {
   id: string;
@@ -80,9 +80,9 @@ interface FamilyDetail {
   grupoReferencia: string;
   status: FamilyStatus;
   observacao: string | null;
-  createdAt: string;
+  criadoEm: string;
   beneficiarios: Beneficiary[];
-  participations: Participacoes[];
+  participacoes: Participacoes[];
   
   // Novos indicadores frontend mockados
   engajamento?: "Alto" | "Médio" | "Baixo";
@@ -417,7 +417,7 @@ export default function FamilyHistoryPage() {
           <button
             className={styles["hp-btn-pri"]}
             onClick={() => {
-              setAacaoId(activities[0]?.id || "");
+              setAacaoId(activities[0]?.idAcao || "");
               setShowActionModal(true);
             }}
             id="btn-registrar-acao"
@@ -486,7 +486,7 @@ export default function FamilyHistoryPage() {
                   Último registro
                 </div>
                 <span className={styles.siv}>
-                  {lastP ? fmtDate(lastP.activity.date) : "---"}
+                  {lastP ? fmtDate(lastP.acoes.data) : "---"}
                 </span>
               </div>
               <div className={styles.si2}>
@@ -552,7 +552,7 @@ export default function FamilyHistoryPage() {
             </div>
             <div className={styles.tl}>
               {family.participacoes.map((p, i) => {
-                const dim = getDimensionStyle(p.activity.dimensao);
+                const dim = getDimensionStyle(p.acoes.dimensao);
                 const DimIcon = dim.icon;
                 return (
                   <div key={p.id} className={styles.ti}>
@@ -579,9 +579,9 @@ export default function FamilyHistoryPage() {
                       <div className={styles.tch}>
                         <div>
                           <span className={styles.tdt}>
-                            {fmtDate(p.activity.date)}
+                            {fmtDate(p.acoes.data)}
                           </span>
-                          <h3 className={styles.tt2}>{p.activity.nomeAção}</h3>
+                          <h3 className={styles.tt2}>{p.acoes.nomeAcao}</h3>
                         </div>
                         <div className={styles.tgs}>
                           <span
@@ -591,21 +591,21 @@ export default function FamilyHistoryPage() {
                             {dim.label}
                           </span>
                           <span className={`${styles.tg} ${styles.tgf}`}>
-                            {p.activity.formato === "INDIVIDUAL"
+                            {p.acoes.formato === "INDIVIDUAL"
                               ? "Individual"
                               : "Grupo"}
                           </span>
                         </div>
                       </div>
-                      {p.activity.descricao && (
-                        <p className={styles.tds}>{p.activity.descricao}</p>
+                      {p.acoes.descricao && (
+                        <p className={styles.tds}>{p.acoes.descricao}</p>
                       )}
                       <div className={styles.tfo}>
                         <span className={styles.tp2}>
                           Participantes: {p.contagemParticipantes}
                         </span>
-                        {p.Observacoes && (
-                          <span className={styles.tn}>Obs: {p.Observacoes}</span>
+                        {p.observacoes && (
+                          <span className={styles.tn}>Obs: {p.observacoes}</span>
                         )}
                       </div>
                     </div>
@@ -820,10 +820,10 @@ export default function FamilyHistoryPage() {
                 >
                   <option value="">Selecione uma atividade...</option>
                   {activities.map((a) => (
-                    <option key={a.id} value={a.id}>
+                    <option key={a.idAcao} value={a.idAcao}>
                       {a.nomeAcao} (
-                      {a.tipo === "ATENDIMENTO" ? "Atendimento" : "Atividade"} -{" "}
-                      {fmtDate(a.date)})
+                      {a.categoria === "ATENDIMENTO" ? "Atendimento" : "Atividade"} -{" "}
+                      {fmtDate(a.data)})
                     </option>
                   ))}
                 </select>
@@ -943,7 +943,7 @@ export default function FamilyHistoryPage() {
                   <label className={styles.fl}>Parentesco *</label>
                   <select
                     value={mParentesco}
-                    onChange={(e) => setMParentesco(e.target.value)}
+                    onChange={(e) => setMParentesco(e.target.value as BeneficiaryRole)}
                     className={styles.fin}
                     disabled={isSubmitting}
                   >
