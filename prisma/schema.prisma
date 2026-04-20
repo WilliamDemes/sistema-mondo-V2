@@ -5,6 +5,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -170,4 +171,108 @@ model Participacoes {
   acoes Acoes @relation(fields: [idAcao], references: [idAcao], onDelete: Cascade)
 
   @@map("participacoes")
+}
+
+// ── Tabela de Ciclos de Coleta Neon ──
+model CicloColeta {
+  id_sistema                  String  @id @default(dbgenerated("gen_random_uuid()")) @map("id_sistema")
+  
+  domiCod                     Int?    @map("DOMI_COD")
+  domiDt                      String? @map("DOMI_DT") // Mantido como texto para facilitar importação (DD/MM/YYYY)
+  domiElegibilidade           Int?    @map("DOMI_ELEGIBILIDADE")
+  domiFase                    Int?    @map("DOMI_FASE")
+  domiRodada                  Int?    @map("DOMI_RODADA")
+  domiMeses                   Int?    @map("DOMI_MESES")
+  nomeFantasia                String? @map("NOME_FANTASIA")
+  grupoInstituicao            String? @map("GRUPO_INSTITUICAO")
+  domiNumColeta               Int?    @map("DOMI_NUM_COLETA")
+  domiNumColetaRev            Int?    @map("DOMI_NUM_COLETA_REV")
+  lastImpoDt                  String? @map("LAST_IMPO_DT")
+  bairro                      String? @map("BAIRRO")
+  municipio                   String? @map("MUNICIPIO")
+  uf                          String? @map("UF")
+  gps                         String? @map("GPS")
+  latitude                    Float?  @map("LATITUDE")
+  longitude                   Float?  @map("LONGITUDE")
+  subcodigo                   String? @map("SUBCODIGO")
+  residentes                  Int?    @map("RESIDENTES")
+  menores                     Int?    @map("MENORES")
+  adultos                     Int?    @map("ADULTOS")
+  rendaMoradores              Int?    @map("RENDA_MORADORES")
+  rendaTotal                  Int?    @map("RENDA_TOTAL")
+  rendaPerCapta               Int?    @map("RENDA_PER_CAPTA")
+  
+  // Variáveis de Indicadores (Mapeamento Direto)
+  domiR1                      Int?    @map("DOMI_R1")
+  domiR2                      Int?    @map("DOMI_R2")
+  domiE1                      Int?    @map("DOMI_E1")
+  domiE1A                     Int?    @map("DOMI_E1_A")
+  domiE1B                     Int?    @map("DOMI_E1_B")
+  domiE2                      Int?    @map("DOMI_E2")
+  domiE2A                     Int?    @map("DOMI_E2_A")
+  domiE2B                     Int?    @map("DOMI_E2_B")
+  domiI1                      Int?    @map("DOMI_I1")
+  domiI2                      Int?    @map("DOMI_I2")
+  domiI2A                     Int?    @map("DOMI_I2_A")
+  domiI2B                     Int?    @map("DOMI_I2_B")
+  domiI3                      Int?    @map("DOMI_I3")
+  domiI3A                     Int?    @map("DOMI_I3_A")
+  domiI3B                     Int?    @map("DOMI_I3_B")
+  domiI3C                     Int?    @map("DOMI_I3_C")
+  domiI3D                     Int?    @map("DOMI_I3_D")
+  domiI4                      Int?    @map("DOMI_I4")
+  domiS1                      Int?    @map("DOMI_S1")
+  domiS1A                     Int?    @map("DOMI_S1_A")
+  domiS1B                     Int?    @map("DOMI_S1_B")
+  domiS1C                     Int?    @map("DOMI_S1_C")
+  domiS1D                     Int?    @map("DOMI_S1_D")
+  domiN1                      Int?    @map("DOMI_N1")
+  domiN1A                     Int?    @map("DOMI_N1_A")
+  domiN1B                     Int?    @map("DOMI_N1_B")
+  
+  // Status Sociais e Ambientais
+  domiIndicador               Int?    @map("DOMI_INDICADOR")
+  domiInsegurancaAlimentar    Int?    @map("DOMI_INSEGURANCA_ALIMENTAR")
+  domiIsAguaCanalizada        Int?    @map("DOMI_IS_AGUA_CANALIZADA")
+  domiIsAguaTratada           Int?    @map("DOMI_IS_AGUA_TRATADA")
+  domiIsNotAguaRede           Int?    @map("DOMI_IS_NOT_AGUA_REDE")
+  domiIsImprovisado           Int?    @map("DOMI_IS_IMPROVISADO")
+  domiIsRiscoAmbiental        Int?    @map("DOMI_IS_RISCO_AMBIENTAL")
+  domiIsAdultoSemEf           Int?    @map("DOMI_IS_ADULTO_SEM_EF")
+  domiAnalfabetos             Int?    @map("DOMI_ANALFABETOS")
+  domiIsRiscoExclusao         Int?    @map("DOMI_IS_RISCO_EXCLUSAO")
+  domiIsDeficiencia           Int?    @map("DOMI_IS_DEFICIENCIA")
+  domiIsDeficienciaSemLaudo   Int?    @map("DOMI_IS_DEFICIENCIA_SEM_LAUDO")
+  domiIsDeficienciaSemBpc     Int?    @map("DOMI_IS_DEFICIENCIA_SEM_BPC")
+  domiIsDoenca                Int?    @map("DOMI_IS_DOENCA")
+  domiIsCuidadoMoradores      Int?    @map("DOMI_IS_CUIDADO_MORADORES")
+  domiMenorSemEscola          Int?    @map("DOMI_MENOR_SEM_ESCOLA")
+  domiDtCadunico              String? @map("DOMI_DT_CADUNICO")
+  domiIsChefiaMulheres        Int?    @map("DOMI_IS_CHEFIA_MULHERES")
+  domiIsSemColetaLixo         Int?    @map("DOMI_IS_SEM_COLETA_LIXO")
+  domiIsGrupoArmado           Int?    @map("DOMI_IS_GRUPO_ARMADO")
+  domiIsOcupacao              Int?    @map("DOMI_IS_OCUPACAO")
+  domiIsIdosoSemAposentadoria Int?    @map("DOMI_IS_IDOSO_SEM_APOSENTADORIA")
+  domiIsMenorSemCartaoVacinal Int?    @map("DOMI_IS_MENOR_SEM_CARTAO_VACINAL")
+  domiEmprestimos             Int?    @map("DOMI_EMPRESTIMOS")
+  domiIsAdultosComEf          Int?    @map("DOMI_IS_ADULTOS_COM_EF")
+  domiIsMaeSolo               Int?    @map("DOMI_IS_MAE_SOLO")
+
+  criadoEm                    DateTime @default(now()) @map("criado_em")
+
+  @@map("ciclos_de_coleta")
+}
+
+// ---- TABELAS VIRTUAIS (VIEW) ---------
+
+view IndicadoresTranspostos {
+  domiRodada Int?    @map("DOMI_RODADA")
+  domiCod    Int    @map("DOMI_COD")
+  indicador  String  @map("indicadores")
+  violacao   Int?    @map("violacoes")
+  tipo       String? @map("tipo")
+  
+  @@unique([domiCod, indicador])  // Definindo chave composta única
+
+  @@map("indicadores_transpostos")
 }
