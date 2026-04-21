@@ -13,7 +13,7 @@ export async function GET(
 
     const familia = await prisma.familia.findUnique({
       where: {
-        id_sistema: familiaId, // Usando o ID que acabamos de abrir
+        idFamilia: familiaId, // Usando o ID que acabamos de abrir
       },
       include: {
         beneficiarios: {
@@ -55,7 +55,7 @@ export async function PUT(
     const familiaId = params.id;
 
     const familiaAtualizada = await prisma.familia.update({
-      where: { id_sistema: familiaId },
+      where: { idFamilia: familiaId },
       data: {
         idFamilia: body.idFamilia,
         cidade: body.cidade,

@@ -34,6 +34,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import styles from "./FamiliaDetail.module.css";
 import { FamilyAnalyticsCharts } from "./FamilyAnalyticsCharts";
+import { FamilyHistoryChart } from "./FamilyHistoryChart";
 import dynamic from 'next/dynamic';
 
 const FamilyLocationMap = dynamic(
@@ -526,10 +527,10 @@ export default function FamilyHistoryPage() {
 
             <div className={styles.carouselContent} key={activeCarouselTab}>
               {activeCarouselTab === "RADAR" && (
-                 <FamilyAnalyticsCharts activeTab="RADAR" />
+                 <FamilyAnalyticsCharts />
               )}
               {activeCarouselTab === "LINHA" && (
-                 <FamilyAnalyticsCharts activeTab="LINE" />
+                 <FamilyHistoryChart />
               )}
               {activeCarouselTab === "MAPA" && (
                 <FamilyLocationMap 

@@ -17,17 +17,17 @@ import styles from "./Familias.module.css";
 
 // Interface de acordo com o prisma
 interface Family {
-  id: string;
-  idMondoFamilia: string;
+  id_sistema: string;
+  idFamilia: string;
   cidade: string;
   estado: string;
   grupoReferencia: string;
   status: string;
   observacao: string | null;
-  createdAt: string;
+  criadoEm: string;
   _count?: {
     beneficiarios: number;
-    participations: number;
+    paticipacoes: number;
   };
   beneficiarios?: {
     nome: string;
@@ -72,7 +72,7 @@ export default function FamiliasPage() {
       const res = await fetch("/api/familias");
       if (!res.ok) throw new Error();
       const rawFamilies: Family[] = await res.json();
-      
+
       // Injeção de dados simulados (Engajamento, Autonomia, Foto)
       const fotosMock = [
         "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=250&auto=format&fit=crop",
@@ -83,7 +83,7 @@ export default function FamiliasPage() {
 
       const enhancedFamilies = rawFamilies.map(f => {
         // Usa o hash simples do ID para manter os dados os mesmos entre renders
-        const hash = f.idMondoFamilia ? f.idMondoFamilia.charCodeAt(0) + f.idMondoFamilia.length : 0;
+        const hash = f.idFamilia ? f.idFamilia.charCodeAt(0) + f.idFamilia.length : 0;
         return {
           ...f,
           engajamento: niveis[(hash) % 3],
@@ -109,7 +109,7 @@ export default function FamiliasPage() {
       const termo = search.toLocaleLowerCase();
 
       //Pesquisa no ID da familia
-      const matchId = (f.idMondoFamilia || "")
+      const matchId = (f.idFamilia || "")
         .toLocaleLowerCase()
         .includes(termo);
 
@@ -131,8 +131,8 @@ export default function FamiliasPage() {
     })
     .sort((a, b) => {
       // Ordena os IDs de forma crescente e inteligente (Numérica)
-      return (a.idMondoFamilia || "").localeCompare(
-        b.idMondoFamilia || "",
+      return (a.idFamilia || "").localeCompare(
+        b.idFamilia || "",
         undefined,
         {
           numeric: true,
@@ -147,7 +147,7 @@ export default function FamiliasPage() {
       (f) =>
         f.beneficiarios?.map((b) => ({
           nome: b.nome,
-          idFamilia: f.idMondoFamilia,
+          idFamilia: f.idFamilia,
         })) || [],
     )
     .filter(
@@ -165,7 +165,7 @@ export default function FamiliasPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          IdMondoFamilia: formIdMondo,
+          idFamilia: formIdMondo,
           cidade: formCidade,
           estado: "Estado",
           observacao: formObs || null,
@@ -274,7 +274,7 @@ export default function FamiliasPage() {
         </div>
         <div className={styles["fp-filter-group"]}>
           <Filter size={14} />
-          
+
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -320,15 +320,15 @@ export default function FamiliasPage() {
         <div className={styles["fp-grid"]}>
           {filtered.map((f) => (
             <Link
-              key={f.id}
-              href={`/familias/${f.id}`}
+              key={f.idFamilia}
+              href={`/familias/${f.idFamilia}`}
               className={styles.fc}
-              id={`familia-card-${f.id}`}
+              id={`familia-card-${f.idFamilia}`}
             >
               <div className={styles["fc-body-split"]}>
                 <div className={styles["fc-left"]}>
                   <div className={styles["fc-photo-wrap"]}>
-                    <img src={f.foto} alt="Foto da familia" className={styles["fc-photo"]}/>
+                    <img src={f.foto} alt="Foto da familia" className={styles["fc-photo"]} />
                   </div>
                 </div>
 
@@ -337,7 +337,7 @@ export default function FamiliasPage() {
                     <h3 className={styles["fc-name"]}>
                       {(() => {
                         const responsavel = f.beneficiarios?.find((b) => b.responsavel === "Sim");
-                        return responsavel ? `${f.idMondoFamilia} - ${responsavel.nome}` : `Familia #${f.idMondoFamilia}`;
+                        return responsavel ? `${f.idFamilia} - ${responsavel.nome}` : `Familia #${f.idFamilia}`;
                       })()}
                     </h3>
                     <div className={styles["fc-badges"]}>
@@ -352,7 +352,7 @@ export default function FamiliasPage() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className={styles["fc-info"]}>
                     <div className={styles["fc-row"]}>
                       <MapPin size={14} />
@@ -360,7 +360,7 @@ export default function FamiliasPage() {
                     </div>
                     <div className={styles["fc-row"]}>
                       <Users size={14} />
-                      <span>{f._count?.beneficiarios ?? 0} integrantes • {f._count?.participations ?? 0} participações</span>
+                      <span>{f._count?.beneficiarios ?? 0} integrantes • {f._count?.paticipacoes ?? 0} participações</span>
                     </div>
                   </div>
                 </div>

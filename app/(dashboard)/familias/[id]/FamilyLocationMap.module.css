@@ -36,6 +36,8 @@
 .mapWrapper {
   width: 100%;
   height: 400px;
+  min-height: 400px;
+  flex-shrink: 0;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid #E8D5C0;
@@ -44,7 +46,7 @@
 }
 
 /* Force leaflet container to inherit height */
-.mapWrapper > div {
+.mapWrapper>div {
   width: 100% !important;
   height: 100% !important;
 }
