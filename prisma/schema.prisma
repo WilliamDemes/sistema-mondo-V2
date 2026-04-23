@@ -278,14 +278,15 @@ model Indicadores {
 // ---- TABELAS VIRTUAIS (VIEW) ---------
 
 view IndicadoresTranspostos {
-  domiRodada  Int?    @map("DOMI_RODADA")
-  domiCod     Int     @map("DOMI_COD")
-  indicador   String  @map("indicadores")
-  violacoes   Int?    @map("violacoes")
-  tipo        String? @map("tipo")
-  dimensao    String
+  domiRodada        Int?    @map("DOMI_RODADA")
+  domiCod           Int     @map("DOMI_COD")
+  indicador         String  @map("indicadores")
+  violacao          Int?    @map("violacoes")
+  tipo              String? @map("tipo")
+  dimensao          String
+  indicadorResumido String  @map("indicador_resumido")
   
-  @@unique([domiCod, indicador])  // Definindo chave composta única
+  @@unique([domiCod, indicador])
 
   @@map("indicadores_transpostos")
 }

@@ -527,7 +527,7 @@ export default function FamilyHistoryPage() {
 
             <div className={styles.carouselContent} key={activeCarouselTab}>
               {activeCarouselTab === "RADAR" && (
-                 <FamilyAnalyticsCharts />
+                 <FamilyAnalyticsCharts familyId={id} />
               )}
               {activeCarouselTab === "LINHA" && (
                  <FamilyHistoryChart />
