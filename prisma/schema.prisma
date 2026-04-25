@@ -173,6 +173,25 @@ model Participacoes {
   @@map("participacoes")
 }
 
+// ---- ACOMPANHAMENTO FAMILIAR ------
+model acompanhamentoFamiliar {
+  id              Int      @id @default(autoincrement())
+  idFamilia       Int      
+  dataVisita      DateTime
+  visitador       String
+  rua             String?
+  numero          String?
+  bairro          String?
+  telefone        String?
+  statusEndereco  String?
+  criadoEm        DateTime @default(now())
+
+  // Relacionamento com a tabela Familia (opcional, mas recomendado)
+  // familia      Familia  @relation(fields: [idFamilia], references: [id])
+
+  @@map("acompanhamento_familiar")
+}
+
 // ── Tabela de Ciclos de Coleta Neon ──
 model CicloColeta {
   id_sistema                  String  @id @default(dbgenerated("gen_random_uuid()")) @map("id_sistema")

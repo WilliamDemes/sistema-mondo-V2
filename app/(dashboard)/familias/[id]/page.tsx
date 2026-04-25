@@ -35,13 +35,14 @@ import type { LucideIcon } from "lucide-react";
 import styles from "./FamiliaDetail.module.css";
 import { FamilyAnalyticsCharts } from "./FamilyAnalyticsCharts";
 import { FamilyHistoryChart } from "./FamilyHistoryChart";
+import { StatusCiclos } from "./StatusCiclos";
 import dynamic from 'next/dynamic';
 
 const FamilyLocationMap = dynamic(
   () => import('./FamilyLocationMap'),
-  { 
-    ssr: false, 
-    loading: () => <div style={{ height: '400px', backgroundColor: '#FEFBF7', borderRadius: '12px', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8B7355', border: '1px solid #E8D5C0' }}>Carregando Satélite Logístico...</div> 
+  {
+    ssr: false,
+    loading: () => <div style={{ height: '400px', backgroundColor: '#FEFBF7', borderRadius: '12px', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8B7355', border: '1px solid #E8D5C0' }}>Carregando Satélite Logístico...</div>
   }
 );
 
@@ -75,7 +76,7 @@ interface Beneficiary {
 }
 interface FamilyDetail {
   id: string;
-  idMondoFamilia: string;
+  idFamilia: string;
   cidade: string;
   estado: string;
   grupoReferencia: string;
@@ -84,7 +85,7 @@ interface FamilyDetail {
   criadoEm: string;
   beneficiarios: Beneficiary[];
   participacoes: Participacoes[];
-  
+
   // Novos indicadores frontend mockados
   engajamento?: "Alto" | "Médio" | "Baixo";
   autonomia?: "Alto" | "Médio" | "Baixo";
@@ -114,11 +115,11 @@ interface DimensionStyle {
 }
 
 const DIMENSION_MAP: Record<string, DimensionStyle> = {
-  "SAUDE":       { icon: HeartPulse,    color: "#C0272D", bgLight: "rgba(192, 39, 45, 0.08)",  label: "Saúde" },
-  "EDUCACAO":    { icon: GraduationCap,  color: "#2D6A4F", bgLight: "rgba(45, 106, 79, 0.08)",  label: "Educação" },
-  "MAE":         { icon: Wrench,         color: "#6C5B7B", bgLight: "rgba(108, 91, 123, 0.08)", label: "Moradia/Água/Energia" },
-  "DESENVOLVIMENTO_ECONOMICO": { icon: Briefcase, color: "#C9943E", bgLight: "rgba(201, 148, 62, 0.08)",  label: "Des. Econômico" },
-  "NUTRICAO":    { icon: Apple,          color: "#6B7F3E", bgLight: "rgba(107, 127, 62, 0.08)",  label: "Nutrição" },
+  "SAUDE": { icon: HeartPulse, color: "#C0272D", bgLight: "rgba(192, 39, 45, 0.08)", label: "Saúde" },
+  "EDUCACAO": { icon: GraduationCap, color: "#2D6A4F", bgLight: "rgba(45, 106, 79, 0.08)", label: "Educação" },
+  "MAE": { icon: Wrench, color: "#6C5B7B", bgLight: "rgba(108, 91, 123, 0.08)", label: "Moradia/Água/Energia" },
+  "DESENVOLVIMENTO_ECONOMICO": { icon: Briefcase, color: "#C9943E", bgLight: "rgba(201, 148, 62, 0.08)", label: "Des. Econômico" },
+  "NUTRICAO": { icon: Apple, color: "#6B7F3E", bgLight: "rgba(107, 127, 62, 0.08)", label: "Nutrição" },
 };
 const DEFAULT_DIMENSION: DimensionStyle = { icon: HelpCircle, color: "#8B7355", bgLight: "rgba(139, 115, 85, 0.08)", label: "Geral" };
 
@@ -184,15 +185,15 @@ export default function FamilyHistoryPage() {
       const res = await fetch(`/api/familias/${id}`);
       if (!res.ok) throw new Error();
       const f = await res.json();
-      
+
       const fotosMock = [
         "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=250&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?q=80&w=250&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1484665754804-74b091211472?q=80&w=250&auto=format&fit=crop"
       ];
       const niveis = ["Alto", "Médio", "Baixo"] as const;
-      const hash = f.idMondoFamilia ? f.idMondoFamilia.charCodeAt(0) + f.idMondoFamilia.length : 0;
-      
+      const hash = f.idFamilia ? f.idFamilia.charCodeAt(0) + f.idFamilia.length : 0;
+
       setFamily({
         ...f,
         engajamento: niveis[(hash) % 3],
@@ -227,7 +228,7 @@ export default function FamilyHistoryPage() {
 
   function openEditModal() {
     if (!family) return;
-    setEIdMondo(family.idMondoFamilia);
+    setEIdMondo(family.idFamilia);
     setECidade(family.cidade);
     setEEstado(family.estado);
     setEGrupo(family.grupoReferencia);
@@ -244,7 +245,7 @@ export default function FamilyHistoryPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          idMondoFamilia: eIdMondo,
+          idFamilia: eIdMondo,
           cidade: eCidade,
           estado: eEstado,
           grupoReferencia: eGrupo,
@@ -308,7 +309,7 @@ export default function FamilyHistoryPage() {
           sexo: mSexo,
           responsavel: mResponsavel,
           cor: "NAO_COLETADO",
-          idMondoMorador: `${family?.idMondoFamilia}.X`,
+          idMondoMorador: `${family?.idFamilia}.X`,
         }),
       });
       if (!res.ok) throw new Error();
@@ -374,8 +375,8 @@ export default function FamilyHistoryPage() {
 
   // 3. Monta o título final
   const tituloFamilia = resp
-    ? `${family.idMondoFamilia} - ${sobrenomeFamilia}`
-    : `Família #${family.idMondoFamilia}`;
+    ? `${family.idFamilia} - ${sobrenomeFamilia}`
+    : `Família #${family.idFamilia}`;
 
   return (
     <div className={styles.hp}>
@@ -447,6 +448,7 @@ export default function FamilyHistoryPage() {
               Autonomia {family.autonomia}
             </span>
           </div>
+          <StatusCiclos />
           <p className={styles["hp-sub"]}>Acompanhamento e histórico de participações</p>
         </div>
       </div>
@@ -505,19 +507,19 @@ export default function FamilyHistoryPage() {
           {/* === CARROSSSEL DE MÓDULOS (MAPA/RADAR/LINHA) === */}
           <div className={styles.carouselContainer}>
             <div className={styles.carouselToggle}>
-              <button 
+              <button
                 className={`${styles.carouselBtn} ${activeCarouselTab === "RADAR" ? styles.active : ""}`}
                 onClick={() => setActiveCarouselTab("RADAR")}
               >
                 <Radar size={15} /> Violações
               </button>
-              <button 
+              <button
                 className={`${styles.carouselBtn} ${activeCarouselTab === "LINHA" ? styles.active : ""}`}
                 onClick={() => setActiveCarouselTab("LINHA")}
               >
                 <LineChart size={15} /> Histórico
               </button>
-              <button 
+              <button
                 className={`${styles.carouselBtn} ${activeCarouselTab === "MAPA" ? styles.active : ""}`}
                 onClick={() => setActiveCarouselTab("MAPA")}
               >
@@ -527,16 +529,16 @@ export default function FamilyHistoryPage() {
 
             <div className={styles.carouselContent} key={activeCarouselTab}>
               {activeCarouselTab === "RADAR" && (
-                 <FamilyAnalyticsCharts familyId={id} />
+                <FamilyAnalyticsCharts familyId={id} />
               )}
               {activeCarouselTab === "LINHA" && (
-                 <FamilyHistoryChart />
+                <FamilyHistoryChart />
               )}
               {activeCarouselTab === "MAPA" && (
-                <FamilyLocationMap 
-                  lat={-1.45502} 
-                  lng={-48.49018} 
-                  familyName={sobrenomeFamilia || "Não listado"} 
+                <FamilyLocationMap
+                  lat={-1.45502}
+                  lng={-48.49018}
+                  familyName={sobrenomeFamilia || "Não listado"}
                 />
               )}
             </div>
@@ -560,10 +562,10 @@ export default function FamilyHistoryPage() {
                     <div className={styles.tc2}>
                       <div
                         className={styles.td}
-                        style={{ 
-                          background: dim.color, 
-                          display: 'flex', 
-                          alignItems: 'center', 
+                        style={{
+                          background: dim.color,
+                          display: 'flex',
+                          alignItems: 'center',
                           justifyContent: 'center',
                           width: '28px',
                           height: '28px',

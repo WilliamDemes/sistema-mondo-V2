@@ -1,0 +1,86 @@
+/* ========================================================
+   StatusCiclos.module.css
+   Versão compacta: mini-dots inline na área do perfil
+   ======================================================== */
+
+.containerInline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.rotuloInline {
+  font-size: 10px;
+  font-weight: 700;
+  color: #8B7355;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.listaDots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dotWrapper {
+  position: relative;
+}
+
+.dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 700;
+  color: #FFF;
+  cursor: default;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+
+.dot:hover {
+  transform: scale(1.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  z-index: 2;
+}
+
+/* --- Tooltip Customizado --- */
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #491B02;
+  color: #FFF;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  box-shadow: 0 4px 12px rgba(73, 27, 2, 0.2);
+  z-index: 10;
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #491B02;
+}
+
+.dotWrapper:hover .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
