@@ -29,7 +29,7 @@ export async function GET() {
       orderBy: { data: "desc" },
       take: 5, // 👉 O limite de 5 itens!
       include: {
-         participacoes: true, // Incluímos isto para podermos contar quantas famílias participaram
+        participacoes: true, // Incluímos isto para podermos contar quantas famílias participaram
       },
     });
 
@@ -46,7 +46,7 @@ export async function GET() {
 
     const monthsMap: Record<string, number> = {};
 
-    acoesComData.forEach((acao) => {
+    acoesComData.forEach((acao: { data: string | Date; _count: { participacoes: number } }) => {
       // Extrai o mês abreviado em português e deixa em maiúsculo
       const month = new Date(acao.data)
         .toLocaleString("pt-BR", { month: "short" })
