@@ -39,6 +39,7 @@ model Familia {
 
   beneficiarios  Beneficiarios[]
   participacoes Participacoes[]
+  enderecos Enderecos[]
 
   @@map("familias")
 }
@@ -47,6 +48,48 @@ enum StatusFamilia {
   ATIVA
   INATIVA
 }
+
+model Enderecos {
+  idSistema    String    @id @default(dbgenerated("gen_random_uuid()")) @map("id_sistema")
+  idFamilia    String    @map("id_familia")
+  ruaRio       String    @map("rua_rio")
+  numero       String?
+  complemento  String?
+  bairro       Bairro    @default(CENTRO)
+  perimetro    Perimetro @default(URBANO)
+
+
+  relacao Familia @relation(fields: [idFamilia], references: [idFamilia], onDelete: Cascade)
+
+  @@map("enderecos")
+}
+
+enum Bairro {
+    SAO_PEDRO @map("SÃO PEDRO")
+    AEROPORTO
+    BANDEIRANTES
+    CASTANHEIRA
+    JARDIM_TROPICAL @map("JARDIM TROPICAL")
+    CENTRO
+    CIDADE_NOVA @map("CIDADE NOVA")
+    CIDADE_NOVA_2 @map("CIDADE NOVA 2")
+    CORCOVADO
+    JESUS_MISERICORDIOSO @map("JESUS MISERICORDIOSO")
+    NOVA_BREVES @map("NOVA BREVES")
+    PA_159 @map("PA 159")
+    PARQUE_UNIVERSITARIO @map("PARQUE UNIVERSITÁRIO")
+    RIACHO_DOCE @map("RIACHO DOCE")
+    SANTA_CRUZ @map("SANTA CRUZ")
+    SAO_TOME @map("SÃO TOMÉ")
+    RIO_PARAUAU @map("RIO PARAUAÚ")
+  }
+
+  enum Perimetro {
+    RURAL
+    URBANO
+    RIBEIRINHO
+  }
+
 
 enum Grupo {
   APAE

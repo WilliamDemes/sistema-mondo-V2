@@ -36,15 +36,29 @@ import styles from "./FamiliaDetail.module.css";
 import { FamilyAnalyticsCharts } from "./FamilyAnalyticsCharts";
 import { FamilyHistoryChart } from "./FamilyHistoryChart";
 import { StatusCiclos } from "./StatusCiclos";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
+import { Enderecos } from "@prisma/client";
 
-const FamilyLocationMap = dynamic(
-  () => import('./FamilyLocationMap'),
-  {
-    ssr: false,
-    loading: () => <div style={{ height: '400px', backgroundColor: '#FEFBF7', borderRadius: '12px', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8B7355', border: '1px solid #E8D5C0' }}>Carregando Satélite Logístico...</div>
-  }
-);
+const FamilyLocationMap = dynamic(() => import("./FamilyLocationMap"), {
+  ssr: false,
+  loading: () => (
+    <div
+      style={{
+        height: "400px",
+        backgroundColor: "#FEFBF7",
+        borderRadius: "12px",
+        marginTop: "16px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#8B7355",
+        border: "1px solid #E8D5C0",
+      }}
+    >
+      Carregando Satélite Logístico...
+    </div>
+  ),
+});
 
 type FamilyStatus = "ATIVA" | "INATIVA";
 type BeneficiaryRole = "PAI" | "MAE" | "FILHO" | "FILHA" | "AVO" | "OUTRO";
@@ -85,6 +99,7 @@ interface FamilyDetail {
   criadoEm: string;
   beneficiarios: Beneficiary[];
   participacoes: Participacoes[];
+  enderecos: Enderecos[];
 
   // Novos indicadores frontend mockados
   engajamento?: "Alto" | "Médio" | "Baixo";
@@ -106,6 +121,26 @@ const roleLabels: Record<string, string> = {
   OUTRO: "Outro",
 };
 
+const bairroLabels: Record<string, string> = {
+  SAO_PEDRO: "SÃO PEDRO",
+  AEROPORTO: "AEROPORTO",
+  BANDEIRANTES: "BANDEIRANTES",
+  CASTANHEIRA: "CASTANHEIRA",
+  JARDIM_TROPICAL: "JARDIM TROPICAL",
+  CENTRO: "CENTRO",
+  CIDADE_NOVA: "CIDADE NOVA",
+  CIDADE_NOVA_2: "CIDADE NOVA 2",
+  CORCOVADO: "CORCOVADO",
+  JESUS_MISERICORDIOSO: "JESUS MISERICORDIOSO",
+  NOVA_BREVES: "NOVA BREVES",
+  PA_159: "PA 159",
+  PARQUE_UNIVERSITARIO: "PARQUE UNIVERSITÁRIO",
+  RIACHO_DOCE: "RIACHO DOCE",
+  SANTA_CRUZ: "SANTA CRUZ",
+  SAO_TOME: "SÃO TOMÉ",
+  RIO_PARAUAU: "RIO PARAUAÚ",
+};
+
 // --- Mapeamento de Dimensões para a Timeline ---
 interface DimensionStyle {
   icon: LucideIcon;
@@ -115,16 +150,48 @@ interface DimensionStyle {
 }
 
 const DIMENSION_MAP: Record<string, DimensionStyle> = {
-  "SAUDE": { icon: HeartPulse, color: "#C0272D", bgLight: "rgba(192, 39, 45, 0.08)", label: "Saúde" },
-  "EDUCACAO": { icon: GraduationCap, color: "#2D6A4F", bgLight: "rgba(45, 106, 79, 0.08)", label: "Educação" },
-  "MAE": { icon: Wrench, color: "#6C5B7B", bgLight: "rgba(108, 91, 123, 0.08)", label: "Moradia/Água/Energia" },
-  "DESENVOLVIMENTO_ECONOMICO": { icon: Briefcase, color: "#C9943E", bgLight: "rgba(201, 148, 62, 0.08)", label: "Des. Econômico" },
-  "NUTRICAO": { icon: Apple, color: "#6B7F3E", bgLight: "rgba(107, 127, 62, 0.08)", label: "Nutrição" },
+  SAUDE: {
+    icon: HeartPulse,
+    color: "#C0272D",
+    bgLight: "rgba(192, 39, 45, 0.08)",
+    label: "Saúde",
+  },
+  EDUCACAO: {
+    icon: GraduationCap,
+    color: "#2D6A4F",
+    bgLight: "rgba(45, 106, 79, 0.08)",
+    label: "Educação",
+  },
+  MAE: {
+    icon: Wrench,
+    color: "#6C5B7B",
+    bgLight: "rgba(108, 91, 123, 0.08)",
+    label: "Moradia/Água/Energia",
+  },
+  DESENVOLVIMENTO_ECONOMICO: {
+    icon: Briefcase,
+    color: "#C9943E",
+    bgLight: "rgba(201, 148, 62, 0.08)",
+    label: "Des. Econômico",
+  },
+  NUTRICAO: {
+    icon: Apple,
+    color: "#6B7F3E",
+    bgLight: "rgba(107, 127, 62, 0.08)",
+    label: "Nutrição",
+  },
 };
-const DEFAULT_DIMENSION: DimensionStyle = { icon: HelpCircle, color: "#8B7355", bgLight: "rgba(139, 115, 85, 0.08)", label: "Geral" };
+const DEFAULT_DIMENSION: DimensionStyle = {
+  icon: HelpCircle,
+  color: "#8B7355",
+  bgLight: "rgba(139, 115, 85, 0.08)",
+  label: "Geral",
+};
 
 // Busca a dimensão diretamente do campo do banco de dados
-function getDimensionStyle(dimensao: string | undefined | null): DimensionStyle {
+function getDimensionStyle(
+  dimensao: string | undefined | null,
+): DimensionStyle {
   if (!dimensao) return DEFAULT_DIMENSION;
   return DIMENSION_MAP[dimensao] || DEFAULT_DIMENSION;
 }
@@ -151,7 +218,9 @@ export default function FamilyHistoryPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Controle do Carrossel Visual
-  const [activeCarouselTab, setActiveCarouselTab] = useState<"MAPA" | "RADAR" | "LINHA">("RADAR");
+  const [activeCarouselTab, setActiveCarouselTab] = useState<
+    "MAPA" | "RADAR" | "LINHA"
+  >("RADAR");
 
   //Formulario de edição das famílias
   // Edit form
@@ -189,16 +258,18 @@ export default function FamilyHistoryPage() {
       const fotosMock = [
         "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=250&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?q=80&w=250&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1484665754804-74b091211472?q=80&w=250&auto=format&fit=crop"
+        "https://images.unsplash.com/photo-1484665754804-74b091211472?q=80&w=250&auto=format&fit=crop",
       ];
       const niveis = ["Alto", "Médio", "Baixo"] as const;
-      const hash = f.idFamilia ? f.idFamilia.charCodeAt(0) + f.idFamilia.length : 0;
+      const hash = f.idFamilia
+        ? f.idFamilia.charCodeAt(0) + f.idFamilia.length
+        : 0;
 
       setFamily({
         ...f,
-        engajamento: niveis[(hash) % 3],
+        engajamento: niveis[hash % 3],
         autonomia: niveis[(hash + 1) % 3],
-        foto: fotosMock[hash % fotosMock.length]
+        foto: fotosMock[hash % fotosMock.length],
       });
     } catch {
       addToast("error", "Erro ao carregar família.");
@@ -434,25 +505,30 @@ export default function FamilyHistoryPage() {
           <img src={family.foto} alt="Família" />
         </div>
         <div className={styles["hp-profile-info"]}>
-          <h1 className={styles["hp-title"]}>
-            {tituloFamilia}
-          </h1>
+          <h1 className={styles["hp-title"]}>{tituloFamilia}</h1>
           <div className={styles["hp-badges"]}>
-            <span className={`${styles["hp-pill"]} ${family.status === "ATIVA" ? styles["st-ativa"] : styles["st-inativa"]}`}>
+            <span
+              className={`${styles["hp-pill"]} ${family.status === "ATIVA" ? styles["st-ativa"] : styles["st-inativa"]}`}
+            >
               {family.status === "ATIVA" ? "Ativa" : "Inativa"}
             </span>
-            <span className={`${styles["hp-pill"]} ${family.engajamento === "Alto" ? styles["st-eng-alto"] : family.engajamento === "Médio" ? styles["st-eng-med"] : styles["st-eng-baixo"]}`}>
+            <span
+              className={`${styles["hp-pill"]} ${family.engajamento === "Alto" ? styles["st-eng-alto"] : family.engajamento === "Médio" ? styles["st-eng-med"] : styles["st-eng-baixo"]}`}
+            >
               Engajamento {family.engajamento}
             </span>
-            <span className={`${styles["hp-pill"]} ${family.autonomia === "Alto" ? styles["st-aut-alta"] : family.autonomia === "Médio" ? styles["st-aut-med"] : styles["st-aut-baixa"]}`}>
+            <span
+              className={`${styles["hp-pill"]} ${family.autonomia === "Alto" ? styles["st-aut-alta"] : family.autonomia === "Médio" ? styles["st-aut-med"] : styles["st-aut-baixa"]}`}
+            >
               Autonomia {family.autonomia}
             </span>
           </div>
           <StatusCiclos />
-          <p className={styles["hp-sub"]}>Acompanhamento e histórico de participações</p>
+          <p className={styles["hp-sub"]}>
+            Acompanhamento e histórico de participações
+          </p>
         </div>
       </div>
-
 
       <div className={styles["hp-grid"]}>
         <div className={styles["hp-left"]}>
@@ -479,23 +555,53 @@ export default function FamilyHistoryPage() {
               <div className={styles.si2}>
                 <div className={styles.sil}>
                   <Home size={14} />
-                  Rua
+                  Rua/Rio
                 </div>
-                <span className={styles.siv}>{family.grupoReferencia}</span>
+                <span className={styles.siv}>
+                  {family.enderecos?.[0]?.ruaRio
+                    ? bairroLabels[family.enderecos[0].ruaRio] ||
+                      family.enderecos[0].ruaRio
+                    : "NÃO INFORMADO"}
+                </span>
               </div>
               <div className={styles.si2}>
                 <div className={styles.sil}>
                   <Home size={14} />
                   Bairro
                 </div>
-                <span className={styles.siv}>{family.grupoReferencia}</span>
+                <span className={styles.siv}>
+                  {family.enderecos?.[0]?.bairro
+                    ? bairroLabels[family.enderecos[0].bairro] ||
+                      family.enderecos[0].bairro
+                    : "NÃO INFORMADO"}
+                </span>
               </div>
               <div className={styles.si2}>
                 <div className={styles.sil}>
                   <Home size={14} />
                   Número da casa
                 </div>
-                <span className={styles.siv}>{family.grupoReferencia}</span>
+                <span className={styles.siv}>
+                  {family.enderecos?.[0]?.numero || "NÃO INFORMADO"}
+                </span>
+              </div>
+              <div className={styles.si2}>
+                <div className={styles.sil}>
+                  <Home size={14} />
+                  complemento
+                </div>
+                <span className={styles.siv}>
+                  {family.enderecos?.[0]?.complemento || "NÃO INFORMADO"}
+                </span>
+              </div>
+              <div className={styles.si2}>
+                <div className={styles.sil}>
+                  <Home size={14} />
+                  Perímetro
+                </div>
+                <span className={styles.siv}>
+                  {family.enderecos?.[0]?.perimetro || "NÃO INFORMADO"}
+                </span>
               </div>
               <div className={styles.si2}>
                 <div className={styles.sil}>
@@ -545,9 +651,7 @@ export default function FamilyHistoryPage() {
               {activeCarouselTab === "RADAR" && (
                 <FamilyAnalyticsCharts familyId={id} />
               )}
-              {activeCarouselTab === "LINHA" && (
-                <FamilyHistoryChart />
-              )}
+              {activeCarouselTab === "LINHA" && <FamilyHistoryChart />}
               {activeCarouselTab === "MAPA" && (
                 <FamilyLocationMap
                   lat={-1.45502}
@@ -578,21 +682,27 @@ export default function FamilyHistoryPage() {
                         className={styles.td}
                         style={{
                           background: dim.color,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: '28px',
-                          height: '28px',
-                          boxShadow: `0 0 0 3px #FFF, 0 0 0 4px ${dim.color}30`
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "28px",
+                          height: "28px",
+                          boxShadow: `0 0 0 3px #FFF, 0 0 0 4px ${dim.color}30`,
                         }}
                       >
                         <DimIcon size={14} color="#FFF" />
                       </div>
                       {i < family.participacoes.length - 1 && (
-                        <div className={styles.tln} style={{ background: `${dim.color}30` }} />
+                        <div
+                          className={styles.tln}
+                          style={{ background: `${dim.color}30` }}
+                        />
                       )}
                     </div>
-                    <div className={styles.tco} style={{ borderLeft: `3px solid ${dim.color}` }}>
+                    <div
+                      className={styles.tco}
+                      style={{ borderLeft: `3px solid ${dim.color}` }}
+                    >
                       <div className={styles.tch}>
                         <div>
                           <span className={styles.tdt}>
@@ -603,7 +713,11 @@ export default function FamilyHistoryPage() {
                         <div className={styles.tgs}>
                           <span
                             className={styles.tg}
-                            style={{ color: dim.color, borderColor: dim.color, background: dim.bgLight }}
+                            style={{
+                              color: dim.color,
+                              borderColor: dim.color,
+                              background: dim.bgLight,
+                            }}
                           >
                             {dim.label}
                           </span>
@@ -622,7 +736,9 @@ export default function FamilyHistoryPage() {
                           Participantes: {p.contagemParticipantes}
                         </span>
                         {p.observacoes && (
-                          <span className={styles.tn}>Obs: {p.observacoes}</span>
+                          <span className={styles.tn}>
+                            Obs: {p.observacoes}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -839,8 +955,10 @@ export default function FamilyHistoryPage() {
                   {activities.map((a) => (
                     <option key={a.idAcao} value={a.idAcao}>
                       {a.nomeAcao} (
-                      {a.categoria === "ATENDIMENTO" ? "Atendimento" : "Atividade"} -{" "}
-                      {fmtDate(a.data)})
+                      {a.categoria === "ATENDIMENTO"
+                        ? "Atendimento"
+                        : "Atividade"}{" "}
+                      - {fmtDate(a.data)})
                     </option>
                   ))}
                 </select>
@@ -960,7 +1078,9 @@ export default function FamilyHistoryPage() {
                   <label className={styles.fl}>Parentesco *</label>
                   <select
                     value={mParentesco}
-                    onChange={(e) => setMParentesco(e.target.value as BeneficiaryRole)}
+                    onChange={(e) =>
+                      setMParentesco(e.target.value as BeneficiaryRole)
+                    }
                     className={styles.fin}
                     disabled={isSubmitting}
                   >

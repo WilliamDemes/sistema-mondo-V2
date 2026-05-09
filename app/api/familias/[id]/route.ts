@@ -23,6 +23,10 @@ export async function GET(
           include: { acoes: true },
           orderBy: { criadoEm: "desc" },
         },
+        enderecos: {
+          orderBy: { idFamilia: "desc" }, // Traz o endereço mais recente primeiro
+          take: 1, // Pega apenas o último endereço registrado
+        }
       },
     });
 
