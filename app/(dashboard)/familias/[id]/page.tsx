@@ -470,7 +470,7 @@ export default function FamilyHistoryPage() {
               <div className={styles.si2}>
                 <div className={styles.sil}>
                   <MapPin size={14} />
-                  Território
+                  Cidade
                 </div>
                 <span className={styles.siv}>
                   {family.cidade} - {family.estado}{" "}
@@ -479,7 +479,21 @@ export default function FamilyHistoryPage() {
               <div className={styles.si2}>
                 <div className={styles.sil}>
                   <Home size={14} />
-                  Endereço
+                  Rua
+                </div>
+                <span className={styles.siv}>{family.grupoReferencia}</span>
+              </div>
+              <div className={styles.si2}>
+                <div className={styles.sil}>
+                  <Home size={14} />
+                  Bairro
+                </div>
+                <span className={styles.siv}>{family.grupoReferencia}</span>
+              </div>
+              <div className={styles.si2}>
+                <div className={styles.sil}>
+                  <Home size={14} />
+                  Número da casa
                 </div>
                 <span className={styles.siv}>{family.grupoReferencia}</span>
               </div>

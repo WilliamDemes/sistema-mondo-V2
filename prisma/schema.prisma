@@ -175,8 +175,7 @@ model Participacoes {
 
 // ---- ACOMPANHAMENTO FAMILIAR ------
 model acompanhamentoFamiliar {
-  id              Int      @id @default(autoincrement())
-  idFamilia       Int      
+  idFamilia       Int      @id
   dataVisita      DateTime
   visitador       String
   rua             String?
