@@ -1,7 +1,7 @@
 // middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { decrypt } from "./utils/session"; // O nosso leitor de crachás!
+import { descriptografar } from "./utils/sessao"; // O nosso leitor de crachás!
 
 // 1. O mapa do edifício: Quais rotas precisam de crachá?
 const rotasProtegidas = ["/home", "/atividades", "/familias", "/relatorios", "/dashboard"];
@@ -18,7 +18,7 @@ export async function proxy(req: NextRequest) {
   const cookie = req.cookies.get("session")?.value;
 
   // 4. O segurança passa o scanner no crachá pa ver se é válido
-  const sessao = cookie ? await decrypt(cookie) : null;
+  const sessao = cookie ? await descriptografar(cookie) : null;
 
   // ---AS REGRAS DA CASA--
 
@@ -49,3 +49,4 @@ export async function proxy(req: NextRequest) {
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
+

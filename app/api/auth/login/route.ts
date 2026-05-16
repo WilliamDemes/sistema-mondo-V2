@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { prisma } from "../../../../infra/database";
-import { encrypt } from "../../../../utils/session" // 1. Importando o fabricante de crachás
+import { prisma } from "../../../../infra/bancoDeDados";
+import { criptografar } from "../../../../utils/sessao" // 1. Importando o fabricante de crachás
 import { cookies } from "next/headers"; // 2. Importamos o bolso do navegador (cookies)
 
-export async function POST(request: Request) {
+export async function POST(requisicao: Request) {
   try {
     // 1. Receber os dados da tela de Login
-    const body = await request.json();
-    const { email, password } = body;
+    const corpo = await requisicao.json();
+    const { email, password } = corpo;
 
     // 2. Auditoria básica: Campos vazios
     if (!email || !password) {
       return NextResponse.json(
-        { error: "E-mail e senha são obrigatórios." },
+        { erro: "E-mail e senha são obrigatórios." },
         { status: 400 }, // Bad Request
       );
     }
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     // Se não encontrou nenhuma ficha com esse e-mail...
     if (!usuario) {
       return NextResponse.json(
-        { error: "E-mail ou senha incorretos." },
+        { erro: "E-mail ou senha incorretos." },
         { status: 401 }, // 401 = Não autorizado
       );
     }
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     // Se a senha não bater...
     if (!senhaValida) {
       return NextResponse.json(
-        { error: "E-mail ou senha incorretos." },
+        { erro: "E-mail ou senha incorretos." },
         { status: 401 },
       );
     }
@@ -49,14 +49,14 @@ export async function POST(request: Request) {
     // --- 5. A MÁGICA DO CRACHÁ VIP COMEÇA AQUI ---
 
     // 5.1 Separamos os dados que vão estar visíveis no crachá (Payload)
-    const payload = {
+    const dadosPayload = {
       id: usuario.idSistema,
       firstName: usuario.firstName,
       email: usuario.email
     }
 
     // 5.2 Fabricamos o crachá usando a nossa chave secreta
-    const token = await encrypt(payload);
+    const token = await criptografar(dadosPayload);
 
     // 5.3 Colocamos o crachá no bolso do navegador (Cookie)
     // Nota: Dependendo da versão exata do Next.js, pode existir "await cookies()"
@@ -83,11 +83,12 @@ export async function POST(request: Request) {
       { status: 200}
     );
 
-  } catch (error) {
-    console.log("Erro no login", error);
+  } catch (erro) {
+    console.log("Erro no login", erro);
     return NextResponse.json(
-      { error: "Ocorreu um erro interno no servidor." },
+      { erro: "Ocorreu um erro interno no servidor." },
       { status: 500 }, // 500 = Erro do nosso lado
     );
   }
 }
+

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/infra/database";
+import { prisma } from "@/infra/bancoDeDados";
 
 // FUNÇÃO PARA BUSCAR AS FAMÍLIAS (GET)
 export async function GET() {
@@ -20,36 +20,37 @@ export async function GET() {
       },
     });
     return NextResponse.json(familias);
-  } catch (error) {
+  } catch (erro) {
     return NextResponse.json(
-      { error: "Erro ao buscar famílias" },
+      { erro: "Erro ao buscar famílias" },
       { status: 500 },
     );
   }
 }
 
 // FUNÇÃO PARA CRIAR NOVA FAMÍLIA (POST)
-export async function POST(request: Request) {
+export async function POST(requisicao: Request) {
   try {
-    const body = await request.json();
+    const corpo = await requisicao.json();
 
     // O Prisma converte os dados e salva na tabela "familias"
     const novaFamilia = await prisma.familia.create({
       data: {
-        idFamilia: body.idMondoFamilia, // Keeping body mapping since frontend might send the old name, but mapped to new DB column
-        cidade: body.cidade,
-        estado: body.estado,
-        grupoReferencia: body.grupoReferencia,
-        observacao: body.observacao,
+        idFamilia: corpo.idMondoFamilia, // Keeping corpo mapping since frontend might send the old name, but mapped to new DB column
+        cidade: corpo.cidade,
+        estado: corpo.estado,
+        grupoReferencia: corpo.grupoReferencia,
+        observacao: corpo.observacao,
         status: "ATIVA", // Por padrão
       },
     });
 
     return NextResponse.json(novaFamilia, { status: 201 });
-  } catch (error) {
+  } catch (erro) {
     return NextResponse.json(
-      { error: "Erro ao salvar família no banco" },
+      { erro: "Erro ao salvar família no banco" },
       { status: 500 },
     );
   }
 }
+

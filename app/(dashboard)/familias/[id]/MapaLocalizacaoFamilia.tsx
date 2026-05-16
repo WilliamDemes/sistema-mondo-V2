@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import { MapPin } from "lucide-react";
-import styles from "./FamilyLocationMap.module.css";
+import styles from "./MapaLocalizacaoFamilia.module.css";
 
 // Para evitar o bug natural do Leaflet com caminhos relativos ao compilar no Next.js
 // geramos um ícone customizado de bolinha (estilo tableau/powerBI) renderizado puramente via CSS.
@@ -22,7 +22,7 @@ interface FamilyLocationMapProps {
   familyName: string;
 }
 
-export default function FamilyLocationMap({ lat, lng, familyName }: FamilyLocationMapProps) {
+export default function MapaLocalizacaoFamilia({ lat, lng, familyName }: FamilyLocationMapProps) {
   const position: [number, number] = [lat, lng];
 
   const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;

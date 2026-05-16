@@ -70,7 +70,7 @@ const TooltipRadarCustomizado = ({ active: ativo, payload: dadosOrigem }: any) =
   return null;
 };
 
-export function DashboardGeralRadar() {
+export function GraficoRadarDashboardGeral() {
   const [dados] = useState<DimensaoAgregada[]>(DADOS_MOCK);
 
   // Ordenação opcional para agrupar as maiores médias

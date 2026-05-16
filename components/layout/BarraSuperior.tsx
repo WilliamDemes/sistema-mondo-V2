@@ -2,18 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { currentUser } from "@/models/store";
+import { usuarioAtual } from "@/models/estado";
 import { Bell, Search } from "lucide-react";
-import styles from "./Topbar.module.css";
+import styles from "./BarraSuperior.module.css";
 
-const topNavItems = [
+const itensMenuSuperior = [
   { href: "/", label: "Início" },
   { href: "/familias", label: "Famílias" },
   { href: "/atividades", label: "Atividades" },
   { href: "/dashboard", label: "Dashboard" },
 ];
 
-export default function Topbar() {
+export default function BarraSuperior() {
   const pathname = usePathname();
 
   return (
@@ -29,8 +29,8 @@ export default function Topbar() {
 
       {/* Center navigation */}
       <nav className={styles["topbar-nav"]}>
-        {topNavItems.map((item) => {
-          const isActive =
+        {itensMenuSuperior.map((item) => {
+          const ativo =
             item.href === "/"
               ? pathname === "/"
               : pathname.startsWith(item.href);
@@ -39,7 +39,7 @@ export default function Topbar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`${styles["topbar-nav-link"]} ${isActive ? styles["topbar-nav-link-active"] : ""}`}
+              className={`${styles["topbar-nav-link"]} ${ativo ? styles["topbar-nav-link-active"] : ""}`}
             >
               {item.label}
             </Link>
@@ -57,12 +57,13 @@ export default function Topbar() {
           <span className={styles["topbar-notification-dot"]} />
         </button>
         <div className={styles["topbar-user"]} id="user-greeting">
-          <span className={styles["topbar-user-greeting"]}>Olá, {currentUser.name}</span>
+          <span className={styles["topbar-user-greeting"]}>Olá, {usuarioAtual.nome}</span>
           <div className={styles["topbar-user-avatar"]}>
-            {currentUser.name.charAt(0)}
+            {usuarioAtual.nome.charAt(0)}
           </div>
         </div>
       </div>
     </header>
   );
 }
+

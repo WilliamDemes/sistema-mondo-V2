@@ -255,6 +255,8 @@ model CicloColeta {
   gps                         String? @map("GPS")
   latitude                    Float?  @map("LATITUDE")
   longitude                   Float?  @map("LONGITUDE")
+  latitude_v2                 Float?  @map("LATITUDE_V2")
+  longitude_v2                Float?  @map("LONGITUDE_V2")
   subcodigo                   String? @map("SUBCODIGO")
   residentes                  Int?    @map("RESIDENTES")
   menores                     Int?    @map("MENORES")

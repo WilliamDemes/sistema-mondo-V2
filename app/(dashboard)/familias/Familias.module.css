@@ -111,7 +111,7 @@
   min-width: 120px;
 }
 
-.fp-loading {
+.fp-carregando {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -120,7 +120,7 @@
   color: #8B7355;
 }
 
-.fp-loading p {
+.fp-carregando p {
   font-size: 14px;
 }
 

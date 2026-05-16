@@ -8,18 +8,18 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from 'recharts';
 import styles from "./Dashboard.module.css";
-import { DashboardItem } from "../home/fakeData";
+import { DashboardItem } from "../home/dadosFalsos";
 
-interface MonthlyData { month: string; count: number; }
-interface TerritoryData { name: string; families: number; active: number; }
-interface DashboardStats {
+interface DadosMensais { month: string; count: number; }
+interface DadosTerritorio { name: string; families: number; active: number; }
+interface EstatisticasDashboard {
   familiasAtivas: number; totalFamilias: number; moradoresAtivos: number; atendimentos: number;
-  atividades: number; totalParticipacoes: number; participacaoMensal: MonthlyData[];
-  territorios: TerritoryData[];
+  atividades: number; totalParticipacoes: number; participacaoMensal: DadosMensais[];
+  territorios: DadosTerritorio[];
   // e outros... 
 }
 
-export default function ChartsClientUI({ stats, filteredFakeData }: { stats: DashboardStats, filteredFakeData: DashboardItem[] }) {
+export default function GraficosClienteUI({ stats, filteredFakeData }: { stats: EstatisticasDashboard, filteredFakeData: DashboardItem[] }) {
   
   // ── 1. Preparo dos Dados: Evolução (Área) ── 
   const areaData = useMemo(() => {

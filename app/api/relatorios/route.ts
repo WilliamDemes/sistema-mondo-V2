@@ -1,5 +1,5 @@
 import { NextResponse  } from "next/server";
-import { prisma } from "@/infra/database";
+import { prisma } from "@/infra/bancoDeDados";
 
 export async function GET() {
     try {
@@ -17,8 +17,8 @@ export async function GET() {
         });
         
         return NextResponse.json(relatorioCompleto, {status: 200});
-    } catch (error) {
-        console.error("Erro ao buscar dados do relatório", error);
-        return NextResponse.json({error: "Erro ao carregar relatórios"}, {status: 500});
+    } catch (erro) {
+        console.error("Erro ao buscar dados do relatório", erro);
+        return NextResponse.json({erro: "Erro ao carregar relatórios"}, {status: 500});
     }
 }

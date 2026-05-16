@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/infra/database";
+import { prisma } from "@/infra/bancoDeDados";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -13,21 +13,21 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     });
     if (!atividade)
       return NextResponse.json(
-        { error: "Atividade não encontrada" },
+        { erro: "Atividade não encontrada" },
         { status: 404 },
       );
     return NextResponse.json(atividade);
-  } catch (error) {
-    console.error("Erro:", error);
-    return NextResponse.json({ error: "Erro" }, { status: 500 });
+  } catch (erro) {
+    console.error("Erro:", erro);
+    return NextResponse.json({ erro: "Erro" }, { status: 500 });
   }
 }
 
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function PUT(requisicao: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const body = await request.json();
-    const { nomeAcao, descricao, dimensao, projeto, rubrica, categoria, formato, local, semestre, data } = body;
+    const corpo = await requisicao.json();
+    const { nomeAcao, descricao, dimensao, projeto, rubrica, categoria, formato, local, semestre, data } = corpo;
     const updated = await prisma.acoes.update({
       where: { idAcao: id },
       data: {
@@ -45,13 +45,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     });
     if (!updated)
       return NextResponse.json(
-        { error: "Atividade não encontrada" },
+        { erro: "Atividade não encontrada" },
         { status: 404 },
       );
     return NextResponse.json(updated);
-  } catch (error) {
-    console.error("Erro:", error);
-    return NextResponse.json({ error: "Erro" }, { status: 500 });
+  } catch (erro) {
+    console.error("Erro:", erro);
+    return NextResponse.json({ erro: "Erro" }, { status: 500 });
   }
 }
 
@@ -63,12 +63,12 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
     });
     if (!ok)
       return NextResponse.json(
-        { error: "Atividade não encontrada" },
+        { erro: "Atividade não encontrada" },
         { status: 404 },
       );
     return NextResponse.json({ message: "Atividade excluída" });
-  } catch (error) {
-    console.error("Erro:", error);
-    return NextResponse.json({ error: "Erro" }, { status: 500 });
+  } catch (erro) {
+    console.error("Erro:", erro);
+    return NextResponse.json({ erro: "Erro" }, { status: 500 });
   }
 }

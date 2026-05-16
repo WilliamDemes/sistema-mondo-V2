@@ -17,7 +17,7 @@ import {
 import * as XLSX from "xlsx";
 import styles from "./Relatorios.module.css";
 
-interface Family {
+interface Familia {
   id_sistema: string;
   idFamilia: string;
   cidade: string;
@@ -27,13 +27,13 @@ interface Family {
   observacao: string | null;
   criadoEm: string;
 }
-interface Beneficiary {
+interface Beneficiario {
   id: string;
   nome: string;
   idade: number;
   parentesco: string;
 }
-interface Activity {
+interface Atividade {
   idAcao: string;
   nomeAcao: string;
   categoria: string;
@@ -41,15 +41,15 @@ interface Activity {
   data: string;
   descricao: string | null;
 }
-interface Participation {
+interface Participacao {
   id: string;
   contagemParticipantes: number;
   observacoes: string | null;
-  acoes: Activity;
+  acoes: Atividade;
 }
-interface FamilyDetail extends Family {
-  beneficiarios: Beneficiary[];
-  participacoes: Participation[];
+interface FamilyDetail extends Familia {
+  beneficiarios: Beneficiario[];
+  participacoes: Participacao[];
 }
 interface Toast {
   id: number;
@@ -102,13 +102,13 @@ const REPORT_FIELDS = [
 ];
 
 export default function RelatoriosPage() {
-  const [families, setFamilies] = useState<Family[]>([]);
+  const [families, setFamilies] = useState<Familia[]>([]);
   const [selectedFamilyId, setSelectedFamilyId] = useState<string>("ALL");
   const [familyDetails, setFamilyDetails] = useState<FamilyDetail[]>([]);
   const [selectedFields, setSelectedFields] = useState<Set<string>>(
     new Set(REPORT_FIELDS.map((f) => f.key)),
   );
-  const [loading, setLoading] = useState(true);
+  const [carregando, setCarregando] = useState(true);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -131,7 +131,7 @@ export default function RelatoriosPage() {
       } catch {
         addToast("error", "Erro ao carregar famílias.");
       } finally {
-        setLoading(false);
+        setCarregando(false);
         setLoadingDetails(false); // Já desligamos o segundo "carregando" da tela
       }
     })();
@@ -307,7 +307,7 @@ export default function RelatoriosPage() {
               value={selectedFamilyId}
               onChange={(e) => setSelectedFamilyId(e.target.value)}
               className={styles["rp-select"]}
-              disabled={loading}
+              disabled={carregando}
             >
               <option value="ALL">Todas as famílias</option>
               {families.map((f) => (
@@ -346,7 +346,7 @@ export default function RelatoriosPage() {
             Pré-visualização
           </h2>
           {loadingDetails ? (
-            <div className={styles["rp-loading"]}>
+            <div className={styles["rp-carregando"]}>
               <Loader2 size={24} className="spinner" />
               <p>Carregando...</p>
             </div>

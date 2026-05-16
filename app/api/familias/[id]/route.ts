@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/infra/database";
+import { prisma } from "@/infra/bancoDeDados";
 
 // 1. BUSCAR A FAMÍLIA (GET)
 export async function GET(
-  request: Request,
+  requisicao: Request,
   props: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -32,15 +32,15 @@ export async function GET(
 
     if (!familia) {
       return NextResponse.json(
-        { error: "Família não encontrada" },
+        { erro: "Família não encontrada" },
         { status: 404 },
       );
     }
 
     return NextResponse.json(familia);
-  } catch (error) {
+  } catch (erro) {
     return NextResponse.json(
-      { error: "Erro ao buscar família" },
+      { erro: "Erro ao buscar família" },
       { status: 500 },
     );
   }
@@ -48,11 +48,11 @@ export async function GET(
 
 // 2. EDITAR A FAMÍLIA (PUT)
 export async function PUT(
-  request: Request,
+  requisicao: Request,
   props: { params: Promise<{ id: string }> },
 ) {
   try {
-    const body = await request.json();
+    const corpo = await requisicao.json();
 
     // 👇 ADICIONADO: Abrindo a caixa no PUT também
     const params = await props.params;
@@ -61,19 +61,19 @@ export async function PUT(
     const familiaAtualizada = await prisma.familia.update({
       where: { idFamilia: familiaId },
       data: {
-        idFamilia: body.idFamilia,
-        cidade: body.cidade,
-        estado: body.estado,
-        grupoReferencia: body.grupoReferencia,
-        status: body.status,
-        observacao: body.observacao,
+        idFamilia: corpo.idFamilia,
+        cidade: corpo.cidade,
+        estado: corpo.estado,
+        grupoReferencia: corpo.grupoReferencia,
+        status: corpo.status,
+        observacao: corpo.observacao,
       },
     });
 
     return NextResponse.json(familiaAtualizada);
-  } catch (error) {
+  } catch (erro) {
     return NextResponse.json(
-      { error: "Erro ao atualizar família" },
+      { erro: "Erro ao atualizar família" },
       { status: 500 },
     );
   }

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/infra/database";
+import { prisma } from "@/infra/bancoDeDados";
 
-export async function POST(request: Request) {
+export async function POST(requisicao: Request) {
     try {
-        // 1. Recebe o JSON (payload) disparado pelo KoboToolbox
-        const dadosKobo = await request.json();
+        // 1. Recebe o JSON (dadosPayload) disparado pelo KoboToolbox
+        const dadosKobo = await requisicao.json();
 
         // 2. Extrai os dados que você precisa. 
         // OBS: O Kobo envia as perguntas com o nome que está na coluna "name" do seu XLSForm
@@ -40,10 +40,10 @@ export async function POST(request: Request) {
             { message: "Dados recebidos e salvos no Neon com sucesso!" },
             { status: 200 }
         );
-    } catch (error) {
-        console.error("Erro ao processar Webhook do Kobo:", error);
+    } catch (erro) {
+        console.error("Erro ao processar Webhook do Kobo:", erro);
         return NextResponse.json(
-            { error: "Falha ao processar os dados" },
+            { erro: "Falha ao processar os dados" },
             { status: 500 }
         );
     }

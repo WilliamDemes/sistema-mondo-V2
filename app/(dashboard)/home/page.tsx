@@ -1,9 +1,9 @@
 import Link from "next/link";
 import styles from "./Home.module.css";
 import { cookies } from "next/headers";
-import { decrypt } from "../../../utils/session";
-import { prisma } from "@/infra/database";
-import CalendarClientUI from "./CalendarClientUI";
+import { descriptografar } from "../../../utils/sessao";
+import { prisma } from "@/infra/bancoDeDados";
+import CalendarioClienteUI from "./CalendarioClienteUI";
 
 export default async function HomePage() {
   // ------ AUTENTICAÇÃO ---------
@@ -13,8 +13,8 @@ export default async function HomePage() {
   // 2. Pega o valor do crachá chamado "session"
   const token = cookieStore.get("session")?.value;
 
-  // 3. Passa o scanner (decrypt) para ler os dados
-  const sessao = token ? await decrypt(token) : null;
+  // 3. Passa o scanner (descriptografar) para ler os dados
+  const sessao = token ? await descriptografar(token) : null;
 
   // 4. Pegamos o primeiro nome
   const nomeUsuario = sessao?.firstName || "Usuário";
@@ -41,7 +41,7 @@ export default async function HomePage() {
       </section>
 
       {/* CALENDÁRIO CLIENT UI INJETADO COM DADOS FICTÍCIOS */}
-      <CalendarClientUI />
+      <CalendarioClienteUI />
       
     </div>
   );

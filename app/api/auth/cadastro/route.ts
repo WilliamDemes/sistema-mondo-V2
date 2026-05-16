@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { prisma } from "../../../../infra/database";
+import { prisma } from "../../../../infra/bancoDeDados";
 
-export async function POST(request: Request) {
+export async function POST(requisicao: Request) {
   try {
     // 1. Receber o envelope da repção (Frontend)
-    const body = await request.json();
-    const { firstName, lastName, email, password } = body;
+    const corpo = await requisicao.json();
+    const { firstName, lastName, email, password } = corpo;
 
     //2. Primeira Auditoria: Verifica se falta alguma coisa. Se algum campo estiver vazio ele reorna um objeto como erro e código do erro
     if (!firstName || !lastName || !email || !password) {
       return NextResponse.json(
-        { error: "Todos os campos são obrigatórios" },
+        { erro: "Todos os campos são obrigatórios" },
         { status: 400 }, // 400 = Bad Request (Pedido mal formulado)
       );
     }
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const emailFormatado = email.toLowerCase().trim();
     if (!emailFormatado.endsWith("@institutomondo.org.br")) {
       return NextResponse.json(
-        { error: "Acesso restrito a e-mails institucionais" },
+        { erro: "Acesso restrito a e-mails institucionais" },
         { status: 403 }, // 403 Forbidden (Proibido)
       );
     }
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
     if (usuarioExistente) {
       return NextResponse.json(
-        { error: "Este email já está registrado no sistema" },
+        { erro: "Este email já está registrado no sistema" },
         { status: 409 }, // 409 = Conflict (conflito de dados)
       );
     }
@@ -63,12 +63,13 @@ export async function POST(request: Request) {
       },
       { status: 201 }, // 201 = Created (Criado com sucesso)
     );
-  } catch (error) {
-    console.error("Erro ao criar usuário", error);
+  } catch (erro) {
+    console.error("Erro ao criar usuário", erro);
     // 500 = Internal Server Error (Erro do lado do servidor, o servidor está com problema)
     return NextResponse.json(
-      { error: "Ocorreu um erro interno no servidor." },
+      { erro: "Ocorreu um erro interno no servidor." },
       { status: 500 },
     );
   }
 }
+

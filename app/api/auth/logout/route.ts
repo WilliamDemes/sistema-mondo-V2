@@ -14,9 +14,9 @@ export async function POST() {
       { message: "Logout efetuado com sucesso" },
       { status: 200 },
     );
-  } catch (error) {
+  } catch (erro) {
     return NextResponse.json(
-      { error: "Erro ao fazer logout." },
+      { erro: "Erro ao fazer logout." },
       { status: 500 },
     );
   }

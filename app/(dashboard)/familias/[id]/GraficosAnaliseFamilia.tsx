@@ -13,7 +13,7 @@ import {
   Legend,
 } from "recharts";
 import { line, curveLinearClosed } from "d3-shape";
-import styles from "./FamilyAnalyticsCharts.module.css";
+import styles from "./GraficosAnaliseFamilia.module.css";
 
 // --- Tipagem dos Dados da API ---
 interface LinhaIndicador {
@@ -91,7 +91,7 @@ const FormaRadarCustomizada = (props: any) => {
   );
 };
 
-export function FamilyAnalyticsCharts({ familyId }: { familyId?: string }) {
+export function GraficosAnaliseFamilia({ familyId }: { familyId?: string }) {
   const [visaoRadar, setVisaoRadar] = useState<"INDICADORES" | "SUB_INDICADORES">("INDICADORES");
   const [rodadaSelecionada, setRodadaSelecionada] = useState<string>("");
   const [dropdownAberto, setDropdownAberto] = useState(false);

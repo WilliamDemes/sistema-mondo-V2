@@ -36,7 +36,7 @@
 
 /* ── Preview ── */
 .rp-prev { background: #FFF; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(73, 27, 2, 0.06); min-height: 400px; }
-.rp-loading { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 60px; color: #8B7355; }
+.rp-carregando { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 60px; color: #8B7355; }
 .rp-preview-content { display: flex; flex-direction: column; gap: 20px; }
 
 /* ── Family preview ── */

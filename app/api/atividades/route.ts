@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { prisma } from "@/infra/database";
+import { prisma } from "@/infra/bancoDeDados";
 
-export async function GET(request: NextRequest) {
+export async function GET(requisicao: NextRequest) {
   try {
     // 0. Pegando o termo digitado no campo de pesquisa. "busca" é o nome da etiqueta que vai pendurado na url na pesquisa
     // 0. Pegando o termo de busca
-    const termoBusca = request.nextUrl.searchParams.get("busca") || "";
+    const termoBusca = requisicao.nextUrl.searchParams.get("busca") || "";
 
     // 1. Descobrindo em qual página estamos
-    const paginaTexto = request.nextUrl.searchParams.get("pagina") || "1";
+    const paginaTexto = requisicao.nextUrl.searchParams.get("pagina") || "1";
     const paginaAtual = parseInt(paginaTexto);
 
     // 2. Descobrindo o Limite (Quantos itens por página?)
     // Se a URL não tiver a palavra "limite", ele usa o "10" como padrão.
-    const limiteTexto = request.nextUrl.searchParams.get("limite") || "10";
+    const limiteTexto = requisicao.nextUrl.searchParams.get("limite") || "10";
     const itensPorPagina = parseInt(limiteTexto);
 
     // 3. AGORA calculamos o pulo (skip), porque já sabemos exatamente o tamanho da página!
@@ -75,20 +75,20 @@ export async function GET(request: NextRequest) {
       contagemAtendimentos,
       totalPaginas: Math.ceil(totalGeralEncontrado / itensPorPagina) // Cálculo automático de quantas páginas existem
     });
-  } catch (error) {
-    console.error("Erro no GET:", error);
+  } catch (erro) {
+    console.error("Erro no GET:", erro);
     return NextResponse.json(
-      { error: "Erro ao buscar atividades" },
+      { erro: "Erro ao buscar atividades" },
       { status: 500 },
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(requisicao: NextRequest) {
   try {
-    const body = await request.json();
+    const corpo = await requisicao.json();
 
-    // 2. Abrindo a "caixa" (payload) com os nomes exatos que o seu Front-end mandou
+    // 2. Abrindo a "caixa" (dadosPayload) com os nomes exatos que o seu Front-end mandou
     const {
       nomeAcao,
       descricao,
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       local,
       semestre,
       data,
-    } = body;
+    } = corpo;
 
     // 3. Validação de segurança
     if (
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       !local
     ) {
       return NextResponse.json(
-        { error: "Preencha todos os campos obrigatórios." },
+        { erro: "Preencha todos os campos obrigatórios." },
         { status: 400 },
       );
     }
@@ -137,11 +137,12 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(activity, { status: 201 });
-  } catch (error) {
-    console.error("Erro no POST:", error);
+  } catch (erro) {
+    console.error("Erro no POST:", erro);
     return NextResponse.json(
-      { error: "Erro ao criar atividade" },
+      { erro: "Erro ao criar atividade" },
       { status: 500 },
     );
   }
 }
+

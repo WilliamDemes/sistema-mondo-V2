@@ -10,7 +10,7 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
 } from "recharts";
-import styles from "./FamilyHistoryChart.module.css";
+import styles from "./GraficoHistoricoFamilia.module.css";
 
 // --- MOCK DATA: Line Chart (Evolução da Pobreza no Tempo) ---
 const mockLineTimeline = [
@@ -39,7 +39,7 @@ const CustomLineTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function FamilyHistoryChart() {
+export function GraficoHistoricoFamilia() {
   return (
     <div className={styles.chartCard}>
       <div className={styles.chartHeader}>

@@ -1,5 +1,5 @@
-import Sidebar from "@/components/layout/Sidebar";
-import Topbar from "@/components/layout/Topbar";
+import BarraLateral from "@/components/layout/BarraLateral";
+import BarraSuperior from "@/components/layout/BarraSuperior";
 import styles from "./Layout.module.css";
 
 export default function DashboardLayout({
@@ -9,9 +9,9 @@ export default function DashboardLayout({
 }) {
   return (
     <div className={styles["dashboard-layout"]}>
-      <Sidebar />
+      <BarraLateral />
       <div className={styles["dashboard-main"]}>
-        <Topbar />
+        <BarraSuperior />
         <main className={styles["dashboard-content"]}>
           {children}
         </main>

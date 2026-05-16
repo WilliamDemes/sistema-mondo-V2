@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "../../../infra/database";
+import { prisma } from "../../../infra/bancoDeDados";
 
 export async function GET() {
   try {
@@ -118,10 +118,11 @@ export async function GET() {
       topFamilias2,
       territorios,
     });
-  } catch (error) {
+  } catch (erro) {
     return NextResponse.json(
-      { error: "Erro ao buscar dado do dashboard" },
+      { erro: "Erro ao buscar dado do dashboard" },
       { status: 500 },
     );
   }
 }
+

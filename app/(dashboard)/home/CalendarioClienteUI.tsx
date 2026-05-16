@@ -4,24 +4,24 @@ import { useState, useEffect } from "react";
 import { Activity, ArrowRight, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
 import Link from "next/link";
 import styles from "./Home.module.css";
-import { ALL_FAKE_DATA, type DashboardItem } from "./fakeData";
+import { ALL_FAKE_DATA, type DashboardItem } from "./dadosFalsos";
 import { title } from "process";
 
 
-export default function CalendarClientUI() {
+export default function CalendarioClienteUI() {
 
   // ------  DADOS DO BANCO DE DADOS -----
   // 1. O Estado: começa como uma lista vazi, preparada para receber as ações
-  const [atividades, setAtividades] = useState<any[]>([])   // avisa o sistema que vamos guardar uma lista de coisas variadas ali dentro
+  const [atividades, setActivitys] = useState<any[]>([])   // avisa o sistema que vamos guardar uma lista de coisas variadas ali dentro
 
   // 2. O Efeito: o "entregador" que vai buscar os dados quando a página abre
   useEffect(() => {
-    async function buscarAtividades() {
+    async function buscarActivitys() {
       try {
         const resposta = await fetch("/api/home")   // O nosso caminho absoluto!
         if (resposta.ok) {
           const dados = await resposta.json();
-          setAtividades(dados);   // Guardamos a caixa de dados no nosso estado
+          setActivitys(dados);   // Guardamos a caixa de dados no nosso estado
 
           // 1. Criamos o nosso mapa de eventos reais
           const eventosReais: Record<string, any[]> = {};
@@ -49,7 +49,7 @@ export default function CalendarClientUI() {
       }
     }
 
-    buscarAtividades();
+    buscarActivitys();
   }, []); // Este array vazio é crucial: garante que só pose dados uma vez!
 
   // ----------- FIM DOS DADOS DO BANCO DE DADOS --------------

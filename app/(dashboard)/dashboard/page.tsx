@@ -15,17 +15,17 @@ import {
   ChevronDown, ChevronUp, Printer, CheckSquare, Square
 } from "lucide-react";
 import styles from "./Dashboard.module.css";
-import { ALL_FAKE_DATA, type DashboardItem } from "../home/fakeData";
-import ChartsClientUI from "./ChartsClientUI";
+import { ALL_FAKE_DATA, type DashboardItem } from "../home/dadosFalsos";
+import GraficosClienteUI from "./GraficosClienteUI";
 
-interface MonthlyData { month: string; count: number; }
-interface TopFamily { id: string; name: string; territory: string; status: string; count: number; members: number; }
-interface RecentActivity { id: string; title: string; type: string; format: string; date: string; description: string | null; participationCount: number; }
-interface TerritoryData { name: string; families: number; active: number; }
-interface DashboardStats {
+interface DadosMensais { month: string; count: number; }
+interface TopFamilia { id: string; name: string; territory: string; status: string; count: number; members: number; }
+interface AtividadeRecente { id: string; title: string; type: string; format: string; date: string; description: string | null; participationCount: number; }
+interface DadosTerritorio { name: string; families: number; active: number; }
+interface EstatisticasDashboard {
   familiasAtivas: number; totalFamilias: number; moradoresAtivos: number; atendimentos: number;
-  atividades: number; totalParticipacoes: number; participacaoMensal: MonthlyData[];
-  topFamilias2: TopFamily[]; atividadesRecentes: RecentActivity[]; territorios: TerritoryData[];
+  atividades: number; totalParticipacoes: number; participacaoMensal: DadosMensais[];
+  topFamilias2: TopFamilia[]; atividadesRecentes: AtividadeRecente[]; territorios: DadosTerritorio[];
 }
 
 const CARDS_CONFIG = [
@@ -78,26 +78,26 @@ function MultiSelectDropdown({ label, options, selected, onChange }: { label: st
 }
 
 export default function DashboardPage() {
-  const [baseStats, setBaseStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [estatisticasBase, setEstatisticasBase] = useState<EstatisticasDashboard | null>(null);
+  const [carregando, setCarregando] = useState(true);
 
   // Filtros em forma de array
-  const [selectedYears, setSelectedYears] = useState<string[]>([]);
-  const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
+  const [anosSelecionados, setAnosSelecionados] = useState<string[]>([]);
+  const [mesesSelecionados, setMesesSelecionados] = useState<string[]>([]);
   
-  const [showAllCards, setShowAllCards] = useState(false);
+  const [mostrarTodosCartoes, setMostrarTodosCartoes] = useState(false);
   // Array para múltiplas listas suspensas (Accordions) abertas
-  const [expandedCards, setExpandedCards] = useState<string[]>([]);
+  const [cartoesExpandidos, setCartoesExpandidos] = useState<string[]>([]);
 
   useEffect(() => {
     (async () => {
       try {
         const res = await fetch("/api/dashboard");
-        if (res.ok) setBaseStats(await res.json());
+        if (res.ok) setEstatisticasBase(await res.json());
       } catch {
         /* ignore */
       } finally {
-        setLoading(false);
+        setCarregando(false);
       }
     })();
   }, []);
@@ -105,33 +105,33 @@ export default function DashboardPage() {
   const filteredData = useMemo(() => {
     return ALL_FAKE_DATA.filter((item) => {
       const [y, m] = item.date.split("-");
-      const yearMatches = selectedYears.length === 0 || selectedYears.includes(y);
-      const monthMatches = selectedMonths.length === 0 || selectedMonths.includes(parseInt(m, 10).toString());
+      const yearMatches = anosSelecionados.length === 0 || anosSelecionados.includes(y);
+      const monthMatches = mesesSelecionados.length === 0 || mesesSelecionados.includes(parseInt(m, 10).toString());
       return yearMatches && monthMatches;
     });
-  }, [selectedYears, selectedMonths]);
+  }, [anosSelecionados, mesesSelecionados]);
 
   const stats = useMemo(() => {
-    if (!baseStats) return null;
-    const factorM = selectedMonths.length > 0 ? (selectedMonths.length / 12) : 1;
-    const factorY = selectedYears.length > 0 ? (selectedYears.length / 4) : 1;
+    if (!estatisticasBase) return null;
+    const factorM = mesesSelecionados.length > 0 ? (mesesSelecionados.length / 12) : 1;
+    const factorY = anosSelecionados.length > 0 ? (anosSelecionados.length / 4) : 1;
     const globalFactor = factorM * factorY;
 
     return {
-      ...baseStats,
-      familiasAtivas: Math.max(1, Math.floor(baseStats.familiasAtivas * globalFactor)),
-      totalFamilias: Math.max(1, Math.floor(baseStats.totalFamilias * globalFactor)),
-      moradoresAtivos: Math.max(1, Math.floor(baseStats.moradoresAtivos * globalFactor)),
-      atendimentos: Math.max(1, Math.floor(baseStats.atendimentos * globalFactor)),
-      atividades: Math.max(1, Math.floor(baseStats.atividades * globalFactor)),
-      totalParticipacoes: Math.max(1, Math.floor(baseStats.totalParticipacoes * globalFactor)),
-      participacaoMensal: baseStats.participacaoMensal.filter((m, i) => {
-        if (selectedMonths.length === 0) return true;
-        return selectedMonths.includes((i + 1).toString());
+      ...estatisticasBase,
+      familiasAtivas: Math.max(1, Math.floor(estatisticasBase.familiasAtivas * globalFactor)),
+      totalFamilias: Math.max(1, Math.floor(estatisticasBase.totalFamilias * globalFactor)),
+      moradoresAtivos: Math.max(1, Math.floor(estatisticasBase.moradoresAtivos * globalFactor)),
+      atendimentos: Math.max(1, Math.floor(estatisticasBase.atendimentos * globalFactor)),
+      atividades: Math.max(1, Math.floor(estatisticasBase.atividades * globalFactor)),
+      totalParticipacoes: Math.max(1, Math.floor(estatisticasBase.totalParticipacoes * globalFactor)),
+      participacaoMensal: estatisticasBase.participacaoMensal.filter((m, i) => {
+        if (mesesSelecionados.length === 0) return true;
+        return mesesSelecionados.includes((i + 1).toString());
       }).map(m => ({ ...m, count: Math.max(0, Math.floor(m.count * factorY)) })),
-      topFamilias2: baseStats.topFamilias2.map(f => ({ ...f, count: Math.max(1, Math.floor(f.count * globalFactor)) })),
+      topFamilias2: estatisticasBase.topFamilias2.map(f => ({ ...f, count: Math.max(1, Math.floor(f.count * globalFactor)) })),
     };
-  }, [baseStats, selectedMonths, selectedYears]);
+  }, [estatisticasBase, mesesSelecionados, anosSelecionados]);
 
   const handleExportPDF = (categoryLabel: string, items: DashboardItem[]) => {
     const printWindow = window.open("", "_blank");
@@ -171,8 +171,8 @@ export default function DashboardPage() {
             <span class="logo">instituto mondó</span>
             <h1>Relatório de ${categoryLabel}</h1>
             <div class="sub">
-              ${selectedYears.length > 0 ? "Anos: " + selectedYears.join(", ") : "Todos os Anos"} |
-              ${selectedMonths.length > 0 ? "Meses: " + selectedMonths.join(", ") : "Todos os Meses"}
+              ${anosSelecionados.length > 0 ? "Anos: " + anosSelecionados.join(", ") : "Todos os Anos"} |
+              ${mesesSelecionados.length > 0 ? "Meses: " + mesesSelecionados.join(", ") : "Todos os Meses"}
             </div>
           </div>
           <div class="date">Gerado em ${new Date().toLocaleDateString("pt-BR")}</div>
@@ -198,9 +198,9 @@ export default function DashboardPage() {
     setTimeout(() => printWindow.print(), 500);
   };
 
-  const toggleAccordion = (label: string) => setExpandedCards(prev => prev.includes(label) ? prev.filter(x => x !== label) : [...prev, label]);
+  const toggleAccordion = (label: string) => setCartoesExpandidos(prev => prev.includes(label) ? prev.filter(x => x !== label) : [...prev, label]);
 
-  if (loading) return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 80, flexDirection: "column", gap: 12 }}><Loader2 size={32} /></div>;
+  if (carregando) return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 80, flexDirection: "column", gap: 12 }}><Loader2 size={32} /></div>;
   if (!stats) return <div style={{ padding: 40, textAlign: "center", color: "#8B7355" }}>Erro ao carregar dados.</div>;
 
   return (
@@ -217,12 +217,12 @@ export default function DashboardPage() {
           <MultiSelectDropdown 
             label="Filtrar Ano" 
             options={[ {val:"2026", label:"2026"}, {val:"2025", label:"2025"}, {val:"2024", label:"2024"}, {val:"2023", label:"2023"} ]}
-            selected={selectedYears} onChange={setSelectedYears} 
+            selected={anosSelecionados} onChange={setAnosSelecionados} 
           />
           <MultiSelectDropdown 
             label="Filtrar Mês" 
             options={[ {val:"1", label:"Jan"}, {val:"2", label:"Fev"}, {val:"3", label:"Mar"}, {val:"4", label:"Abr"}, {val:"5", label:"Mai"}, {val:"6", label:"Jun"}, {val:"7", label:"Jul"}, {val:"8", label:"Ago"}, {val:"9", label:"Set"}, {val:"10", label:"Out"}, {val:"11", label:"Nov"}, {val:"12", label:"Dez"} ]}
-            selected={selectedMonths} onChange={setSelectedMonths} 
+            selected={mesesSelecionados} onChange={setMesesSelecionados} 
           />
         </div>
       </div>
@@ -234,18 +234,18 @@ export default function DashboardPage() {
             <Activity size={18} color="#059669" />
             Resumo Geral
           </h2>
-          <button className={styles["fc-toggle"]} onClick={() => setShowAllCards(!showAllCards)}>
-            {showAllCards ? "Ver Menos" : "Expandir Quadros Extras"}
-            {showAllCards ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+          <button className={styles["fc-toggle"]} onClick={() => setMostrarTodosCartoes(!mostrarTodosCartoes)}>
+            {mostrarTodosCartoes ? "Ver Menos" : "Expandir Quadros Extras"}
+            {mostrarTodosCartoes ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
           </button>
         </div>
 
         <div className={styles["fc-grid"]}>
-          {CARDS_CONFIG.slice(0, showAllCards ? CARDS_CONFIG.length : 5).map((c) => {
+          {CARDS_CONFIG.slice(0, mostrarTodosCartoes ? CARDS_CONFIG.length : 5).map((c) => {
             const Icon = c.icon;
             const items = filteredData.filter(d => d.category === c.label);
             const top = items.slice(0, 10);
-            const isExp = expandedCards.includes(c.label);
+            const isExp = cartoesExpandidos.includes(c.label);
 
             let derivedLength = items.length;
             if (c.label === "Participações") derivedLength = stats.totalParticipacoes;
@@ -287,7 +287,7 @@ export default function DashboardPage() {
       </div>
 
       {/* 2. Gráficos Institucionais Recharts (AGORA ABAIXO DOS CARDS) */}
-      <ChartsClientUI stats={stats} filteredFakeData={filteredData} />
+      <GraficosClienteUI stats={stats} filteredFakeData={filteredData} />
 
     </div>
   );

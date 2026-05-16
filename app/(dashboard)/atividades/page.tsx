@@ -19,7 +19,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import styles from "./Atividades.module.css";
-import { ActivityFloatingForms } from "./ActivityFloatingForms";
+import { FormulariosFlutuantesAtividades } from "./FormulariosFlutuantesAtividades";
 
 // Opções da interface
 type TipoAtividade = "ATENDIMENTO" | "ATIVIDADE";
@@ -32,7 +32,7 @@ type Dimensao =
   | "NUTRICAO";
 type Projeto = "REDEMAIS" | "PROA";
 
-interface Activity {
+interface Atividade {
   id: string;
   nomeAcao: string;
   descricao: string | null;
@@ -64,17 +64,17 @@ function formatDate(dateStr: string): string {
 
 export default function AtividadesPage() {
   // Memória da página de atividades
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activities, setActivities] = useState<Atividade[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"TODOS" | TipoAtividade>("TODOS");
   const [filterFormat, setFilterFormat] = useState<"TODOS" | FormatoAtividade>("TODOS");
   const [showModal, setShowModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<Atividade | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+  const [editingActivity, setEditingActivity] = useState<Atividade | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
   // novas memórias de paginação e totais
@@ -175,7 +175,7 @@ export default function AtividadesPage() {
   }
 
   // ─── Open edit modal ───
-  function handleOpenEdit(activity: Activity) {
+  function handleOpenEdit(activity: Atividade) {
     setEditingActivity(activity);
     setFormNomeAcao(activity.nomeAcao);
     setFormDescricao(activity.descricao || "");
@@ -217,7 +217,7 @@ export default function AtividadesPage() {
 
         if (!res.ok) throw new Error("Erro ao atualizar atividade");
 
-        const updated: Activity = await res.json();
+        const updated: Atividade = await res.json();
         setActivities((prev) =>
           prev
             .map((a) => (a.id === updated.id ? updated : a))
@@ -239,7 +239,7 @@ export default function AtividadesPage() {
           throw new Error(err.error || "Erro ao criar atividade");
         }
 
-        const created: Activity = await res.json();
+        const created: Atividade = await res.json();
         setActivities((prev) =>
           [...prev, created].sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
@@ -282,7 +282,7 @@ export default function AtividadesPage() {
   }
 
   // ─── View detail ───
-  function handleViewDetail(activity: Activity) {
+  function handleViewDetail(activity: Atividade) {
     setSelectedActivity(activity);
     setShowDetailModal(true);
   }
@@ -432,13 +432,13 @@ export default function AtividadesPage() {
 
       {/* Loading State */}
       {isLoading && (
-        <div className={styles["atividades-loading"]}>
+        <div className={styles["atividades-carregando"]}>
           <Loader2 size={32} className="spinner" />
           <p>Carregando atividades...</p>
         </div>
       )}
 
-      {/* Activity List */}
+      {/* Atividade List */}
       {!isLoading && (
         <div className={styles["atividades-list"]} id="atividades-list">
           {filteredActivities.map((activity) => {
@@ -801,7 +801,7 @@ export default function AtividadesPage() {
                   id="btn-submit-atividade"
                 >
                   {isSubmitting ? (
-                    <span className={styles["btn-loading"]}>
+                    <span className={styles["btn-carregando"]}>
                       <Loader2 size={16} className="spinner" />
                       {editingActivity ? "Salvando..." : "Cadastrando..."}
                     </span>
@@ -934,7 +934,7 @@ export default function AtividadesPage() {
       )}
 
       {/* COMPONENTES ASSÍNCRONOS: Botão Flutuante e Formulários Específicos */}
-      <ActivityFloatingForms />
+      <FormulariosFlutuantesAtividades />
     </div>
   );
 }

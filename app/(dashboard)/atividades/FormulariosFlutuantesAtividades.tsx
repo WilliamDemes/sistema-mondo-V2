@@ -15,7 +15,7 @@ import {
   HeartHandshake,
   CheckCircle2
 } from "lucide-react";
-import styles from "./ActivityFloatingForms.module.css";
+import styles from "./FormulariosFlutuantesAtividades.module.css";
 
 const ACTIVITY_TYPES = [
   { id: "PREMIACAO", name: "Premiação", icon: Trophy, desc: "Celebração e entrega de prêmios" },
@@ -31,7 +31,7 @@ const ACTIVITY_TYPES = [
 
 type ActivityId = typeof ACTIVITY_TYPES[number]["id"];
 
-export function ActivityFloatingForms() {
+export function FormulariosFlutuantesAtividades() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<ActivityId | null>(null);
   const [showToast, setShowToast] = useState(false);

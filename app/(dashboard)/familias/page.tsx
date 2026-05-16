@@ -16,7 +16,7 @@ import {
 import styles from "./Familias.module.css";
 
 // Interface de acordo com o prisma
-interface Family {
+interface Familia {
   id_sistema: string;
   idFamilia: string;
   cidade: string;
@@ -46,8 +46,8 @@ interface Toast {
 }
 
 export default function FamiliasPage() {
-  const [families, setFamilies] = useState<Family[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [families, setFamilies] = useState<Familia[]>([]);
+  const [carregando, setCarregando] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("TODOS");
   const [engajamentoFilter, setEngajamentoFilter] = useState("TODOS");
@@ -71,7 +71,7 @@ export default function FamiliasPage() {
     try {
       const res = await fetch("/api/familias");
       if (!res.ok) throw new Error();
-      const rawFamilies: Family[] = await res.json();
+      const rawFamilies: Familia[] = await res.json();
 
       // Injeção de dados simulados (Engajamento, Autonomia, Foto)
       const fotosMock = [
@@ -96,7 +96,7 @@ export default function FamiliasPage() {
     } catch {
       addToast("error", "Erro ao carregar famílias.");
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
   }, [addToast]);
 
@@ -310,8 +310,8 @@ export default function FamiliasPage() {
         </div>
       </div>
 
-      {loading ? (
-        <div className={styles["fp-loading"]}>
+      {carregando ? (
+        <div className={styles["fp-carregando"]}>
           <Loader2 size={32} className="spinner" />
           <p>Carregando famílias...</p>
           <style>{`:global(.spinner){animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -372,7 +372,7 @@ export default function FamiliasPage() {
               </div>
             </Link>
           ))}
-          {filtered.length === 0 && !loading && (
+          {filtered.length === 0 && !carregando && (
             <div className={styles["fp-empty"]}>
               <Users size={40} />
               <p>Nenhuma família encontrada.</p>

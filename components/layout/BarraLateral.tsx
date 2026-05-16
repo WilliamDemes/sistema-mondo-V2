@@ -11,9 +11,9 @@ import {
   LogOut,
   Heart,
 } from "lucide-react";
-import styles from "./Sidebar.module.css";
+import styles from "./BarraLateral.module.css";
 
-const navItems = [
+const itensMenu = [
   { href: "/home", label: "Início", icon: Home },
   { href: "/familias", label: "Famílias", icon: Users },
   { href: "/atividades", label: "Atividades", icon: CalendarDays },
@@ -21,7 +21,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
 ];
 
-export default function Sidebar() {
+export default function BarraLateral() {
   const pathname = usePathname();
   const router = useRouter(); // Inicialkizando o router
 
@@ -56,8 +56,8 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className={styles["sidebar-nav"]}>
-        {navItems.map((item) => {
-          const isActive =
+        {itensMenu.map((item) => {
+          const ativo =
             item.href === "/"
               ? pathname === "/"
               : pathname.startsWith(item.href);
@@ -68,9 +68,9 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               id={`nav-${item.label.toLowerCase()}`}
-              className={`${styles["sidebar-nav-item"]} ${isActive ? styles["sidebar-nav-item-active"] : ""}`}
+              className={`${styles["sidebar-nav-item"]} ${ativo ? styles["sidebar-nav-item-active"] : ""}`}
             >
-              <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+              <Icon size={20} strokeWidth={ativo ? 2.5 : 2} />
               <span>{item.label}</span>
             </Link>
           );
@@ -86,7 +86,7 @@ export default function Sidebar() {
           id="btn-logout"
         >
           <LogOut size={20} strokeWidth={2} />
-          <span>Logout</span>
+          <span>Sair</span>
         </a>
 
         {/* Branding */}

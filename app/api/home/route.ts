@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/infra/database";
+import { prisma } from "@/infra/bancoDeDados";
 
 export async function GET() {
     try {
@@ -16,10 +16,10 @@ export async function GET() {
         console.log(acoes)
         return NextResponse.json(acoes)
 
-    } catch (error) {
-        console.error("Erro no calendário da Home: ", error);
+    } catch (erro) {
+        console.error("Erro no calendário da Home: ", erro);
         return NextResponse.json(
-            { error: "Erro ao buscar atividades" },
+            { erro: "Erro ao buscar atividades" },
             { status: 500 },
         )
     }

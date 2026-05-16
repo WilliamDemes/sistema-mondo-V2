@@ -33,13 +33,13 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import styles from "./FamiliaDetail.module.css";
-import { FamilyAnalyticsCharts } from "./FamilyAnalyticsCharts";
-import { FamilyHistoryChart } from "./FamilyHistoryChart";
+import { GraficosAnaliseFamilia } from "./GraficosAnaliseFamilia";
+import { GraficoHistoricoFamilia } from "./GraficoHistoricoFamilia";
 import { StatusCiclos } from "./StatusCiclos";
 import dynamic from "next/dynamic";
 import { Enderecos } from "@prisma/client";
 
-const FamilyLocationMap = dynamic(() => import("./FamilyLocationMap"), {
+const MapaLocalizacaoFamilia = dynamic(() => import("./MapaLocalizacaoFamilia"), {
   ssr: false,
   loading: () => (
     <div
@@ -60,9 +60,9 @@ const FamilyLocationMap = dynamic(() => import("./FamilyLocationMap"), {
   ),
 });
 
-type FamilyStatus = "ATIVA" | "INATIVA";
-type BeneficiaryRole = "PAI" | "MAE" | "FILHO" | "FILHA" | "AVO" | "OUTRO";
-interface Activity {
+type StatusFamilia = "ATIVA" | "INATIVA";
+type PapelBeneficiario = "PAI" | "MAE" | "FILHO" | "FILHA" | "AVO" | "OUTRO";
+interface Atividade {
   idAcao: string;
   nomeAcao: string;
   descricao: string | null;
@@ -77,9 +77,9 @@ interface Participacoes {
   idAcao: string;
   contagemParticipantes: number;
   observacoes: string | null;
-  acoes: Activity;
+  acoes: Atividade;
 }
-interface Beneficiary {
+interface Beneficiario {
   id: string;
   familyId: string;
   nome: string;
@@ -94,10 +94,10 @@ interface FamilyDetail {
   cidade: string;
   estado: string;
   grupoReferencia: string;
-  status: FamilyStatus;
+  status: StatusFamilia;
   observacao: string | null;
   criadoEm: string;
-  beneficiarios: Beneficiary[];
+  beneficiarios: Beneficiario[];
   participacoes: Participacoes[];
   enderecos: Enderecos[];
 
@@ -207,8 +207,8 @@ function fmtDate(d: string) {
 export default function FamilyHistoryPage() {
   const { id } = useParams<{ id: string }>();
   const [family, setFamily] = useState<FamilyDetail | null>(null);
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [activities, setActivities] = useState<Atividade[]>([]);
+  const [carregando, setCarregando] = useState(true);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   //Controle de Modais
@@ -229,7 +229,7 @@ export default function FamilyHistoryPage() {
   const [eEstado, setEEstado] = useState("");
   const [eGrupo, setEGrupo] = useState("");
   const [eObs, setEObs] = useState("");
-  const [eStatus, setEStatus] = useState<FamilyStatus>("ATIVA");
+  const [eStatus, setEStatus] = useState<StatusFamilia>("ATIVA");
 
   // Action form
   const [aacaoId, setAacaoId] = useState("");
@@ -239,7 +239,7 @@ export default function FamilyHistoryPage() {
   // Member form
   const [mNome, setMNome] = useState("");
   const [mIdade, setMIdade] = useState("");
-  const [mParentesco, setMParentesco] = useState<BeneficiaryRole>("FILHO");
+  const [mParentesco, setMParentesco] = useState<PapelBeneficiario>("FILHO");
   const [mSexo, setMSexo] = useState("Masculino");
   const [mResponsavel, setMResponsavel] = useState("Não");
 
@@ -274,7 +274,7 @@ export default function FamilyHistoryPage() {
     } catch {
       addToast("error", "Erro ao carregar família.");
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
   }, [id, addToast]);
 
@@ -400,7 +400,7 @@ export default function FamilyHistoryPage() {
     }
   }
 
-  if (loading)
+  if (carregando)
     return (
       <div
         style={{
@@ -649,11 +649,11 @@ export default function FamilyHistoryPage() {
 
             <div className={styles.carouselContent} key={activeCarouselTab}>
               {activeCarouselTab === "RADAR" && (
-                <FamilyAnalyticsCharts familyId={id} />
+                <GraficosAnaliseFamilia familyId={id} />
               )}
-              {activeCarouselTab === "LINHA" && <FamilyHistoryChart />}
+              {activeCarouselTab === "LINHA" && <GraficoHistoricoFamilia />}
               {activeCarouselTab === "MAPA" && (
-                <FamilyLocationMap
+                <MapaLocalizacaoFamilia
                   lat={-1.45502}
                   lng={-48.49018}
                   familyName={sobrenomeFamilia || "Não listado"}
@@ -809,7 +809,7 @@ export default function FamilyHistoryPage() {
         </div>
       </div>
 
-      {/* Edit Family Modal */}
+      {/* Edit Familia Modal */}
       {showEditModal && (
         <div
           className={styles.mov}
@@ -876,7 +876,7 @@ export default function FamilyHistoryPage() {
                 <label className={styles.fl}>Status</label>
                 <select
                   value={eStatus}
-                  onChange={(e) => setEStatus(e.target.value as FamilyStatus)}
+                  onChange={(e) => setEStatus(e.target.value as StatusFamilia)}
                   className={styles.fin}
                   disabled={isSubmitting}
                 >
@@ -1079,7 +1079,7 @@ export default function FamilyHistoryPage() {
                   <select
                     value={mParentesco}
                     onChange={(e) =>
-                      setMParentesco(e.target.value as BeneficiaryRole)
+                      setMParentesco(e.target.value as PapelBeneficiario)
                     }
                     className={styles.fin}
                     disabled={isSubmitting}
